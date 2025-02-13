@@ -203,18 +203,29 @@ jobs:
           overwrite: true
 
   build-sdk-swift:
-    runs-on: macOS
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios,aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "21.12"
+
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.0.1"
+
       - name: Build swift sdk
         run: |
           cd sdk/bindings/swift
-          which cargo
-          which sccache
           make compile_swift_main
           make xcframework
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
