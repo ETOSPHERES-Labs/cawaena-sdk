@@ -557,7 +557,7 @@ impl WalletManager for WalletManagerImpl {
         }
 
         let bo = match currency {
-            Currency::Iota | Currency::Smr => {
+            Currency::Iota => {
                 let wallet = WalletImplStardust::new(config, mnemonic, &path, currency).await?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
@@ -707,7 +707,7 @@ mod tests {
             .expect("should succeed to change wallet password");
 
         let wallet = manager
-            .try_get(&mut config, &None, &mut repo, Currency::Smr, &pin)
+            .try_get(&mut config, &None, &mut repo, Currency::Iota, &pin)
             .await
             .expect("should succeed to get wallet after password change");
 
@@ -729,7 +729,7 @@ mod tests {
 
         // get the wallet instance to make sure any files are created
         let _wallet = manager
-            .try_get(&mut config, &None, &mut repo, Currency::Smr, &pin)
+            .try_get(&mut config, &None, &mut repo, Currency::Iota, &pin)
             .await
             .expect("should succeed to get wallet");
 
@@ -949,7 +949,7 @@ mod tests {
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
             let wallet = manager
-                .try_get(&mut config, &access_token, &mut repo, Currency::Smr, &pin)
+                .try_get(&mut config, &access_token, &mut repo, Currency::Iota, &pin)
                 .await
                 .unwrap();
 

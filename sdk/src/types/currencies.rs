@@ -1,6 +1,6 @@
 use super::error::{Result, TypeError};
 use api_types::api::{generic::ApiCryptoCurrency, viviswap::detail::SwapPaymentDetailKey};
-use iota_sdk::client::constants::{ETHER_COIN_TYPE, IOTA_COIN_TYPE, SHIMMER_COIN_TYPE};
+use iota_sdk::client::constants::{ETHER_COIN_TYPE, IOTA_COIN_TYPE};
 use serde::Serialize;
 
 /// Supported currencies (mirrors `api_types` but needed so we can implement the additional
@@ -9,8 +9,6 @@ use serde::Serialize;
 pub enum Currency {
     /// Iota token
     Iota,
-    /// Shimmer token
-    Smr,
     /// Ethereum token
     Eth,
 }
@@ -21,7 +19,6 @@ impl TryFrom<String> for Currency {
     fn try_from(currency: String) -> Result<Self> {
         match currency.to_lowercase().as_str() {
             "iota" => Ok(Self::Iota),
-            "smr" => Ok(Self::Smr),
             "eth" => Ok(Self::Eth),
             _ => Err(TypeError::InvalidCurrency(currency)),
         }
@@ -35,7 +32,6 @@ impl Currency {
     pub fn coin_type(self) -> u32 {
         match self {
             Self::Iota => IOTA_COIN_TYPE,
-            Self::Smr => SHIMMER_COIN_TYPE,
             Self::Eth => ETHER_COIN_TYPE,
         }
     }
@@ -44,7 +40,6 @@ impl Currency {
     pub fn to_vivi_payment_method_key(self) -> SwapPaymentDetailKey {
         match self {
             Self::Iota => SwapPaymentDetailKey::Iota,
-            Self::Smr => SwapPaymentDetailKey::Smr,
             Self::Eth => SwapPaymentDetailKey::Eth,
         }
     }
@@ -55,7 +50,6 @@ impl From<Currency> for ApiCryptoCurrency {
     fn from(value: Currency) -> Self {
         match value {
             Currency::Iota => ApiCryptoCurrency::Iota,
-            Currency::Smr => ApiCryptoCurrency::Smr,
             Currency::Eth => ApiCryptoCurrency::Eth,
         }
     }
@@ -64,7 +58,6 @@ impl From<ApiCryptoCurrency> for Currency {
     fn from(value: ApiCryptoCurrency) -> Self {
         match value {
             ApiCryptoCurrency::Iota => Currency::Iota,
-            ApiCryptoCurrency::Smr => Currency::Smr,
             ApiCryptoCurrency::Eth => Currency::Eth,
         }
     }
@@ -76,7 +69,6 @@ impl std::fmt::Display for Currency {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Currency::Iota => write!(f, "Iota"),
-            Currency::Smr => write!(f, "Smr"),
             Currency::Eth => write!(f, "Eth"),
         }
     }
@@ -172,7 +164,7 @@ mod test {
     use super::CryptoAmount;
 
     #[rstest::rstest]
-    fn test_display_roundtrip(#[values(Currency::Smr, Currency::Iota, Currency::Eth)] c: Currency) {
+    fn test_display_roundtrip(#[values(Currency::Iota, Currency::Eth)] c: Currency) {
         assert_eq!(c, Currency::try_from(c.to_string()).unwrap());
     }
 

@@ -325,7 +325,7 @@ mod tests {
 
         let mock_request = CreateTransactionRequest {
             amount: AMOUNT.inner(),
-            currency: ApiCryptoCurrency::Smr,
+            currency: ApiCryptoCurrency::Iota,
             receiver: RECEIVER.into(),
             application_metadata: example_tx_metadata(),
         };
@@ -354,7 +354,7 @@ mod tests {
             &TOKEN,
             USERNAME,
             RECEIVER,
-            Currency::Smr,
+            Currency::Iota,
             AMOUNT,
             example_tx_metadata(),
         )

@@ -208,14 +208,12 @@ pub mod ffi {
 
     pub enum Currency {
         Iota,
-        Smr,
         Eth,
     }
 
     pub enum PreferredCurrency {
         None,
         Iota,
-        Smr,
         Eth,
     }
 

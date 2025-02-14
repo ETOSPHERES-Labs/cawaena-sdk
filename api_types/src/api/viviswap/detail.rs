@@ -17,7 +17,6 @@ pub struct PaymentDetail {
 pub enum SwapPaymentDetailKey {
     Sepa,
     Iota,
-    Smr,
     Eth,
 }
 

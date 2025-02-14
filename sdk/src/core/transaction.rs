@@ -186,7 +186,7 @@ impl Sdk {
 
         let amount = tx_details.amount.try_into()?;
         let tx_id = match tx_details.currency {
-            api_types::api::generic::ApiCryptoCurrency::Iota | api_types::api::generic::ApiCryptoCurrency::Smr => {
+            api_types::api::generic::ApiCryptoCurrency::Iota => {
                 wallet
                     .send_transaction(purchase_id, &tx_details.system_address, amount)
                     .await?
@@ -265,7 +265,7 @@ impl Sdk {
         let tagged_data_payload = Some(TaggedDataPayload::new(tag, data).map_err(WalletError::Block)?);
 
         match currency {
-            Currency::Iota | Currency::Smr => wallet
+            Currency::Iota => wallet
                 .send_amount(address, amount, tagged_data_payload, message)
                 .await?
                 .transaction_id
@@ -520,7 +520,7 @@ mod tests {
                     block_id: Some("0x215322f8afdba4e22463a9d8a2e25d96ab0cb9ae6d56ee5ab13065068dae46c0".to_string()),
                     username: "satoshi".into(),
                     address: main_address.clone(),
-                    currency: "SMR".to_string(),
+                    currency: "IOTA".to_string(),
                     amount: dec!(920.89),
                     exchange_rate: dec!(0.06015),
                 },
@@ -531,7 +531,7 @@ mod tests {
                     block_id: Some("0x215322f8afdba4e22463a9d8a2e25d96ab0cb9ae6d56ee5ab13065068dae46c0".to_string()),
                     username: "hulk".into(),
                     address: aux_address.clone(),
-                    currency: "SMR".to_string(),
+                    currency: "IOTA".to_string(),
                     amount: dec!(920.89),
                     exchange_rate: dec!(0.06015),
                 },
@@ -550,7 +550,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_currency(Currency::Smr);
+        sdk.set_currency(Currency::Iota);
         let mut mock_server = None;
 
         match &expected {

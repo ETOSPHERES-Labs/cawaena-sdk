@@ -518,9 +518,7 @@ impl Sdk {
         let wallet = self.try_get_active_user_wallet(pin).await?;
 
         let tx_list = match currency {
-            crate::types::currencies::Currency::Iota | crate::types::currencies::Currency::Smr => {
-                wallet.get_wallet_tx_list(start, limit).await?
-            }
+            crate::types::currencies::Currency::Iota => wallet.get_wallet_tx_list(start, limit).await?,
             crate::types::currencies::Currency::Eth => {
                 // We retrieve the transaction list from the wallet,
                 // then synchronize selected transactions (by fetching their current status from the network),
@@ -1020,7 +1018,7 @@ mod tests {
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.set_currency(crate::types::currencies::Currency::Smr);
+                sdk.set_currency(crate::types::currencies::Currency::Iota);
 
                 let mock_request = SetUserAddressRequest {
                     address: ADDRESS.into(),
@@ -1033,7 +1031,7 @@ mod tests {
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
                         .match_header("content-type", "application/json")
-                        .match_query(Matcher::Exact("currency=Smr".to_string()))
+                        .match_query(Matcher::Exact("currency=Iota".to_string()))
                         .match_body(Matcher::Exact(body))
                         .with_status(201)
                         .expect(1)
@@ -1094,7 +1092,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Smr);
+                sdk.set_currency(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 1, 0).await;
@@ -1144,7 +1142,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Smr);
+                sdk.set_currency(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 1, 0).await;
@@ -1195,7 +1193,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Smr);
+                sdk.set_currency(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 2, 0).await;
@@ -1242,7 +1240,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Smr);
+                sdk.set_currency(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 1, 0).await;

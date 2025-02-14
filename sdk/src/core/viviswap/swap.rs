@@ -786,11 +786,6 @@ mod tests {
         SwapPaymentDetailKey::Eth,
         "/api/viviswap/details?payment_method_key=ETH"
     )]
-    #[case(
-        Currency::Smr,
-        SwapPaymentDetailKey::Smr,
-        "/api/viviswap/details?payment_method_key=SMR"
-    )]
     #[tokio::test]
     async fn it_should_create_viviswap_deposit(
         #[case] currency: Currency,                       // Parametrized currency

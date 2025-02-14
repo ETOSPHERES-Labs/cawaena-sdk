@@ -237,7 +237,7 @@ impl From<sdk::types::transactions::WalletTxInfo> for ffi::WalletTxInfo {
     }
 }
 
-convert_enum!(ffi::Currency, sdk::types::currencies::Currency, Iota, Smr, Eth,);
+convert_enum!(ffi::Currency, sdk::types::currencies::Currency, Iota, Eth,);
 
 convert_enum!(
     ffi::OfficialDocumentType,
@@ -278,7 +278,6 @@ impl From<ffi::PreferredCurrency> for Option<sdk::types::currencies::Currency> {
         match value {
             ffi::PreferredCurrency::None => None,
             ffi::PreferredCurrency::Iota => Some(sdk::types::currencies::Currency::Iota),
-            ffi::PreferredCurrency::Smr => Some(sdk::types::currencies::Currency::Smr),
             ffi::PreferredCurrency::Eth => Some(sdk::types::currencies::Currency::Eth),
         }
     }
@@ -289,7 +288,6 @@ impl From<Option<sdk::types::currencies::Currency>> for ffi::PreferredCurrency {
         match value {
             None => Self::None,
             Some(sdk::types::currencies::Currency::Iota) => Self::Iota,
-            Some(sdk::types::currencies::Currency::Smr) => Self::Smr,
             Some(sdk::types::currencies::Currency::Eth) => Self::Eth,
         }
     }

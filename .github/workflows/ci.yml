@@ -108,13 +108,37 @@ jobs:
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
 
       - name: Run unit tests
-        run: cargo llvm-cov nextest --profile ci --locked --lib --workspace --no-fail-fast --all-features --cobertura --output-path cobertura.xml --exclude cryptpay-sdk-jni --exclude cryptpay-sdk-swift --exclude cryptpay-sdk-wasm --ignore-filename-regex "sdk/bindings/|api_types/|.*/error\.rs"
+        run: make unit-tests
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: ${{ github.workspace }}/target/nextest/ci/junit.xml
+
+  unit-tests-coverage:
+    runs-on: ubuntu-latest
+    env:
+      VIVISWAP_ENV: testing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "21.12"
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Install nextest
+        run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+
+      - name: Run unit tests with coverage
+        run: cargo llvm-cov nextest --profile ci --locked --lib --workspace --no-fail-fast --all-features --cobertura --output-path cobertura.xml --exclude cryptpay-sdk-jni --exclude cryptpay-sdk-swift --exclude cryptpay-sdk-wasm --ignore-filename-regex "sdk/bindings/|api_types/|.*/error\.rs"
 
       - name: Publish Coverage
         uses: 5monkeys/cobertura-action@master

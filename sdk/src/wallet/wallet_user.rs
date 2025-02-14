@@ -392,7 +392,10 @@ impl WalletUser for WalletImplStardust {
     async fn sync_wallet(&self) -> Result<()> {
         let account = self.account_manager.get_account(APP_NAME).await?;
 
-        let options = SyncOptions { ..Default::default() };
+        let options = SyncOptions {
+            force_syncing: true,
+            ..Default::default()
+        };
         account.sync(Some(options)).await?;
 
         Ok(())
@@ -510,10 +513,12 @@ mod tests {
         // Arrange
         let mnemonic = "predict wrist plug desert mobile crowd build leg swap impose breeze loyal surge brand hair bronze melody scale hello cereal car item slow bring";
 
-        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Iota).await;
 
-        let address = wallet_user.get_address().await.unwrap();
+        let address = wallet_user.get_address().await.unwrap(); // tst1qzlzd9q4aygcnuteefaekd2kvatpt3xp673sspr2hcw27zuewxpmugyavz9
         let index = String::from("TestMessageFromStandalone");
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
         let amount = CryptoAmount::try_from(dec!(10.0)).unwrap();
         // Act
         let transaction = prepare_and_send_transaction(&wallet_user, &index, &address, amount).await;
@@ -534,7 +539,6 @@ mod tests {
     }
 
     #[rstest]
-    #[case(Currency::Smr, "rms")]
     #[case(Currency::Iota, "tst")]
     #[tokio::test]
     async fn test_get_address(#[case] currency: Currency, #[case] expected_prefix: &str) {
@@ -553,7 +557,6 @@ mod tests {
     }
 
     #[rstest]
-    #[case(Currency::Smr)]
     #[case(Currency::Iota)]
     #[tokio::test]
     async fn test_get_balance(#[case] currency: Currency) {
@@ -571,10 +574,12 @@ mod tests {
     async fn test_send_tx_more_than_balance() {
         // Arrange
         let mnemonic = "champion legend palm hollow describe timber coast lonely future holiday head torch race orange ranch gun broccoli average margin glue age awake nurse erase";
-        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Iota).await;
         let address = wallet_user.get_address().await.unwrap();
         let index = String::from("TestMessageFromStandalone");
-        let amount = wallet_user.get_balance().await.unwrap() + CryptoAmount::try_from(dec!(10.0)).unwrap();
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
+        let amount = balance + CryptoAmount::try_from(dec!(10.0)).unwrap();
 
         // Act
         let transaction = wallet_user.send_transaction(&index, &address, amount).await;
@@ -588,11 +593,13 @@ mod tests {
     async fn test_send_tx_less_than_balance() {
         // Arrange
         let mnemonic = "arch sentence dwarf label unlock grace left orient practice oval sport rubber airport carbon moral can scan clinic false hen fancy repeat hip green";
-        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Iota).await;
 
-        let address = wallet_user.get_address().await.unwrap();
+        let address = wallet_user.get_address().await.unwrap(); // st1qz46hgjrtjkgxvmqn6q42l832w3mjerdjxfv756hc4fnrlfeh9g07ge7m2w
         let index = String::from("TestMessageFromStandalone");
-        let amount = CryptoAmount::try_from(wallet_user.get_balance().await.unwrap().inner() - dec!(1.0)).unwrap();
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
+        let amount = CryptoAmount::try_from(balance.inner() - dec!(1.0)).unwrap();
 
         // Act
         let transaction = wallet_user.send_transaction(&index, &address, amount).await;
@@ -606,12 +613,15 @@ mod tests {
     async fn test_serial_get_wallet_tx_list() {
         // Arrange
         let mnemonic = "west neutral cannon wreck notice disorder message three phrase accident office flavor merit kiss claim finish finger forum mesh mouse torch cradle inside glue";
-        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Iota).await;
 
-        let address = wallet_user.get_address().await.unwrap();
+        let address = wallet_user.get_address().await.unwrap(); // tst1qpaha27ytq8ay3ahqlfl6rn5xndnwxwahunf20h59cadpt9q2gx0crqekxk
+
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
+        let amount = CryptoAmount::try_from(balance.inner() - dec!(1.0)).unwrap();
+
         let index = String::from("TestMessageFromStandalone");
-        let amount = CryptoAmount::try_from(wallet_user.get_balance().await.unwrap().inner() - dec!(1.0)).unwrap();
-
         let transaction = prepare_and_send_transaction(&wallet_user, &index, &address, amount)
             .await
             .unwrap();
@@ -635,12 +645,14 @@ mod tests {
     async fn test_serial_get_wallet_tx_success() {
         // Arrange
         let mnemonic = "century jazz giant zebra pledge head school supreme aim certain moment mechanic curtain chronic duck addict despair pistol romance risk impulse upgrade rubber grid";
-        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(mnemonic, Currency::Iota).await;
 
-        let address = wallet_user.get_address().await.unwrap();
+        let address = wallet_user.get_address().await.unwrap(); //tst1qq68c239vacsq3gnksqss5glh9e3w0wc9mra9d6cs39e8hs3xrmgjscdpac
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
+        let amount = CryptoAmount::try_from(balance.inner() - dec!(1.0)).unwrap();
+
         let index = String::from("TestMessageFromStandalone");
-        let amount = CryptoAmount::try_from(wallet_user.get_balance().await.unwrap().inner() - dec!(1.0)).unwrap();
-
         let transaction = prepare_and_send_transaction(&wallet_user, &index, &address, amount)
             .await
             .unwrap();
@@ -657,7 +669,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_wallet_tx_error_nonexistent_transaction() {
         // Arrange
-        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Iota).await;
 
         let transaction_id = "nonexistent_transaction_id";
 
@@ -672,10 +684,13 @@ mod tests {
     #[tokio::test]
     async fn it_should_send_amount_with_tag_and_message() {
         // Arrange
-        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Iota).await;
 
         let address = wallet_user.get_address().await.unwrap();
-        let amount = CryptoAmount::try_from(wallet_user.get_balance().await.unwrap().inner() - dec!(1.0)).unwrap();
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
+
+        let amount = CryptoAmount::try_from(balance.inner() - dec!(1.0)).unwrap();
         let tag: Box<[u8]> = "test tag".to_string().into_bytes().into_boxed_slice();
         let data: Box<[u8]> = (amount.inner() * dec!(1_000_000))
             .round()
@@ -708,10 +723,12 @@ mod tests {
     #[tokio::test]
     async fn it_should_send_amount_without_tag_and_message() {
         // Arrange
-        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Iota).await;
 
         let address = wallet_user.get_address().await.unwrap();
-        let amount = CryptoAmount::try_from(wallet_user.get_balance().await.unwrap().inner() - dec!(1.0)).unwrap();
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
+        let amount = CryptoAmount::try_from(balance.inner() - dec!(1.0)).unwrap();
 
         // Act
         let result = wallet_user.send_amount(&address, amount, None, None).await;
@@ -726,20 +743,25 @@ mod tests {
     #[tokio::test]
     async fn it_should_not_send_amount_more_then_balance() {
         // Arrange
-        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Smr).await;
+        let (wallet_user, _cleanup) = get_wallet_user(MNEMONIC, Currency::Iota).await;
 
         let address = wallet_user.get_address().await.unwrap();
+        let balance = wallet_user.get_balance().await.unwrap();
+        println!("Address: {address}, balance: {balance:?}");
         let amount = CryptoAmount::try_from(dec!(96854.0)).unwrap();
 
         // Act
         let transaction = wallet_user.send_amount(&address, amount, None, None).await;
 
         // Assert
-        assert!(matches!(
-            transaction,
-            Err(WalletError::IotaWallet(
-                iota_sdk::wallet::Error::InsufficientFunds { .. }
-            ))
-        ));
+        assert!(
+            matches!(
+                transaction,
+                Err(WalletError::IotaWallet(
+                    iota_sdk::wallet::Error::InsufficientFunds { .. }
+                ))
+            ),
+            "Got: {transaction:?}"
+        );
     }
 }

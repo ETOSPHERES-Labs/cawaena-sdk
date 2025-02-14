@@ -34,7 +34,7 @@ export async function initSdk(username: string) {
     }
     `);
 
-    await sdk.setCurrency(wasm.Currency.Smr);
+    await sdk.setCurrency(wasm.Currency.Iota);
 
     // Generate access token
     let access_token = await generateAccessToken(username);

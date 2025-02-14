@@ -17,11 +17,11 @@ export async function initSdk() {
         "log_level": "info",
         "auth_provider": "standalone",
         "node_urls": {
-            "smr": ["https://api.testnet.shimmer.network"]
+            "iota": ["https://api.testnet.iotaledger.net"]
         }
     }
     `);
-    await sdk.setCurrency(wasm.Currency.Smr);
+    await sdk.setCurrency(wasm.Currency.Iota);
     await sdk.refreshAccessToken(process.env.ACCESS_TOKEN);
     return sdk; // Return the initialized SDK instance
 }

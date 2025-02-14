@@ -156,7 +156,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Smr);
+                sdk.set_currency(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 0, 0).await;

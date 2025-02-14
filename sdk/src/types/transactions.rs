@@ -58,7 +58,6 @@ pub struct WalletTxInfo {
     /// Url of network SMR/IOTA/ETH
     pub explorer_url: Option<String>, // ok
                                       // change based on the network either shimmer or iota
-                                      // base explorer url for SMR = https://explorer.shimmer.network/shimmer/block/[block_id]
                                       // base explorer url for IOTA = https://explorer.iota.org/mainnet/block/[block_id]
                                       // base explorer url for EVM = [node url]
 }
@@ -90,13 +89,6 @@ impl From<Transaction> for WalletTxInfo {
                     .block_id
                     .map(|id| format!("https://explorer.iota.org/mainnet/block/{id}"));
                 ("IOTA", explorer_url)
-            }
-
-            id if id == network_name_to_id("shimmer") => {
-                let explorer_url = transaction
-                    .block_id
-                    .map(|id| format!("https://explorer.shimmer.network/shimmer/block/{id}"));
-                ("SMR", explorer_url)
             }
             id => {
                 log::error!("unknown network id: {id}");

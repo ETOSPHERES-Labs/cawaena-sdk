@@ -58,8 +58,8 @@ pub const RECEIVER: &str = "satoshi";
 pub const APP_DATA: &str = "app_data";
 pub const START: u32 = 1;
 pub const LIMIT: u32 = 10;
-pub const PAYMENT_METHOD_KEY: SwapPaymentDetailKey = SwapPaymentDetailKey::Smr;
-pub const PAYMENT_METHOD_KEY_SERIALIZED: &str = "SMR";
+pub const PAYMENT_METHOD_KEY: SwapPaymentDetailKey = SwapPaymentDetailKey::Iota;
+pub const PAYMENT_METHOD_KEY_SERIALIZED: &str = "IOTA";
 pub const PAYMENT_METHOD_ID: &str = "payment-method-id";
 pub const PAYMENT_DETAIL_ID: &str = "payment-detail-id";
 pub const CASE_ID: &str = "123";
@@ -75,6 +75,9 @@ pub const SALT: [u8; 12] = [241, 167, 131, 245, 166, 203, 63, 247, 211, 157, 138
 pub const PURCHASE_ID: &str = "123";
 pub const ORDER_ID: &str = "497f6eca-6276-4993-bfeb-53cbbbba6f08";
 pub static PIN: LazyLock<EncryptionPin> = LazyLock::new(|| EncryptionPin::try_from_string("1234").unwrap());
+
+/// Mnemonic for testing.
+/// Iota: tst1qz7m7xtfppy9xd73xvsnpvlnx5rcewjz2k2gqh6w67tdleks83rh768k6rc
 pub const MNEMONIC:&str = "aware mirror sadness razor hurdle bus scout crisp close life science spy shell fine loop govern country strategy city soldier select diet brain return";
 
 // util function to set the config
@@ -115,7 +118,7 @@ pub fn example_get_user(key: SwapPaymentDetailKey, verified: bool, times: usize,
                             key: SwapPaymentDetailKey::Sepa,
                             min_amount: 1.5f32,
                             max_amount: 1000.4422f32,
-                            supported_deposit_currencies: Vec::from(["SMR".into(), "IOTA".into()]),
+                            supported_deposit_currencies: Vec::from(["IOTA".into()]),
                             supported_withdrawal_method_keys: Vec::from([SwapPaymentDetailKey::Sepa]),
                             contract_type: "Standard".into(),
                             is_incoming_payment_detail_required: true,
@@ -127,7 +130,7 @@ pub fn example_get_user(key: SwapPaymentDetailKey, verified: bool, times: usize,
                             key,
                             min_amount: 1.5f32,
                             max_amount: 1000.4422f32,
-                            supported_deposit_currencies: Vec::from(["SMR".into(), "IOTA".into()]),
+                            supported_deposit_currencies: Vec::from(["IOTA".into()]),
                             supported_withdrawal_method_keys: Vec::from([key]),
                             contract_type: "Standard".into(),
                             is_incoming_payment_detail_required: true,
@@ -188,7 +191,7 @@ pub fn example_viviswap_oder_response() -> Order {
         crypto_fees: 0.0f32,
         contract_id: "contract-id".into(),
         incoming_payment_method_id: PAYMENT_METHOD_ID.into(),
-        incoming_payment_method_currency: "SMR".to_string(),
+        incoming_payment_method_currency: "IOTA".to_string(),
         incoming_amount: 1.0f32,
         incoming_course: 1.0f32,
         outgoing_payment_method_id: PAYMENT_METHOD_ID.into(),
@@ -272,10 +275,6 @@ pub fn example_customer() -> Customer {
 
 pub fn example_node_urls(invalid_currency: Option<&str>) -> HashMap<String, Vec<String>> {
     let mut node_urls = HashMap::from([
-        (
-            "SMR".to_string(),
-            vec!["https://api.testnet.shimmer.network/".to_string()],
-        ),
         (
             "IOTA".to_string(),
             vec!["https://api.stardust-mainnet.iotaledger.net/".to_string()],

@@ -221,7 +221,7 @@ mod tests {
     }
 
     #[rstest::rstest]
-    #[case(200, Ok(Some(Currency::Smr)))]
+    #[case(200, Ok(Some(Currency::Iota)))]
     #[case(401, Err(ApiError::MissingAccessToken))]
     #[case(500, Err(ApiError::UnexpectedResponse {
         code: StatusCode::INTERNAL_SERVER_ERROR,
@@ -245,7 +245,7 @@ mod tests {
             .with_header("content-type", "application/json");
         // Conditionally add the response body only for the 200 status code
         if status_code == 200 {
-            mock_server = mock_server.with_body("{\"currency\":\"Smr\"}");
+            mock_server = mock_server.with_body("{\"currency\":\"Iota\"}");
         }
         let mock_server = mock_server.expect(1).create();
 
@@ -290,7 +290,7 @@ mod tests {
             .create();
 
         // Act
-        let response = set_preferred_currency(&config, &TOKEN, USERNAME, Some(Currency::Smr)).await;
+        let response = set_preferred_currency(&config, &TOKEN, USERNAME, Some(Currency::Iota)).await;
 
         // Assert
         match expected {

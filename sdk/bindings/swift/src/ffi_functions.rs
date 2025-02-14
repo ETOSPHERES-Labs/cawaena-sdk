@@ -57,7 +57,6 @@ impl CawaenaSdk {
     ///     "storage_path": "/path/to/valid/folder",
     ///     "log_level": "info",
     ///     "node_urls": {
-    ///         "smr": ["https://api.testnet.shimmer.network"],
     ///         "iota": ["<first node url>", "<second node url>"]
     ///     }
     /// }

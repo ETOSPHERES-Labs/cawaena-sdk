@@ -582,7 +582,7 @@ mod tests {
     }
 
     #[rstest]
-    #[case::success(Ok(Some(Currency::Smr)))]
+    #[case::success(Ok(Some(Currency::Iota)))]
     #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
@@ -608,7 +608,7 @@ mod tests {
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
                         .with_status(200)
                         .with_header("content-type", "application/json")
-                        .with_body("{\"currency\":\"Smr\"}")
+                        .with_body("{\"currency\":\"Iota\"}")
                         .expect(1)
                         .create(),
                 );

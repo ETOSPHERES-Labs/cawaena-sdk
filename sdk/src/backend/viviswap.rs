@@ -1309,7 +1309,7 @@ mod tests {
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
-            .match_query(Matcher::Exact("currency=Smr".to_string()))
+            .match_query(Matcher::Exact("currency=Iota".to_string()))
             .with_status(status_code);
         // Conditionally add the response body only for the 200 status code
         if status_code == 200 {
@@ -1318,7 +1318,7 @@ mod tests {
         let mock_server = mock_server.expect(1).create();
 
         // Act
-        let response = get_viviswap_exchange_rate(&config, &TOKEN, USERNAME, Currency::Smr).await;
+        let response = get_viviswap_exchange_rate(&config, &TOKEN, USERNAME, Currency::Iota).await;
 
         // Assert
         match expected {

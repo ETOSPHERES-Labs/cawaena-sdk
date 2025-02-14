@@ -15,11 +15,10 @@ convert_enum!(log::Level, Level, Error, Warn, Info, Debug, Trace,);
 #[wasm_bindgen]
 pub enum Currency {
     Iota,
-    Smr,
     Eth,
 }
 
-convert_enum!(sdk::types::currencies::Currency, Currency, Iota, Smr, Eth,);
+convert_enum!(sdk::types::currencies::Currency, Currency, Iota, Eth,);
 
 #[wasm_bindgen(getter_with_clone, inspectable)]
 pub struct NewCaseIdResponse {

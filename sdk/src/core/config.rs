@@ -107,12 +107,11 @@ impl TryFrom<DeserializedConfig> for Config {
             for (k, v) in urls {
                 // parse the key into our currency
                 let currency = match k.to_lowercase().as_str() {
-                    "smr" => Currency::Smr,
                     "iota" => Currency::Iota,
                     "eth" => Currency::Eth,
                     other => {
                         return Err(crate::Error::SetConfig(format!(
-                            "invalid currency key `{other}` while parsing node_urls. Valid keys are: smr, iota, eth."
+                            "invalid currency key `{other}` while parsing node_urls. Valid keys are: iota, eth."
                         )));
                     }
                 };
@@ -214,7 +213,6 @@ impl Sdk {
 impl Config {
     fn default_test_node_urls() -> HashMap<Currency, Vec<String>> {
         HashMap::from([
-            (Currency::Smr, vec!["https://api.testnet.shimmer.network".to_string()]),
             (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
             (
                 Currency::Eth,
@@ -326,7 +324,7 @@ mod tests {
     fn test_set_config_invalid_node_url() {
         let config = Config::try_from(valid_deserialized_config(Some(example_node_urls(Some("BTC")))));
         let error_msg =
-            "Error while setting the configuration: invalid currency key `btc` while parsing node_urls. Valid keys are: smr, iota, eth.".to_string();
+            "Error while setting the configuration: invalid currency key `btc` while parsing node_urls. Valid keys are: iota, eth.".to_string();
         assert_eq!(config.unwrap_err().to_string(), error_msg);
     }
 
@@ -398,7 +396,6 @@ mod tests {
             "auth_provider": "standalone",
             "node_urls": {
                 "IOTA": ["https://api.stardust-mainnet.iotaledger.net/"],
-                "SMR": ["https://api.testnet.shimmer.network/"],
                 "ETH": ["https://ethereum-sepolia-rpc.publicnode.com/", "31337"]
             }
           }"#,

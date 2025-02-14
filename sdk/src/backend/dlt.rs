@@ -168,7 +168,7 @@ mod tests {
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
             .match_header("content-type", "application/json")
-            .match_query(Matcher::Exact("currency=Smr".to_string()))
+            .match_query(Matcher::Exact("currency=Iota".to_string()))
             .match_body(Matcher::Exact(body))
             .with_status(status_code)
             .expect(1)
@@ -176,7 +176,7 @@ mod tests {
             .create();
 
         // Act
-        let response = put_user_address(&config, USERNAME, &TOKEN, Currency::Smr, ADDRESS).await;
+        let response = put_user_address(&config, USERNAME, &TOKEN, Currency::Iota, ADDRESS).await;
 
         // Assert
         match expected {

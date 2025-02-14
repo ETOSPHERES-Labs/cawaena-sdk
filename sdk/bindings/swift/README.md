@@ -93,7 +93,7 @@ Finally, the `Package.swift` is the actual file that generates the Swift package
   import Foundation
 
   let sdk = CawaenaSdk()
-  try await sdk.setCurrency(Currency.Smr)
+  try await sdk.setCurrency(Currency.Iota)
 ```
 
 ## Running Examples

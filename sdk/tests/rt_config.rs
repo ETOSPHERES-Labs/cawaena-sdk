@@ -19,7 +19,6 @@ async fn it_should_get_node_urls() {
 
     // Assert response
     let response = result.unwrap();
-    assert!(response.contains_key("SMR"));
     assert!(response.contains_key("IOTA"));
 }
 

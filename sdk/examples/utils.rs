@@ -30,7 +30,6 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
         auth_provider: "standalone".to_string(),
         log_level: log::LevelFilter::Debug,
         node_urls: HashMap::from([
-            (Currency::Smr, vec!["https://api.testnet.shimmer.network".to_string()]),
             (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
             (
                 Currency::Eth,
@@ -47,7 +46,7 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_currency(Currency::Smr);
+    sdk.set_currency(Currency::Iota);
 
     (sdk, cleanup)
 }

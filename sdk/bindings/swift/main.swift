@@ -283,7 +283,7 @@ Task {
                 "log_level": "info",
                 "auth_provider": "standalone",
                 "node_urls": {
-                    "smr": ["https://api.testnet.shimmer.network"]
+                    "iota": ["https://api.testnet.iotaledger.net"]
                 }
             }
             """)

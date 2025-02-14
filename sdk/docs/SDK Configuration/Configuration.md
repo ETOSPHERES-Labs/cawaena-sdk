@@ -468,7 +468,7 @@ The development environment is used only internally by the Cawaena development t
 
         sdk.set_path_prefix(path);
         sdk.set_env(Environment::Development);
-        sdk.set_currency(Currency::Smr);
+        sdk.set_currency(Currency::Iota);
         sdk.validate_config().unwrap();
 
         // other SDK functions
@@ -685,7 +685,7 @@ The following code snippet shows a complete example for correctly configuring th
 
         // Set environment and currency
         sdk.set_env(Environment::Development);
-        sdk.set_currency(Currency::Smr);
+        sdk.set_currency(Currency::Iota);
 
         // Set log level and initialize logger
         sdk.set_log_level("info");

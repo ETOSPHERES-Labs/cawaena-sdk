@@ -55,7 +55,6 @@ impl CryptpaySdk {
     ///     "storage_path": "/path/to/valid/folder",
     ///     "log_level": "info",
     ///     "node_urls": {
-    ///         "smr": ["https://api.testnet.shimmer.network"],
     ///         "iota": ["<first node url>", "<second node url>"]
     ///     }
     /// }
@@ -74,7 +73,7 @@ impl CryptpaySdk {
 
     /// Selects the currency for the Cryptpay SDK.
     ///
-    /// @param {Currency} currency - The currency. Currently supports only SMR and IOTA.
+    /// @param {Currency} currency - The currency. Currently supports only ETH and IOTA.
     /// @returns {Promise<void>}
     #[wasm_bindgen(skip_jsdoc, js_name = "setCurrency")]
     pub async fn set_currency(&self, currency: Currency) {

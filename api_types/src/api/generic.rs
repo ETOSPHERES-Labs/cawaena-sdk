@@ -6,8 +6,6 @@ use serde::{Deserialize, Serialize};
 pub enum ApiCryptoCurrency {
     /// Iota Crypto Currency
     Iota,
-    /// Shimmer Crypto Currency
-    Smr,
     /// Ethereum Crypto Currency
     Eth,
 }

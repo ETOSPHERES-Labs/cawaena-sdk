@@ -55,7 +55,7 @@ public func initSdk(username: String, password: String) async throws -> CawaenaS
   try await sdk.refreshAccessToken(access_token)
   print("retrieved access token")
 
-  try await sdk.setCurrency(Currency.Smr)
+  try await sdk.setCurrency(Currency.Iota)
 
   return sdk
 }

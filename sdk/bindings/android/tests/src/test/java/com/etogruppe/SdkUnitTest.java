@@ -39,7 +39,7 @@ public class SdkUnitTest {
     private static final String PASSWORD = "StrongP@55word";
     private static final String BACKUP_PASSWORD = "BackupStrongP@55word";
     private static final String AUTH_PROVIDER = "standalone";
-    private static final String CURRENCY = "Smr";
+    private static final String CURRENCY = "Iota";
     private static final String EMAIL = "useremail@gmail.com";
     private static final String TOKEN_HEADER_VALUE = String.format("Bearer %s", token);
     private static final String CASE_ID = "123456789ABC";
@@ -63,17 +63,17 @@ public class SdkUnitTest {
 
             sdk.setConfig("""
                     {
-                    	"backend_url": "http://localhost:1080/api",
-                    	"storage_path": "%s",
-                    	"log_level": "debug",
-                    	"auth_provider": "standalone",
-                    	"node_urls": {
-                    		"smr": ["https://api.testnet.shimmer.network"]
-                    	}
+                        "backend_url": "http://localhost:1080/api",
+                        "storage_path": "%s",
+                        "log_level": "debug",
+                        "auth_provider": "standalone",
+                        "node_urls": {
+                            "iota": ["https://api.testnet.iotaledger.net"]
+                        }
                     }
                     """.formatted(directory.toString()));
 
-            sdk.setCurrency("SMR");
+            sdk.setCurrency("IOTA");
             sdk.refreshAccessToken(token);
         } catch (Exception e) {
             fail(e.getMessage());
@@ -670,7 +670,7 @@ public class SdkUnitTest {
     public void ZHshouldGetPreferredCurrency() throws Exception {
 
         String body = """
-                    {"currency": "Smr"}
+                    {"currency": "Iota"}
                 """;
         wireMockRule.stubFor(get(urlPathEqualTo("/api/user/currency"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
@@ -681,7 +681,7 @@ public class SdkUnitTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
         String currency = sdk.getPreferredCurrency();
-        assertEquals(currency, "Smr");
+        assertEquals(currency, "Iota");
 
     }
 
