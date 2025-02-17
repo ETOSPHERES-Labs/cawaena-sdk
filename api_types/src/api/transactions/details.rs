@@ -1,5 +1,3 @@
-use crate::api::generic::ApiCryptoCurrency;
-
 use super::ApiTxStatus;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -20,8 +18,8 @@ pub struct GetTransactionDetailsResponse {
     pub amount: Decimal,
     /// The Status of transaction
     pub status: ApiTxStatus,
-    /// The currency the transaction is sent in
-    pub currency: ApiCryptoCurrency,
+    /// The network that the transaction is sent in
+    pub network_id: String,
 }
 
 // Query parameters for querying details of multiple transactions.
@@ -75,8 +73,8 @@ pub struct ApiTransferDetails {
     pub username: String,
     /// The address of the sender / receiver
     pub address: String,
-    /// The currency of the amount to be transferred between the sender and the receiver
-    pub currency: String,
+    /// The id of the network used to transfer amount between the sender and the receiver
+    pub network_id: String,
     /// The amount to be transferred between the sender and the receiver
     pub amount: Decimal,
     /// The exchange rate from EUR to the decided currency.
