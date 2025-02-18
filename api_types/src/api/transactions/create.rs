@@ -1,5 +1,3 @@
-use crate::api::generic::ApiCryptoCurrency;
-
 use super::ApiApplicationMetadata;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -8,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct CreateTransactionRequest {
     pub amount: Decimal,
-    pub currency: ApiCryptoCurrency,
+    pub network_id: String,
     pub receiver: String,
     pub application_metadata: ApiApplicationMetadata,
 }
