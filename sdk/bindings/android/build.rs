@@ -153,9 +153,9 @@ fn generate_settings_xml() {
 
     writer.write(XmlEvent::start_element("servers")).unwrap();
     writer.write(XmlEvent::start_element("server")).unwrap();
-    write_element!(writer, "username", "${env.MVN_USERNAME}");
-    write_element!(writer, "password", "${env.MVN_PASSWORD}");
-    write_element!(writer, "id", "jfrog");
+    write_element!(writer, "username", "${env.TOKEN_USERNAME}");
+    write_element!(writer, "password", "${env.TOKEN_PASSWORD}");
+    write_element!(writer, "id", "ossrh");
     writer.write(XmlEvent::end_element()).unwrap(); // Close server
     writer.write(XmlEvent::end_element()).unwrap(); // Close servers
 
@@ -166,9 +166,9 @@ fn generate_settings_xml() {
     writer.write(XmlEvent::start_element("snapshots")).unwrap();
     write_element!(writer, "enabled", "false");
     writer.write(XmlEvent::end_element()).unwrap(); // Close snapshots
-    write_element!(writer, "id", "jfrog");
-    write_element!(writer, "name", "egdbz-mvn");
-    write_element!(writer, "url", "https://repo.farmunited.com:443/artifactory/egdbz-mvn");
+    write_element!(writer, "id", "ossrh");
+    write_element!(writer, "name", "snapshots");
+    write_element!(writer, "url", "https://oss.sonatype.org/content/repositories/snapshots");
     writer.write(XmlEvent::end_element()).unwrap(); // Close repository
     writer.write(XmlEvent::end_element()).unwrap(); // Close repositories
     write_element!(writer, "id", "artifactory");
