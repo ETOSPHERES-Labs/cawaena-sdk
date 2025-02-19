@@ -85,7 +85,6 @@ pub struct ApiTransferDetails {
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ApiNetwork {
     pub id: String,
-    pub parent_id: Option<String>,
     pub name: String,
     pub default_rpc_url: String,
     pub chain_id: Option<String>,
