@@ -80,8 +80,8 @@ fn generate_pom_xml() {
         .unwrap();
 
     write_element!(writer, "modelVersion", "4.0.0");
-    write_element!(writer, "groupId", "com.etogruppe");
-    write_element!(writer, "artifactId", "CryptpaySdk");
+    write_element!(writer, "groupId", "com.cawaena");
+    write_element!(writer, "artifactId", "wallet");
     write_element!(writer, "version", &version_info);
     write_element!(writer, "packaging", "jar");
     write_element!(writer, "name", env!("CARGO_PKG_NAME"));
@@ -90,6 +90,10 @@ fn generate_pom_xml() {
     writer.write(XmlEvent::start_element("licenses")).unwrap();
     writer.write(XmlEvent::start_element("license")).unwrap();
     write_element!(writer, "name", env!("CARGO_PKG_LICENSE"));
+    writer.write(XmlEvent::end_element()).unwrap(); // Close license
+    writer.write(XmlEvent::start_element("license")).unwrap();
+    write_element!(writer, "name", "The Apache Software License, Version 2.0");
+    write_element!(writer, "url", "http://www.apache.org/licenses/LICENSE-2.0.txt");
     writer.write(XmlEvent::end_element()).unwrap(); // Close license
     writer.write(XmlEvent::end_element()).unwrap(); // Close licenses
 
@@ -101,18 +105,25 @@ fn generate_pom_xml() {
     writer.write(XmlEvent::end_element()).unwrap(); // Close developer
     writer.write(XmlEvent::end_element()).unwrap(); // Close developers
 
+    writer.write(XmlEvent::start_element("scm")).unwrap();
+    write_element!(writer, "connection", "scm:git:git://github.com/ETOSPHERES-Labs/cawaena-sdk.git");
+    write_element!(writer, "developerConnection", "scm:git:ssh://github.com:ETOSPHERES-Labs/cawaena-sdk.git");
+    write_element!(writer, "url", ">http://github.com/ETOSPHERES-Labs/cawaena-sdk/tree/master");
+    writer.write(XmlEvent::end_element()).unwrap(); // Close scm
+
+    
     writer.write(XmlEvent::start_element("distributionManagement")).unwrap();
 
     writer.write(XmlEvent::start_element("repository")).unwrap();
-    write_element!(writer, "id", "jfrog");
+    write_element!(writer, "id", "ossrh");
     write_element!(writer, "name", "repo.farmunited.com-releases");
-    write_element!(writer, "url", "https://repo.farmunited.com:443/artifactory/egdbz-mvn");
+    write_element!(writer, "url", "https://oss.sonatype.org/service/local/staging/deploy/maven2/");
     writer.write(XmlEvent::end_element()).unwrap(); // Close repository
 
     writer.write(XmlEvent::start_element("snapshotRepository")).unwrap();
-    write_element!(writer, "id", "snapshots");
+    write_element!(writer, "id", "ossrh");
     write_element!(writer, "name", "repo.farmunited.com-snapshots");
-    write_element!(writer, "url", "https://repo.farmunited.com:443/artifactory/egdbz-mvn");
+    write_element!(writer, "url", "https://oss.sonatype.org/content/repositories/snapshots");
     writer.write(XmlEvent::end_element()).unwrap(); // Close snapshotRepository
     writer.write(XmlEvent::end_element()).unwrap(); // Close distributionManagement
 
