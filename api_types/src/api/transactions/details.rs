@@ -73,12 +73,34 @@ pub struct ApiTransferDetails {
     pub username: String,
     /// The address of the sender / receiver
     pub address: String,
-    /// The id of the network used to transfer amount between the sender and the receiver
-    pub network_id: String,
+    /// The network used to transfer amount between the sender and the receiver
+    pub network: ApiNetwork,
     /// The amount to be transferred between the sender and the receiver
     pub amount: Decimal,
     /// The exchange rate from EUR to the decided currency.
     pub exchange_rate: Decimal,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct ApiNetwork {
+    pub id: String,
+    pub parent_id: Option<String>,
+    pub name: String,
+    pub default_rpc_url: String,
+    pub chain_id: Option<String>,
+    pub currency: String,
+    pub block_explorer_url: String,
+    pub enabled: bool,
+    pub network_type: ApiNetworkType,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ApiNetworkType {
+    Evm,
+    Stardust,
+    Move,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
