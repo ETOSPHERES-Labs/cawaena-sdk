@@ -47,14 +47,14 @@ This does not require any user input except `username`,  `password` and `pin`. B
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Create and initialize the user
             //...
@@ -136,14 +136,14 @@ This just performs the second step of the create fresh wallet process and needs 
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Create and initialize the user
             //...
@@ -222,14 +222,14 @@ If the user has created a backup from any other devices or wallet applications u
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Create and initialize the user
             //...
@@ -308,14 +308,14 @@ A `password` is also required to create the backup and the same `password` is re
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Create and initialize the user
             // Create the wallet
@@ -382,14 +382,14 @@ A `password` is also required to create the backup and the same `password` is re
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Create and initialize the user
             // Create the wallet
@@ -458,14 +458,14 @@ For performing any operations involving the wallet, like fetching wallet balance
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Initialize the wallet
 
@@ -533,14 +533,14 @@ This function just deletes the wallet files and is a one-way function, to be use
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Initialize the wallet
 
@@ -616,14 +616,14 @@ In addition to creating, migrating, backups and initialization, the wallet modul
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
             // Initialize the wallet
 

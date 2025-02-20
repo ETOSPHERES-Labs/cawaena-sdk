@@ -46,16 +46,16 @@ Once this information is provided and configured correctly in the backend by the
 
      package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena";
 
             // ensure a clean start
@@ -150,16 +150,16 @@ Every time, the OAuth client refreshes or fetches a new access token for the use
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena";
 
             // ensure a clean start
@@ -268,16 +268,16 @@ The Cawaena team provides the URL for the backend, which can directly set using 
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena";
 
             // ensure a clean start
@@ -374,16 +374,16 @@ This function is mandatory to be called, at least once, to enable creation of us
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena"; // (1)!
 
             // ensure a clean start
@@ -482,16 +482,16 @@ The development environment is used only internally by the Cawaena development t
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena"; 
 
             // ensure a clean start
@@ -593,16 +593,16 @@ The SDK also provides a shorthand utility to validate the configuration, any tim
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena;
 
             // ensure a clean start
@@ -701,16 +701,16 @@ The following code snippet shows a complete example for correctly configuring th
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena";
 
             // ensure a clean start

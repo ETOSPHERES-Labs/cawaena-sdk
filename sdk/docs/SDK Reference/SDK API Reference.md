@@ -45,8 +45,8 @@ The API reference for the JS/TS bindings are available [here](../jstsdocs/classe
 === "Java"
 
     ```java
-    import com.etogruppe.CryptpaySdk;
-    sdk = new CryptpaySdk();
+    import com.cawaena.Wallet;
+    sdk = new Wallet();
     ```
 === "Swift"
 
