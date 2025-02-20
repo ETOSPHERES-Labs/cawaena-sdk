@@ -91,10 +91,6 @@ fn generate_pom_xml() {
     writer.write(XmlEvent::start_element("license")).unwrap();
     write_element!(writer, "name", env!("CARGO_PKG_LICENSE"));
     writer.write(XmlEvent::end_element()).unwrap(); // Close license
-    writer.write(XmlEvent::start_element("license")).unwrap();
-    write_element!(writer, "name", "The Apache Software License, Version 2.0");
-    write_element!(writer, "url", "http://www.apache.org/licenses/LICENSE-2.0.txt");
-    writer.write(XmlEvent::end_element()).unwrap(); // Close license
     writer.write(XmlEvent::end_element()).unwrap(); // Close licenses
 
     writer.write(XmlEvent::start_element("developers")).unwrap();
@@ -108,7 +104,7 @@ fn generate_pom_xml() {
     writer.write(XmlEvent::start_element("scm")).unwrap();
     write_element!(writer, "connection", "scm:git:git://github.com/ETOSPHERES-Labs/cawaena-sdk.git");
     write_element!(writer, "developerConnection", "scm:git:ssh://github.com:ETOSPHERES-Labs/cawaena-sdk.git");
-    write_element!(writer, "url", ">http://github.com/ETOSPHERES-Labs/cawaena-sdk/tree/master");
+    write_element!(writer, "url", "http://github.com/ETOSPHERES-Labs/cawaena-sdk/tree/master");
     writer.write(XmlEvent::end_element()).unwrap(); // Close scm
 
     
