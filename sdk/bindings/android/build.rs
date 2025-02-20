@@ -102,18 +102,33 @@ fn generate_pom_xml() {
     writer.write(XmlEvent::end_element()).unwrap(); // Close developers
 
     writer.write(XmlEvent::start_element("scm")).unwrap();
-    write_element!(writer, "connection", "scm:git:git://github.com/ETOSPHERES-Labs/cawaena-sdk.git");
-    write_element!(writer, "developerConnection", "scm:git:ssh://github.com:ETOSPHERES-Labs/cawaena-sdk.git");
-    write_element!(writer, "url", "http://github.com/ETOSPHERES-Labs/cawaena-sdk/tree/master");
+    write_element!(
+        writer,
+        "connection",
+        "scm:git:git://github.com/ETOSPHERES-Labs/cawaena-sdk.git"
+    );
+    write_element!(
+        writer,
+        "developerConnection",
+        "scm:git:ssh://github.com:ETOSPHERES-Labs/cawaena-sdk.git"
+    );
+    write_element!(
+        writer,
+        "url",
+        "http://github.com/ETOSPHERES-Labs/cawaena-sdk/tree/master"
+    );
     writer.write(XmlEvent::end_element()).unwrap(); // Close scm
 
-    
     writer.write(XmlEvent::start_element("distributionManagement")).unwrap();
 
     writer.write(XmlEvent::start_element("repository")).unwrap();
     write_element!(writer, "id", "ossrh");
     write_element!(writer, "name", "repo.farmunited.com-releases");
-    write_element!(writer, "url", "https://oss.sonatype.org/service/local/staging/deploy/maven2/");
+    write_element!(
+        writer,
+        "url",
+        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    );
     writer.write(XmlEvent::end_element()).unwrap(); // Close repository
 
     writer.write(XmlEvent::start_element("snapshotRepository")).unwrap();
