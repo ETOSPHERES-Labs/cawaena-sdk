@@ -86,20 +86,18 @@ pub struct ApiTransferDetails {
 pub struct ApiNetwork {
     pub id: String,
     pub name: String,
-    pub default_rpc_url: String,
-    pub chain_id: Option<String>,
     pub currency: String,
     pub block_explorer_url: String,
     pub enabled: bool,
+    pub purchase_enabled: bool,
     pub network_type: ApiNetworkType,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum ApiNetworkType {
-    Evm,
-    Stardust,
-    Move,
+    Evm { node_url: String, chain_id: u32 },
+    Stardust { node_url: String },
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
