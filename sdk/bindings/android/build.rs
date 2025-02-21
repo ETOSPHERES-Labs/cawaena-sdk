@@ -55,9 +55,11 @@ fn android() {
 
 fn generate_pom_xml() {
     let version = env!("CARGO_PKG_VERSION");
-    let version_info = match env::var("CI_COMMIT_TAG") {
-        Ok(_) => version.to_string(),
-        Err(_) => format!("{}-SNAPSHOT", version),
+
+    let version_info = if env::var("IS_SNAPSHOT").is_ok() {
+        format!("{}-SNAPSHOT", version)
+    } else {
+        version.to_string()
     };
 
     let pom_file_path = Path::new("./jar/pom.xml");
@@ -123,7 +125,7 @@ fn generate_pom_xml() {
 
     writer.write(XmlEvent::start_element("repository")).unwrap();
     write_element!(writer, "id", "ossrh");
-    write_element!(writer, "name", "repo.farmunited.com-releases");
+    write_element!(writer, "name", "Central Repository OSSRH");
     write_element!(
         writer,
         "url",
@@ -133,7 +135,7 @@ fn generate_pom_xml() {
 
     writer.write(XmlEvent::start_element("snapshotRepository")).unwrap();
     write_element!(writer, "id", "ossrh");
-    write_element!(writer, "name", "repo.farmunited.com-snapshots");
+    write_element!(writer, "name", "Central Repository OSSRH Snapshots");
     write_element!(writer, "url", "https://oss.sonatype.org/content/repositories/snapshots");
     writer.write(XmlEvent::end_element()).unwrap(); // Close snapshotRepository
     writer.write(XmlEvent::end_element()).unwrap(); // Close distributionManagement

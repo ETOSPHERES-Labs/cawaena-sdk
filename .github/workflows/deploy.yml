@@ -3,8 +3,8 @@ name: Deploy
 # only run this on push to main (eg. after PR merge)
 on:
   push:
-    branches:
-     - main
+    # branches:
+    #  - main
 
 env:
   CARGO_TERM_COLOR: always
@@ -41,7 +41,25 @@ jobs:
           tool: cargo-ndk
 
       - name: Build android sdk bundle
+        env:
+          IS_SNAPSHOT: true
         run: cd sdk/bindings/android && make bundle
+
+      # - name: Set up Maven Central Repository
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: '11'
+      #     distribution: 'temurin'
+      #     server-id: ossrh
+      #     server-username: MAVEN_USERNAME
+      #     server-password: MAVEN_PASSWORD
+
+      - name: Publish package
+        run: mvn -e --batch-mode deploy:deploy-file -Dfile=sdk/bindings/android/jar/Wallet.jar -DpomFile=sdk/bindings/android/jar/pom.xml -DrepositoryId=ossrh -Durl=https://oss.sonatype.org/content/repositories/snapshots -s sdk/bindings/android/jar/settings.xml
+
+        env:
+          TOKEN_USERNAME: ${{ secrets.TOKEN_USERNAME }}
+          TOKEN_PASSWORD: ${{ secrets.TOKEN_PASSWORD }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
