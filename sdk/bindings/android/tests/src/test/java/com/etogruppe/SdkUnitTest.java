@@ -672,7 +672,7 @@ public class SdkUnitTest {
         String body = """
                     {"currency": "Iota"}
                 """;
-        wireMockRule.stubFor(get(urlPathEqualTo("/api/user/currency"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/api/user/network"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
                 .withHeader("X-APP-USERNAME", equalTo(USERNAME))
                 .withHeader("X-APP-NAME", equalTo(AUTH_PROVIDER))
@@ -687,7 +687,7 @@ public class SdkUnitTest {
 
     @Test
     public void ZIshouldSetPreferredCurrency() throws Exception {
-        wireMockRule.stubFor(put(urlPathEqualTo("/api/user/currency"))
+        wireMockRule.stubFor(put(urlPathEqualTo("/api/user/network"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
                 .withHeader("X-APP-USERNAME", equalTo(USERNAME))
                 .withHeader("X-APP-NAME", equalTo(AUTH_PROVIDER))

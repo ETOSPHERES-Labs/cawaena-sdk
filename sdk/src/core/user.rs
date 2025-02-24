@@ -552,7 +552,7 @@ mod tests {
                 sdk.access_token = Some(TOKEN.clone());
 
                 mock_server = Some(
-                    srv.mock("PUT", "/api/user/currency")
+                    srv.mock("PUT", "/api/user/network")
                         .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
@@ -602,7 +602,7 @@ mod tests {
                 sdk.access_token = Some(TOKEN.clone());
 
                 mock_server = Some(
-                    srv.mock("GET", "/api/user/currency")
+                    srv.mock("GET", "/api/user/network")
                         .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())

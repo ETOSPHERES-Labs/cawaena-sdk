@@ -84,7 +84,7 @@ pub async fn set_preferred_currency(
     currency: Option<Currency>,
 ) -> Result<()> {
     let base_url = &config.backend_url;
-    let url = format!("{base_url}/user/currency");
+    let url = format!("{base_url}/user/network");
     info!("Used url: {url:#?}");
     info!("Setting preferred currency for {username}");
 
@@ -142,7 +142,7 @@ pub async fn get_preferred_currency(
     username: &str,
 ) -> Result<Option<Currency>> {
     let base_url = &config.backend_url;
-    let url = format!("{base_url}/user/currency");
+    let url = format!("{base_url}/user/network");
     info!("Used url: {url:#?}");
     info!("Getting preferred currency for {username}");
 
@@ -237,7 +237,7 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mut mock_server = srv
-            .mock("GET", "/api/user/currency")
+            .mock("GET", "/api/user/network")
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
@@ -281,7 +281,7 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mock_server = srv
-            .mock("PUT", "/api/user/currency")
+            .mock("PUT", "/api/user/network")
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
