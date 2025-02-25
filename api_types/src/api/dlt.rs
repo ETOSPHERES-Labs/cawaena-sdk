@@ -48,7 +48,7 @@ pub struct ApiGetNodeUrlsResponse {
     pub node_urls: HashMap<String, Vec<String>>,
 }
 
-// Struct to get networks from backend
+// Struct to get networks from backend +
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ApiGetNetworksResponse {
