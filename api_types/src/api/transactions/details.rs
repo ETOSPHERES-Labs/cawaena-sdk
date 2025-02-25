@@ -89,7 +89,6 @@ pub struct ApiNetwork {
     pub currency: String,
     pub block_explorer_url: String,
     pub enabled: bool,
-    pub purchase_enabled: bool,
     pub network_type: ApiNetworkType,
 }
 
