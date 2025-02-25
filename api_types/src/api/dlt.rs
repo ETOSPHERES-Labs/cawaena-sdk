@@ -1,3 +1,4 @@
+use super::transactions::ApiNetwork;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -45,4 +46,11 @@ pub struct GetPreferredNetworkResponse {
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ApiGetNodeUrlsResponse {
     pub node_urls: HashMap<String, Vec<String>>,
+}
+
+// Struct to get networks from backend
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct ApiGetNetworksResponse {
+    pub networks: Vec<ApiNetwork>,
 }
