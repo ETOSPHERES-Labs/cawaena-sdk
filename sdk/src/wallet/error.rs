@@ -1,9 +1,5 @@
 use super::{kdbx::KdbxStorageError, share::ShareError};
-use crate::{
-    backend::error::ApiError,
-    types::{currencies::Currency, error::TypeError},
-    user::error::UserKvStorageError,
-};
+use crate::{backend::error::ApiError, types::error::TypeError, user::error::UserKvStorageError};
 use iota_sdk::types::block;
 use serde::Serialize;
 
@@ -49,10 +45,17 @@ pub enum WalletError {
     MissingAccessToken,
 
     /// Error raises if node urls are missing
-    #[error("Missing node url for {currency:?}")]
+    #[error("Missing node url for {network_id:?}")]
     MissingNodeUrls {
-        /// the currency for which node url is missing
-        currency: Currency,
+        /// the id of the network for which node url is missing
+        network_id: String,
+    },
+
+    /// Error raises if network is missing in config
+    #[error("Network not present in config {network_id:?}")]
+    NetworkNotPresentInConfig {
+        /// the id of the network which is missing
+        network_id: String,
     },
 
     /// Error raises if the wallet address is empty

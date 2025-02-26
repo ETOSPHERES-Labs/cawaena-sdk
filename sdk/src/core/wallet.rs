@@ -429,18 +429,18 @@ impl Sdk {
         let Some(active_user) = &mut self.active_user else {
             return Err(crate::Error::UserNotInitialized);
         };
-        let currency = self.currency.ok_or(crate::Error::MissingCurrency)?;
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
         let config = self.config.as_mut().ok_or(crate::Error::MissingConfig)?;
         let wallet = active_user
             .wallet_manager
-            .try_get(config, &self.access_token, repo, currency, pin)
+            .try_get(config, &self.access_token, repo, network.clone(), pin)
             .await?;
 
         let address = wallet.get_address().await?;
 
         // if there is an access token, push the generated address to the backend
         if let Some(access_token) = self.access_token.as_ref() {
-            put_user_address(config, &active_user.username, access_token, currency, &address).await?;
+            put_user_address(config, &active_user.username, access_token, network.id, &address).await?;
         }
         debug!("Generated address: {address}");
         Ok(address)
@@ -571,7 +571,7 @@ mod tests {
     use super::*;
     use crate::core::core_testing_utils::handle_error_test_cases;
     use crate::testing_utils::{
-        example_get_user, example_wallet_tx_info, set_config, ADDRESS, AUTH_PROVIDER, BACKUP_PASSWORD,
+        example_get_user, example_network, example_wallet_tx_info, set_config, ADDRESS, AUTH_PROVIDER, BACKUP_PASSWORD,
         HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, MNEMONIC, PIN, SALT, TOKEN, TX_INDEX, USERNAME,
     };
     use crate::types::users::UserEntity;
@@ -1019,8 +1019,10 @@ mod tests {
                 });
                 sdk.access_token = Some(TOKEN.clone());
                 sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(example_network(crate::types::currencies::Currency::Iota));
 
                 let mock_request = SetUserAddressRequest {
+                    network_id: String::from("67a1f08edf55756bae21e7eb"),
                     address: ADDRESS.into(),
                 };
                 let body = serde_json::to_string(&mock_request).unwrap();
@@ -1031,7 +1033,7 @@ mod tests {
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
                         .match_header("content-type", "application/json")
-                        .match_query(Matcher::Exact("currency=Iota".to_string()))
+                        .match_query(Matcher::Exact("network_id=67a1f08edf55756bae21e7eb".to_string()))
                         .match_body(Matcher::Exact(body))
                         .with_status(201)
                         .expect(1)

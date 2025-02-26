@@ -27,6 +27,10 @@ pub enum Error {
     #[error("No currency is set. Please use the set_currency function.")]
     MissingCurrency,
 
+    /// Error occurs if the network is missing
+    #[error("No notwork id is set. Please use the set_network function.")]
+    MissingNetwork,
+
     /// Error occurs when the config is not initialized or there are missing fields
     #[error("Error while setting the configuration: {0}")]
     SetConfig(String),

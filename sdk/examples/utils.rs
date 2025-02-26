@@ -29,7 +29,7 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
         path_prefix: Path::new(&cleanup.path_prefix).into(),
         auth_provider: "standalone".to_string(),
         log_level: log::LevelFilter::Debug,
-        node_urls: HashMap::from([
+        networks: HashMap::from([
             (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
             (
                 Currency::Eth,

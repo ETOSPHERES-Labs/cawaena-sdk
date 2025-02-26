@@ -84,7 +84,7 @@ impl CryptpaySdk {
     /// @returns {String} Serialized string of a HashMap<String, Vec<String>> with currencies as key and node urls as value
     pub async fn get_node_urls(&self) -> Result<String, String> {
         let sdk = self.inner.write().await;
-        async move { sdk.get_node_urls_backend().await }
+        async move { sdk.get_networks_backend().await }
             .await
             .map_err(|err| format!("{:#?}", err))
             .map(|v| serde_json::to_string(&v).map_err(|e| format!("{e:#?}")))?

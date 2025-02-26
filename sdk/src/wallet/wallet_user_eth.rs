@@ -1,6 +1,5 @@
 use super::error::Result;
 use super::wallet_user::WalletUser;
-use crate::core::Config;
 use crate::types::currencies::{CryptoAmount, Currency};
 use crate::types::transactions::{GasCostEstimation, WalletTxInfo, WalletTxInfoList};
 use crate::wallet::error::WalletError;
@@ -83,8 +82,9 @@ pub struct WalletImplEth {
     /// State for the account manager to be passed to calling functions
     account_manager: iota_sdk::wallet::Wallet,
 
-    /// Store a copy of the node urls.
-    node_urls: Vec<String>,
+    // /// Store a copy of the node urls.
+    node_url: String,
+    chain_id: u64,
 
     /// Rpc client
     http_provider: RootProvider<Http<Client>>,
@@ -93,32 +93,20 @@ pub struct WalletImplEth {
 impl WalletImplEth {
     #[cfg(test)]
     pub async fn new_with_mocked_provider(
-        config: &Config,
         mnemonic: Mnemonic,
         path: &Path,
         http_provider: RootProvider<Http<Client>>,
+        node_url: String,
+        chain_id: u64,
     ) -> Result<Self> {
-        // get the ETH node urls
-        let Some(node_urls) = config.node_urls.get(&Currency::Eth) else {
-            return Err(WalletError::MissingNodeUrls {
-                currency: Currency::Eth,
-            });
-        };
-
-        if node_urls.is_empty() {
-            return Err(WalletError::MissingNodeUrls {
-                currency: Currency::Eth,
-            });
-        }
-
-        let eth_node_url: &[&str] = &[&node_urls[0]];
+        let node_urls: &[&str] = &[&node_url];
 
         info!("Used node_urls: {:?}", node_urls);
-        info!("Eth eth_node_url: {:?}", eth_node_url);
+        info!("Eth eth_node_url: {:?}", node_urls);
         let client_options = ClientOptions::new()
             .with_local_pow(false)
             .with_fallback_to_local_pow(true)
-            .with_nodes(eth_node_url)?;
+            .with_nodes(node_urls)?;
 
         // we need to make sure the path exists, or we will get IO errors, but only if we are not on wasm
         #[cfg(not(target_arch = "wasm32"))]
@@ -153,34 +141,21 @@ impl WalletImplEth {
 
         Ok(WalletImplEth {
             account_manager,
-            node_urls: node_urls.clone(),
+            node_url,
+            chain_id,
             http_provider,
         })
     }
 
-    /// Creates a new [`WalletImplEth`] from the specified [`Config`] and [`Mnemonic`].
-    pub async fn new(config: &Config, mnemonic: Mnemonic, path: &Path) -> Result<Self> {
-        // get the ETH node urls
-        let Some(node_urls) = config.node_urls.get(&Currency::Eth) else {
-            return Err(WalletError::MissingNodeUrls {
-                currency: Currency::Eth,
-            });
-        };
-
-        if node_urls.is_empty() {
-            return Err(WalletError::MissingNodeUrls {
-                currency: Currency::Eth,
-            });
-        }
-
-        let eth_node_url: &[&str] = &[&node_urls[0]];
+    /// Creates a new [`WalletImplEth`] from the specified [`Mnemonic`].
+    pub async fn new(mnemonic: Mnemonic, path: &Path, node_url: String, chain_id: u64) -> Result<Self> {
+        let node_urls = vec![node_url.as_str()];
 
         info!("Used node_urls: {:?}", node_urls);
-        info!("Eth eth_node_url: {:?}", eth_node_url);
         let client_options = ClientOptions::new()
             .with_local_pow(false)
             .with_fallback_to_local_pow(true)
-            .with_nodes(eth_node_url)?;
+            .with_nodes(&node_urls)?;
 
         // we need to make sure the path exists, or we will get IO errors, but only if we are not on wasm
         #[cfg(not(target_arch = "wasm32"))]
@@ -211,15 +186,16 @@ impl WalletImplEth {
                 .await?;
         }
 
-        let node_url = Url::parse(&node_urls[0].clone())
-            .map_err(|e| WalletError::Parse(format!("could not parse the url: {e:?}")))?;
-        let http_provider = ProviderBuilder::new().on_http(node_url);
+        let url =
+            Url::parse(node_urls[0]).map_err(|e| WalletError::Parse(format!("could not parse the url: {e:?}")))?;
+        let http_provider = ProviderBuilder::new().on_http(url);
 
         info!("Wallet creation successful");
 
         Ok(WalletImplEth {
             account_manager,
-            node_urls: node_urls.clone(),
+            chain_id,
+            node_url,
             http_provider,
         })
     }
@@ -361,10 +337,6 @@ impl WalletImplEth {
     async fn get_wallet_addr_raw(&self) -> Result<String> {
         let wallet_addr_raw = self.get_address().await?;
         Ok(wallet_addr_raw)
-    }
-
-    fn get_node_url_raw(&self) -> String {
-        self.node_urls[0].clone()
     }
 
     async fn fetch_block_date(&self, block_number: BlockNumberOrTag) -> Result<Option<u64>> {
@@ -510,7 +482,6 @@ impl WalletUser for WalletImplEth {
         amount: CryptoAmount,
         tag: Option<TaggedDataPayload>,
         message: Option<String>,
-        chain_id: u64,
     ) -> Result<String> {
         let addr_from = self.get_wallet_addr().await?;
         let addr_to = Address::from_str(address)?;
@@ -520,7 +491,17 @@ impl WalletUser for WalletImplEth {
         let amount_wei_u256 = Self::convert_crypto_amount_to_u256(amount_wei)?;
 
         let mut transaction = self
-            .build_transaction(addr_from, addr_to, amount_wei_u256, 0, 0, 0, chain_id, tag, message)
+            .build_transaction(
+                addr_from,
+                addr_to,
+                amount_wei_u256,
+                0,
+                0,
+                0,
+                self.chain_id,
+                tag,
+                message,
+            )
             .await?;
 
         // Estimate gas cost
@@ -543,13 +524,7 @@ impl WalletUser for WalletImplEth {
     }
 
     // todo: unlock method for other protocols by passing interface instead of hardcoded list of fields (eip 1559 at the moment)
-    async fn send_transaction_eth(
-        &self,
-        index: &str,
-        address: &str,
-        amount: CryptoAmount,
-        chain_id: u64,
-    ) -> Result<String> {
+    async fn send_transaction_eth(&self, index: &str, address: &str, amount: CryptoAmount) -> Result<String> {
         let addr_from = self.get_wallet_addr().await?;
         let addr_to = Address::from_str(address)?;
 
@@ -558,7 +533,7 @@ impl WalletUser for WalletImplEth {
         let amount_wei_u256 = Self::convert_crypto_amount_to_u256(amount_wei)?;
 
         let mut transaction = self
-            .build_transaction(addr_from, addr_to, amount_wei_u256, 0, 0, 0, chain_id, None, None)
+            .build_transaction(addr_from, addr_to, amount_wei_u256, 0, 0, 0, self.chain_id, None, None)
             .await?;
 
         // Estimate gas cost
@@ -643,7 +618,7 @@ impl WalletUser for WalletImplEth {
                     amount: value_eth_f64,
                     network: "ETH".to_string(),
                     status: format!("{:?}", status),
-                    explorer_url: Some(self.get_node_url_raw()),
+                    explorer_url: Some(self.node_url.clone()),
                 })
             }
             None => Err(WalletError::TransactionNotFound),
@@ -684,6 +659,8 @@ impl WalletUser for WalletImplEth {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::Config;
+
     use super::*;
     use alloy::{hex::decode, primitives::Address};
     use iota_sdk::crypto::keys::bip39::Mnemonic;
@@ -700,8 +677,11 @@ mod tests {
 
     /// helper function to get a [`WalletUser`] instance.
     async fn get_wallet_user(mnemonic: impl Into<Mnemonic>) -> (WalletImplEth, CleanUp) {
-        let (config, cleanup) = Config::new_test_with_cleanup();
-        let wallet = WalletImplEth::new(&config, mnemonic.into(), Path::new(&cleanup.path_prefix))
+        let (_, cleanup) = Config::new_test_with_cleanup();
+        let node_url = String::from("https://sepolia.mode.network");
+        let chain_id = 31337;
+
+        let wallet = WalletImplEth::new(mnemonic.into(), Path::new(&cleanup.path_prefix), node_url, chain_id)
             .await
             .expect("should initialize wallet");
         (wallet, cleanup)
@@ -711,13 +691,16 @@ mod tests {
     async fn get_wallet_user_with_mocked_provider(
         mnemonic: impl Into<Mnemonic>,
         http_provider: RootProvider<Http<Client>>,
+        node_url: String,
+        chain_id: u64,
     ) -> (WalletImplEth, CleanUp) {
-        let (config, cleanup) = Config::new_test_with_cleanup();
+        let (_, cleanup) = Config::new_test_with_cleanup();
         let wallet = WalletImplEth::new_with_mocked_provider(
-            &config,
             mnemonic.into(),
             Path::new(&cleanup.path_prefix),
             http_provider,
+            node_url,
+            chain_id,
         )
         .await
         .expect("should initialize wallet");
@@ -796,10 +779,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let wallet_addr = wallet_user.get_wallet_addr().await.unwrap();
 
@@ -843,10 +832,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let wallet_addr = wallet_user.get_wallet_addr().await.unwrap();
         let mocked_transaction_count = 5;
@@ -887,10 +882,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let wallet_addr = wallet_user.get_wallet_addr().await.unwrap();
         let mocked_transaction_count = 5;
@@ -922,7 +923,6 @@ mod tests {
         let amount_to_send = U256::from(1);
         let gas_limit = 21_000;
         let max_fee_per_gas = 20_000_000_000;
-        let chain_id = 31337;
         let max_priority_fee_per_gas = 1_000_000_000;
 
         // Act
@@ -934,7 +934,7 @@ mod tests {
                 gas_limit,
                 max_fee_per_gas,
                 max_priority_fee_per_gas,
-                chain_id,
+                wallet_user.chain_id,
                 None,
                 None,
             )
@@ -951,10 +951,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let wallet_addr = wallet_user.get_wallet_addr().await.unwrap();
         let mocked_transaction_count = 5;
@@ -986,7 +992,6 @@ mod tests {
         let amount_to_send = U256::from(1);
         let gas_limit = 21_000;
         let max_fee_per_gas = 20_000_000_000;
-        let chain_id = 31337;
         let max_priority_fee_per_gas = 1_000_000_000;
         let tag = TaggedDataPayload::new(Vec::from([8, 16]), Vec::from([8, 16])).unwrap();
         let metadata = String::from("test message");
@@ -1000,7 +1005,7 @@ mod tests {
                 gas_limit,
                 max_fee_per_gas,
                 max_priority_fee_per_gas,
-                chain_id,
+                wallet_user.chain_id,
                 Some(tag),
                 Some(metadata),
             )
@@ -1043,10 +1048,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let mocked_transaction_count = 5;
         let index = "1";
@@ -1139,12 +1150,8 @@ mod tests {
             ))
             .create();
 
-        let chain_id: u64 = 31337;
-
         // Act
-        let transaction_id = wallet_user
-            .send_transaction_eth(index, &to, amount_to_send, chain_id)
-            .await;
+        let transaction_id = wallet_user.send_transaction_eth(index, &to, amount_to_send).await;
 
         // Assert
         mocked_rpc_get_transaction_count.assert();
@@ -1160,10 +1167,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let mocked_transaction_count = 5;
         let amount_to_send = CryptoAmount::from(100);
@@ -1255,13 +1268,12 @@ mod tests {
             ))
             .create();
 
-        let chain_id: u64 = 31337;
         let tagged_data_payload = TaggedDataPayload::new(Vec::from([8, 16]), Vec::from([8, 16])).unwrap();
         let metadata = String::from("test message");
 
         // Act
         let transaction_id = wallet_user
-            .send_amount_eth(&to, amount_to_send, Some(tagged_data_payload), Some(metadata), chain_id)
+            .send_amount_eth(&to, amount_to_send, Some(tagged_data_payload), Some(metadata))
             .await;
 
         // Assert
@@ -1280,10 +1292,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let mocked_rpc_get_transaction_by_hash = server
             .mock("POST", "/")
@@ -1320,10 +1338,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let dummy_transaction_hash = "0xcd718a69d478340dc28fdf6bf8056374a52dc95841b44083163ced8dfe29310c";
         let dummy_block_number = "0x107d7b0";
@@ -1461,10 +1485,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let dummy_transaction_id = "0xcd718a69d478340dc28fdf6bf8056374a52dc95841b44083163ced8dfe29310c";
 
@@ -1682,10 +1712,16 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         let url = server.url();
         let node_url = Url::parse(&url).unwrap();
-        let mockito_http_provider = ProviderBuilder::new().on_http(node_url);
+        let mockito_http_provider = ProviderBuilder::new().on_http(node_url.clone());
+        let chain_id = 31337;
 
-        let (wallet_user, _cleanup) =
-            get_wallet_user_with_mocked_provider(HARDHAT_MNEMONIC, mockito_http_provider).await;
+        let (wallet_user, _cleanup) = get_wallet_user_with_mocked_provider(
+            HARDHAT_MNEMONIC,
+            mockito_http_provider,
+            node_url.to_string(),
+            chain_id,
+        )
+        .await;
 
         let to = String::from("0xb0b0000000000000000000000000000000000000");
         let value = U256::from(1);

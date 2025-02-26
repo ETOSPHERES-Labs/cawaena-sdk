@@ -20,10 +20,7 @@
 use super::error::{ApiError, Result};
 use crate::{
     core::config::Config,
-    types::{
-        currencies::{CryptoAmount, Currency},
-        newtypes::AccessToken,
-    },
+    types::{currencies::CryptoAmount, newtypes::AccessToken},
 };
 use api_types::api::transactions::{
     ApiApplicationMetadata, CreateTransactionRequest, CreateTransactionResponse, GetTransactionDetailsResponse,
@@ -65,7 +62,7 @@ pub async fn create_new_transaction(
     access_token: &AccessToken,
     sender: &str,
     receiver: &str,
-    currency: Currency,
+    network_id: String,
     amount: CryptoAmount,
     metadata: ApiApplicationMetadata,
 ) -> Result<CreateTransactionResponse> {
@@ -74,7 +71,7 @@ pub async fn create_new_transaction(
 
     let body = CreateTransactionRequest {
         amount: amount.inner(),
-        currency: currency.into(),
+        network_id,
         receiver: receiver.into(),
         application_metadata: metadata,
     };
@@ -319,13 +316,11 @@ mod tests {
         #[case] expected: Result<CreateTransactionResponse>,
     ) {
         // Arrange
-
-        use api_types::api::generic::ApiCryptoCurrency;
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mock_request = CreateTransactionRequest {
             amount: AMOUNT.inner(),
-            currency: ApiCryptoCurrency::Iota,
+            network_id: String::from("67a1f08edf55756bae21e7eb"),
             receiver: RECEIVER.into(),
             application_metadata: example_tx_metadata(),
         };
@@ -354,7 +349,7 @@ mod tests {
             &TOKEN,
             USERNAME,
             RECEIVER,
-            Currency::Iota,
+            String::from("67a1f08edf55756bae21e7eb"),
             AMOUNT,
             example_tx_metadata(),
         )

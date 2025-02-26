@@ -5,7 +5,6 @@ use super::Sdk;
 use crate::backend;
 use crate::backend::kyc::check_kyc_status;
 use crate::error::Result;
-use crate::types::currencies::Currency;
 use crate::types::newtypes::AccessToken;
 use crate::types::newtypes::EncryptionPin;
 use crate::types::newtypes::EncryptionSalt;
@@ -220,8 +219,8 @@ impl Sdk {
         Ok(is_verified)
     }
 
-    /// Set the user preferred currency
-    pub async fn set_preferred_currency(&mut self, currency: Option<Currency>) -> Result<()> {
+    /// Set the user preferred network
+    pub async fn set_preferred_network(&mut self, network_id: Option<String>) -> Result<()> {
         let Some(user) = &self.active_user else {
             return Err(crate::Error::UserNotInitialized);
         };
@@ -230,12 +229,12 @@ impl Sdk {
             .as_ref()
             .ok_or(crate::error::Error::MissingAccessToken)?;
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
-        backend::user::set_preferred_currency(config, access_token, &user.username, currency).await?;
+        backend::user::set_preferred_network(config, access_token, &user.username, network_id).await?;
         Ok(())
     }
 
-    /// Get the user preferred currency
-    pub async fn get_preferred_currency(&self) -> Result<Option<Currency>> {
+    /// Get the user preferred network
+    pub async fn get_preferred_network(&self) -> Result<Option<String>> {
         let Some(user) = &self.active_user else {
             return Err(crate::Error::UserNotInitialized);
         };
@@ -244,8 +243,8 @@ impl Sdk {
             .as_ref()
             .ok_or(crate::error::Error::MissingAccessToken)?;
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
-        let preferred_currency = backend::user::get_preferred_currency(config, access_token, &user.username).await?;
-        Ok(preferred_currency)
+        let preferred_network = backend::user::get_preferred_network(config, access_token, &user.username).await?;
+        Ok(preferred_network)
     }
 }
 
@@ -567,7 +566,9 @@ mod tests {
         }
 
         // Act
-        let response = sdk.set_preferred_currency(Some(Currency::Iota)).await;
+        let response = sdk
+            .set_preferred_network(Some(String::from("67a1f08edf55756bae21e7eb")))
+            .await;
 
         // Assert
         match expected {
@@ -582,12 +583,12 @@ mod tests {
     }
 
     #[rstest]
-    #[case::success(Ok(Some(Currency::Iota)))]
+    #[case::success(Ok(Some(String::from("67a1f08edf55756bae21e7eb"))))]
     #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[tokio::test]
-    async fn test_get_preferred_currency(#[case] expected: Result<Option<Currency>>) {
+    async fn test_get_preferred_currency(#[case] expected: Result<Option<String>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
@@ -608,7 +609,7 @@ mod tests {
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
                         .with_status(200)
                         .with_header("content-type", "application/json")
-                        .with_body("{\"currency\":\"Iota\"}")
+                        .with_body("{\"network_id\":\"67a1f08edf55756bae21e7eb\"}")
                         .expect(1)
                         .create(),
                 );
@@ -619,12 +620,12 @@ mod tests {
         }
 
         // Act
-        let response = sdk.get_preferred_currency().await;
+        let response = sdk.get_preferred_network().await;
 
         // Assert
         match expected {
-            Ok(currency) => {
-                assert_eq!(response.unwrap(), currency)
+            Ok(network_id) => {
+                assert_eq!(response.unwrap(), network_id)
             }
             Err(ref expected_err) => {
                 assert_eq!(response.err().unwrap().to_string(), expected_err.to_string());

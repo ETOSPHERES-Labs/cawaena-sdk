@@ -37,6 +37,7 @@ use crate::types::newtypes::{AccessToken, EncryptionPin};
 use crate::types::users::ActiveUser;
 use crate::user::UserRepo;
 use crate::wallet_manager::WalletBorrow;
+use api_types::api::transactions::ApiNetwork;
 pub use config::Config;
 use log::debug;
 
@@ -54,6 +55,8 @@ pub struct Sdk {
     repo: Option<UserRepoT>,
     /// The currently active coin currency
     currency: Option<Currency>,
+    /// The currently active network
+    network: Option<ApiNetwork>,
 }
 
 impl Drop for Sdk {
@@ -72,6 +75,7 @@ impl Default for Sdk {
             access_token: None,
             repo: None,
             currency: None,
+            network: None,
         }
     }
 }
@@ -91,6 +95,12 @@ impl Sdk {
         self.currency = Some(currency);
     }
 
+    /// Set network
+    pub fn set_network(&mut self, network: ApiNetwork) {
+        debug!("Selected Network: {:?}", network);
+        self.network = Some(network);
+    }
+
     /// Tries to get the wallet of the currently active user. Or returns an error if no user is
     /// initialized, or if creating the wallet fails.
     ///
@@ -104,11 +114,11 @@ impl Sdk {
         let Some(active_user) = &mut self.active_user else {
             return Err(crate::Error::UserNotInitialized);
         };
-        let currency = self.currency.ok_or(crate::Error::MissingCurrency)?;
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
         let config = self.config.as_mut().ok_or(crate::Error::MissingConfig)?;
         let wallet = active_user
             .wallet_manager
-            .try_get(config, &self.access_token, repo, currency, pin)
+            .try_get(config, &self.access_token, repo, network, pin)
             .await?;
         Ok(wallet)
     }

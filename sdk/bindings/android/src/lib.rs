@@ -110,7 +110,7 @@ mod ffi {
     pub fn getNodeUrls() -> Result<String, String> {
         let result = runtime().block_on(async move {
             let sdk = get_or_init_sdk().write().await;
-            sdk.get_node_urls_backend().await
+            sdk.get_networks_backend().await
         });
 
         match result {

@@ -6,11 +6,12 @@
 use super::share::Share;
 use super::wallet_user::{WalletImplStardust, WalletUser};
 use super::wallet_user_eth::WalletImplEth;
-use crate::backend::dlt::get_node_urls;
+use crate::backend::dlt::get_networks;
 use crate::core::{Config, UserRepoT};
 use crate::types::currencies::Currency;
 use crate::types::newtypes::{AccessToken, EncryptionPin, EncryptionSalt, PlainPassword};
 use crate::wallet::error::{ErrorKind, Result, WalletError};
+use api_types::api::transactions::ApiNetwork;
 use async_trait::async_trait;
 use iota_sdk::crypto::keys::bip39::Mnemonic;
 use log::{info, warn};
@@ -138,7 +139,7 @@ pub trait WalletManager: std::fmt::Debug {
         config: &mut Config,
         access_token: &Option<AccessToken>,
         repo: &mut UserRepoT,
-        currency: Currency,
+        network: ApiNetwork,
         pin: &EncryptionPin,
     ) -> Result<WalletBorrow<'a>>;
 }
@@ -531,7 +532,7 @@ impl WalletManager for WalletManagerImpl {
         config: &mut Config,
         access_token: &Option<AccessToken>,
         repo: &mut UserRepoT,
-        currency: Currency,
+        network: ApiNetwork,
         pin: &EncryptionPin,
     ) -> Result<WalletBorrow<'a>> {
         let (mnemonic, _status) = self.try_resemble_shares(config, access_token, repo, pin).await?;
@@ -542,27 +543,33 @@ impl WalletManager for WalletManagerImpl {
             .path_prefix
             .join("wallets")
             .join(&self.username)
-            .join(currency.coin_type().to_string());
+            .join(network.clone().id);
 
-        // Get node urls from backend if they are not set in the config
-        if config.node_urls.is_empty() {
+        // Get networks from backend if they are not set in the config
+        if config.networks.is_empty() {
             let access_token = access_token.as_ref().ok_or(WalletError::MissingAccessToken)?;
-            let backend_node_urls = get_node_urls(config, &self.username, access_token).await?;
-            let mut converted_node_urls = HashMap::new();
-            for (key, value) in backend_node_urls {
-                let convert_key = Currency::try_from(key)?;
-                converted_node_urls.insert(convert_key, value);
-            }
-            config.node_urls = converted_node_urls;
+            let backend_networks = get_networks(config, &self.username, access_token).await?;
+
+            let config_networks: HashMap<String, ApiNetwork> = backend_networks
+                .into_iter()
+                .map(|network| (network.id.clone(), network))
+                .collect();
+
+            config.networks = config_networks;
         }
 
-        let bo = match currency {
-            Currency::Iota => {
-                let wallet = WalletImplStardust::new(config, mnemonic, &path, currency).await?;
+        if !config.networks.contains_key(&network.id) {
+            return Err(WalletError::NetworkNotPresentInConfig { network_id: network.id });
+        }
+
+        let bo = match network.network_type {
+            api_types::api::transactions::ApiNetworkType::Evm { node_url, chain_id } => {
+                let wallet = WalletImplEth::new(mnemonic, &path, node_url, chain_id).await?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
-            Currency::Eth => {
-                let wallet = WalletImplEth::new(config, mnemonic, &path).await?;
+            api_types::api::transactions::ApiNetworkType::Stardust { node_url } => {
+                let currency = Currency::try_from(network.currency)?;
+                let wallet = WalletImplStardust::new(mnemonic, &path, currency, node_url).await?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
         };
@@ -580,7 +587,7 @@ mod tests {
     use crate::{
         core::{Config, UserRepoT},
         kdbx::KdbxStorageError,
-        testing_utils::BACKUP_PASSWORD,
+        testing_utils::{example_network, BACKUP_PASSWORD},
         types::{
             newtypes::{AccessToken, EncryptionPin, EncryptionSalt, PlainPassword},
             users::KycType,
@@ -707,7 +714,7 @@ mod tests {
             .expect("should succeed to change wallet password");
 
         let wallet = manager
-            .try_get(&mut config, &None, &mut repo, Currency::Iota, &pin)
+            .try_get(&mut config, &None, &mut repo, example_network(Currency::Iota), &pin)
             .await
             .expect("should succeed to get wallet after password change");
 
@@ -729,7 +736,7 @@ mod tests {
 
         // get the wallet instance to make sure any files are created
         let _wallet = manager
-            .try_get(&mut config, &None, &mut repo, Currency::Iota, &pin)
+            .try_get(&mut config, &None, &mut repo, example_network(Currency::Iota), &pin)
             .await
             .expect("should succeed to get wallet");
 
@@ -949,7 +956,13 @@ mod tests {
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
             let wallet = manager
-                .try_get(&mut config, &access_token, &mut repo, Currency::Iota, &pin)
+                .try_get(
+                    &mut config,
+                    &access_token,
+                    &mut repo,
+                    example_network(Currency::Iota),
+                    &pin,
+                )
                 .await
                 .unwrap();
 

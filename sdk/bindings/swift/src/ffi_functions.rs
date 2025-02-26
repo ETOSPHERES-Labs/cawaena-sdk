@@ -80,7 +80,7 @@ impl CawaenaSdk {
     /// * Err - if there is an error fetching the currencies and urls.
     pub async fn get_node_urls(&self) -> Result<String, String> {
         let sdk = self.inner.write().await;
-        async move { sdk.get_node_urls_backend().await }
+        async move { sdk.get_networks_backend().await }
             .await
             .map_err(|err| format!("{:#?}", err))
             .map(|v| serde_json::to_string(&v).map_err(|e| format!("{e:#?}")))?
@@ -1293,7 +1293,7 @@ impl CawaenaSdk {
     /// * Err - if there was an error contacting the backend.
     pub async fn get_preferred_currency(&self) -> Result<PreferredCurrency, String> {
         let sdk = self.inner.write().await;
-        sdk.get_preferred_currency()
+        sdk.get_preferred_network()
             .await
             .map(Into::into)
             .map_err(|err| format!("{:#?}", err))
@@ -1311,7 +1311,7 @@ impl CawaenaSdk {
     /// * Err - if there was an error contacting the backend.
     pub async fn set_preferred_currency(&self, currency: PreferredCurrency) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_preferred_currency(currency.into())
+        sdk.set_preferred_network(currency.into())
             .await
             .map_err(|err| format!("{:#?}", err))
     }

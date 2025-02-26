@@ -6,9 +6,9 @@
 use super::error::{ApiError, Result};
 use crate::{
     core::Config,
-    types::{currencies::Currency, newtypes::AccessToken},
+    types::newtypes::AccessToken,
 };
-use api_types::api::dlt::{GetPreferredCurrencyResponse, SetPreferredCurrencyRequest};
+use api_types::api::dlt::{GetPreferredNetworkResponse, SetPreferredNetworkRequest};
 use log::{debug, error, info};
 use reqwest::StatusCode;
 
@@ -77,20 +77,18 @@ pub async fn delete_user_account(config: &Config, access_token: &AccessToken, us
 /// # Errors
 ///
 /// Returns an `Err` variant of [`ApiError`] if there is an error updaing the preferred currency.
-pub async fn set_preferred_currency(
+pub async fn set_preferred_network(
     config: &Config,
     access_token: &AccessToken,
     username: &str,
-    currency: Option<Currency>,
+    network_id: Option<String>,
 ) -> Result<()> {
     let base_url = &config.backend_url;
     let url = format!("{base_url}/user/network");
     info!("Used url: {url:#?}");
-    info!("Setting preferred currency for {username}");
+    info!("Setting preferred network for {username}");
 
-    let body = SetPreferredCurrencyRequest {
-        currency: currency.map(Into::into),
-    };
+    let body = SetPreferredNetworkRequest { network_id };
 
     let client = reqwest::Client::new();
     let response = client
@@ -121,7 +119,7 @@ pub async fn set_preferred_currency(
     }
 }
 
-/// Get user's preferred currency
+/// Get user's preferred network (id)
 ///
 /// # Arguments
 ///
@@ -131,16 +129,16 @@ pub async fn set_preferred_currency(
 ///
 /// # Returns
 ///
-/// Returns the user's preferred currency, or None if it is not set.
+/// Returns the user's preferred network (id), or None if it is not set.
 ///
 /// # Errors
 ///
-/// Returns an `Err` variant of [`ApiError`] if there is an error getting the preferred currency.
-pub async fn get_preferred_currency(
+/// Returns an `Err` variant of [`ApiError`] if there is an error getting the preferred network (id).
+pub async fn get_preferred_network(
     config: &Config,
     access_token: &AccessToken,
     username: &str,
-) -> Result<Option<Currency>> {
+) -> Result<Option<String>> {
     let base_url = &config.backend_url;
     let url = format!("{base_url}/user/network");
     info!("Used url: {url:#?}");
@@ -157,11 +155,8 @@ pub async fn get_preferred_currency(
     debug!("Response: {response:#?}");
 
     match response.status() {
-        StatusCode::OK => Ok(response
-            .json::<GetPreferredCurrencyResponse>()
-            .await?
-            .currency
-            .map(Into::into)),
+        StatusCode::OK => Ok(response.json::<GetPreferredNetworkResponse>().await?.network_id),
+        //.map(Into::into)),
         StatusCode::UNAUTHORIZED => Err(ApiError::MissingAccessToken),
         _ => {
             let status = response.status();
@@ -190,7 +185,7 @@ mod tests {
         body: "".to_string() 
     }))]
     #[case(501, Err(ApiError::UnexpectedResponse {
-        code: StatusCode::NOT_IMPLEMENTED,
+        code: StatusCode::NOT_IMPLEMENTED, 
         body: "".to_string() 
     }))]
     #[tokio::test]
@@ -221,7 +216,7 @@ mod tests {
     }
 
     #[rstest::rstest]
-    #[case(200, Ok(Some(Currency::Iota)))]
+    #[case(200, Ok(Some(String::from("67a1f08edf55756bae21e7eb"))))]
     #[case(401, Err(ApiError::MissingAccessToken))]
     #[case(500, Err(ApiError::UnexpectedResponse {
         code: StatusCode::INTERNAL_SERVER_ERROR,
@@ -232,7 +227,7 @@ mod tests {
         body: "".to_string() 
     }))]
     #[tokio::test]
-    async fn test_get_preferred_currency(#[case] status_code: usize, #[case] expected: Result<Option<Currency>>) {
+    async fn test_get_preferred_network(#[case] status_code: usize, #[case] expected: Result<Option<String>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
 
@@ -245,12 +240,12 @@ mod tests {
             .with_header("content-type", "application/json");
         // Conditionally add the response body only for the 200 status code
         if status_code == 200 {
-            mock_server = mock_server.with_body("{\"currency\":\"Iota\"}");
+            mock_server = mock_server.with_body("{\"network_id\":\"67a1f08edf55756bae21e7eb\"}");
         }
         let mock_server = mock_server.expect(1).create();
 
         // Act
-        let response = get_preferred_currency(&config, &TOKEN, USERNAME).await;
+        let response = get_preferred_network(&config, &TOKEN, USERNAME).await;
 
         // Assert
         match expected {
@@ -290,7 +285,7 @@ mod tests {
             .create();
 
         // Act
-        let response = set_preferred_currency(&config, &TOKEN, USERNAME, Some(Currency::Iota)).await;
+        let response = set_preferred_network(&config, &TOKEN, USERNAME, Some(String::from("67a1f08edf55756bae21e7eb"))).await;
 
         // Assert
         match expected {

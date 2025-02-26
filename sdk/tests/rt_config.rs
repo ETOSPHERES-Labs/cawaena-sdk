@@ -15,7 +15,7 @@ async fn it_should_get_node_urls() {
     sdk.init_user(&user.username).await.unwrap();
 
     // Act
-    let result = sdk.get_node_urls_backend().await;
+    let result = sdk.get_networks_backend().await;
 
     // Assert response
     let response = result.unwrap();

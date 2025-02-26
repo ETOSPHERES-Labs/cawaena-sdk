@@ -26,13 +26,6 @@ pub async fn init_sdk_with_cleanup(username: &str, existing_cleanup: CleanUp) ->
         path_prefix: Path::new(&existing_cleanup.path_prefix).into(),
         auth_provider: "standalone".to_string(),
         log_level: log::LevelFilter::Debug,
-        node_urls: HashMap::from([
-            (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
-            (
-                Currency::Eth,
-                vec!["https://ethereum-sepolia-rpc.publicnode.com".to_string()],
-            ),
-        ]),
     };
 
     let mut sdk = Sdk::new(config).expect("should not fail to initialize sdk"); // set the backend url if the environment variable is set

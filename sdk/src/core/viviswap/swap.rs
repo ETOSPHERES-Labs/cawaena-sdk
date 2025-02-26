@@ -582,8 +582,8 @@ mod tests {
     use super::*;
     use crate::testing_utils::{
         example_bank_details, example_contract_response, example_crypto_details, example_exchange_rate_response,
-        example_get_payment_details_response, example_get_user, example_viviswap_oder_response, set_config, ADDRESS,
-        AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, ORDER_ID, PIN, TOKEN, USERNAME,
+        example_get_payment_details_response, example_get_user, example_network, example_viviswap_oder_response,
+        set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, ORDER_ID, PIN, TOKEN, USERNAME,
     };
     use crate::types::users::KycType;
     use crate::{
@@ -593,6 +593,7 @@ mod tests {
         wallet_manager::{MockWalletManager, WalletBorrow},
         wallet_user::MockWalletUser,
     };
+    use api_types::api::transactions::ApiNetwork;
     use api_types::api::{dlt::SetUserAddressRequest, viviswap::order::GetOrdersResponse};
     use mockito::Matcher;
     use rand::Rng;
@@ -777,18 +778,18 @@ mod tests {
 
     #[rstest]
     #[case(
-        Currency::Iota,
+        example_network(Currency::Iota),
         SwapPaymentDetailKey::Iota,
         "/api/viviswap/details?payment_method_key=IOTA"
     )]
     #[case(
-        Currency::Eth,
+        example_network(Currency::Eth),
         SwapPaymentDetailKey::Eth,
         "/api/viviswap/details?payment_method_key=ETH"
     )]
     #[tokio::test]
     async fn it_should_create_viviswap_deposit(
-        #[case] currency: Currency,                       // Parametrized currency
+        #[case] network: ApiNetwork,                      // Parametrized network
         #[case] payment_detail_key: SwapPaymentDetailKey, // Payment detail key (Iota, Eth, etc.)
         #[case] payment_method_path: &str,                // The payment method query path
     ) {
@@ -797,7 +798,7 @@ mod tests {
         let mut sdk = Sdk::new(config).unwrap();
         sdk.access_token = Some(TOKEN.clone());
 
-        sdk.set_currency(currency); // Set parametrized currency
+        sdk.set_network(network.clone()); // Set parametrized network
         sdk.refresh_access_token(Some(TOKEN.clone())).await.unwrap();
 
         let mock_user_repo = example_get_user(payment_detail_key, false, 5, KycType::Viviswap);
@@ -849,6 +850,7 @@ mod tests {
 
         let mock_request = SetUserAddressRequest {
             address: ADDRESS.to_string(),
+            network_id: String::from("67a1f08edf55756bae21e7eb"),
         };
         let body = serde_json::to_string(&mock_request).unwrap();
 
@@ -857,7 +859,7 @@ mod tests {
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
-            .match_query(Matcher::Exact(format!("currency={}", currency)))
+            .match_query(Matcher::Exact(format!("network_id={}", network.id)))
             .match_body(Matcher::Exact(body))
             .with_status(201)
             .expect(1)
