@@ -55,9 +55,11 @@ fn android() {
 
 fn generate_pom_xml() {
     let version = env!("CARGO_PKG_VERSION");
-    let version_info = match env::var("CI_COMMIT_TAG") {
-        Ok(_) => version.to_string(),
-        Err(_) => format!("{}-SNAPSHOT", version),
+
+    let version_info = if env::var("IS_SNAPSHOT").is_ok() {
+        format!("{}-SNAPSHOT", version)
+    } else {
+        version.to_string()
     };
 
     let pom_file_path = Path::new("./jar/pom.xml");
@@ -80,8 +82,8 @@ fn generate_pom_xml() {
         .unwrap();
 
     write_element!(writer, "modelVersion", "4.0.0");
-    write_element!(writer, "groupId", "com.etogruppe");
-    write_element!(writer, "artifactId", "CryptpaySdk");
+    write_element!(writer, "groupId", "com.cawaena");
+    write_element!(writer, "artifactId", "wallet");
     write_element!(writer, "version", &version_info);
     write_element!(writer, "packaging", "jar");
     write_element!(writer, "name", env!("CARGO_PKG_NAME"));
@@ -101,18 +103,40 @@ fn generate_pom_xml() {
     writer.write(XmlEvent::end_element()).unwrap(); // Close developer
     writer.write(XmlEvent::end_element()).unwrap(); // Close developers
 
+    writer.write(XmlEvent::start_element("scm")).unwrap();
+    write_element!(
+        writer,
+        "connection",
+        "scm:git:git://github.com/ETOSPHERES-Labs/cawaena-sdk.git"
+    );
+    write_element!(
+        writer,
+        "developerConnection",
+        "scm:git:ssh://github.com:ETOSPHERES-Labs/cawaena-sdk.git"
+    );
+    write_element!(
+        writer,
+        "url",
+        "http://github.com/ETOSPHERES-Labs/cawaena-sdk/tree/master"
+    );
+    writer.write(XmlEvent::end_element()).unwrap(); // Close scm
+
     writer.write(XmlEvent::start_element("distributionManagement")).unwrap();
 
     writer.write(XmlEvent::start_element("repository")).unwrap();
-    write_element!(writer, "id", "jfrog");
-    write_element!(writer, "name", "repo.farmunited.com-releases");
-    write_element!(writer, "url", "https://repo.farmunited.com:443/artifactory/egdbz-mvn");
+    write_element!(writer, "id", "ossrh");
+    write_element!(writer, "name", "Central Repository OSSRH");
+    write_element!(
+        writer,
+        "url",
+        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    );
     writer.write(XmlEvent::end_element()).unwrap(); // Close repository
 
     writer.write(XmlEvent::start_element("snapshotRepository")).unwrap();
-    write_element!(writer, "id", "snapshots");
-    write_element!(writer, "name", "repo.farmunited.com-snapshots");
-    write_element!(writer, "url", "https://repo.farmunited.com:443/artifactory/egdbz-mvn");
+    write_element!(writer, "id", "ossrh");
+    write_element!(writer, "name", "Central Repository OSSRH Snapshots");
+    write_element!(writer, "url", "https://oss.sonatype.org/content/repositories/snapshots");
     writer.write(XmlEvent::end_element()).unwrap(); // Close snapshotRepository
     writer.write(XmlEvent::end_element()).unwrap(); // Close distributionManagement
 
@@ -142,9 +166,9 @@ fn generate_settings_xml() {
 
     writer.write(XmlEvent::start_element("servers")).unwrap();
     writer.write(XmlEvent::start_element("server")).unwrap();
-    write_element!(writer, "username", "${env.MVN_USERNAME}");
-    write_element!(writer, "password", "${env.MVN_PASSWORD}");
-    write_element!(writer, "id", "jfrog");
+    write_element!(writer, "username", "${env.TOKEN_USERNAME}");
+    write_element!(writer, "password", "${env.TOKEN_PASSWORD}");
+    write_element!(writer, "id", "ossrh");
     writer.write(XmlEvent::end_element()).unwrap(); // Close server
     writer.write(XmlEvent::end_element()).unwrap(); // Close servers
 
@@ -155,9 +179,9 @@ fn generate_settings_xml() {
     writer.write(XmlEvent::start_element("snapshots")).unwrap();
     write_element!(writer, "enabled", "false");
     writer.write(XmlEvent::end_element()).unwrap(); // Close snapshots
-    write_element!(writer, "id", "jfrog");
-    write_element!(writer, "name", "egdbz-mvn");
-    write_element!(writer, "url", "https://repo.farmunited.com:443/artifactory/egdbz-mvn");
+    write_element!(writer, "id", "ossrh");
+    write_element!(writer, "name", "snapshots");
+    write_element!(writer, "url", "https://oss.sonatype.org/content/repositories/snapshots");
     writer.write(XmlEvent::end_element()).unwrap(); // Close repository
     writer.write(XmlEvent::end_element()).unwrap(); // Close repositories
     write_element!(writer, "id", "artifactory");

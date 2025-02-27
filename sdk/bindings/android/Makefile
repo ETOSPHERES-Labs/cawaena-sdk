@@ -14,8 +14,8 @@ build_sdk:
 	@mv ./jar/java/jniLibs/x86/libwalletsdk_jni.so			./jar/java/jniLibs/x86/libwalletsdk.so
 
 bundle:build_sdk
-	cd jar/java/com/etogruppe && javac CryptpaySdk.java
-	cd jar && jar cf CryptpaySdk.jar -C java/ .
+	cd jar/java/com/cawaena && javac Wallet.java
+	cd jar && jar cf Wallet.jar -C java/ .
 
 clean:
 	@cargo clean
@@ -30,4 +30,4 @@ run_example: lib_example
 	cd examples && ./gradlew run --args $(example)
 
 build_javadoc:
-	javadoc -d javadoc -sourcepath ./tests/src/main/java com.etogruppe
+	javadoc -d javadoc -sourcepath ./tests/src/main/java com.cawaena

@@ -69,7 +69,7 @@ tasks.withType(JavaCompile) {
     options.deprecation = true
 
     // depend on the generated file so that we recompile if it changed
-    inputs.file(file('src/main/java/com/etogruppe/CryptpaySdk.java'))
+    inputs.file(file('src/main/java/com/cawaena/Wallet.java'))
 
     // since we need java to compile the generated bindings, we need to depend on the build task, and make sure we run after it
     dependsOn "compileNativeReleaseLibrary"
@@ -82,7 +82,7 @@ apply plugin: 'application'
 
 task runCreateNewUser01(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.CreateNewUser01'
+    main = 'com.cawaena.examples.CreateNewUser01'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -90,7 +90,7 @@ task runCreateNewUser01(type: JavaExec) {
 
 task runCreateNewWallet03(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.CreateNewWallet03'
+    main = 'com.cawaena.examples.CreateNewWallet03'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -98,7 +98,7 @@ task runCreateNewWallet03(type: JavaExec) {
 
 task runMigrateWalletFromMnemonic04(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.MigrateWalletFromMnemonic04'
+    main = 'com.cawaena.examples.MigrateWalletFromMnemonic04'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -106,7 +106,7 @@ task runMigrateWalletFromMnemonic04(type: JavaExec) {
 
 task runMigrateWalletFromBackup05(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.MigrateWalletFromBackup05'
+    main = 'com.cawaena.examples.MigrateWalletFromBackup05'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -114,7 +114,7 @@ task runMigrateWalletFromBackup05(type: JavaExec) {
 
 task runGenerateNewAddress06(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.GenerateNewAddress06'
+    main = 'com.cawaena.examples.GenerateNewAddress06'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -122,7 +122,7 @@ task runGenerateNewAddress06(type: JavaExec) {
 
 task runGetBalance07(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.GetBalance07'
+    main = 'com.cawaena.examples.GetBalance07'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -130,7 +130,7 @@ task runGetBalance07(type: JavaExec) {
 
 task runCreatePurchaseRequest08(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.CreatePurchaseRequest08'
+    main = 'com.cawaena.examples.CreatePurchaseRequest08'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -138,7 +138,7 @@ task runCreatePurchaseRequest08(type: JavaExec) {
 
 task runVerifyPin10(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.VerifyPin10'
+    main = 'com.cawaena.examples.VerifyPin10'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -146,7 +146,7 @@ task runVerifyPin10(type: JavaExec) {
 
 task runResetPin11(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.ResetPin11'
+    main = 'com.cawaena.examples.ResetPin11'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -154,7 +154,7 @@ task runResetPin11(type: JavaExec) {
 
 task runChangePassword12(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.ChangePassword12'
+    main = 'com.cawaena.examples.ChangePassword12'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -162,7 +162,7 @@ task runChangePassword12(type: JavaExec) {
 
 task runSendAmount13(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.SendAmount13'
+    main = 'com.cawaena.examples.SendAmount13'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -170,7 +170,7 @@ task runSendAmount13(type: JavaExec) {
 
 task runGetExchangeRate14(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.GetExchangeRate14'
+    main = 'com.cawaena.examples.GetExchangeRate14'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -178,7 +178,7 @@ task runGetExchangeRate14(type: JavaExec) {
 
 task runClaimOutput15(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.ClaimOutput15'
+    main = 'com.cawaena.examples.ClaimOutput15'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -186,7 +186,7 @@ task runClaimOutput15(type: JavaExec) {
 
 task runGetTxList16(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.GetTxList16'
+    main = 'com.cawaena.examples.GetTxList16'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -194,7 +194,7 @@ task runGetTxList16(type: JavaExec) {
 
 task runCreateCustomer17(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.CreateCustomer17'
+    main = 'com.cawaena.examples.CreateCustomer17'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -202,7 +202,7 @@ task runCreateCustomer17(type: JavaExec) {
 
 task runDeleteUser18(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.DeleteUser18'
+    main = 'com.cawaena.examples.DeleteUser18'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -210,7 +210,7 @@ task runDeleteUser18(type: JavaExec) {
 
 task runGetWalletTxList19(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.GetWalletTxList19'
+    main = 'com.cawaena.examples.GetWalletTxList19'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -218,7 +218,7 @@ task runGetWalletTxList19(type: JavaExec) {
 
 task runSendCompliment20(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.SendCompliment20'
+    main = 'com.cawaena.examples.SendCompliment20'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -228,7 +228,7 @@ task runSendCompliment20(type: JavaExec) {
 
 task runOnboardUserPostident02 (type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.OnboardUserPostident02'
+    main = 'com.cawaena.examples.OnboardUserPostident02'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")
@@ -236,7 +236,7 @@ task runOnboardUserPostident02 (type: JavaExec) {
 
 task runOnboardUserViviswap09(type: JavaExec) {
     group = 'application'
-    main = 'com.etogruppe.examples.OnboardUserViviswap09'
+    main = 'com.cawaena.examples.OnboardUserViviswap09'
     classpath = sourceSets.main.runtimeClasspath
     dependsOn copyReleaseBinary
     systemProperty "java.library.path", file("../../../../target/release/")

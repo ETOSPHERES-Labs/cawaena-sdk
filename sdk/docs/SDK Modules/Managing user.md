@@ -56,16 +56,16 @@ The `username` should always match the `preferred_username` claim on the JWT `ac
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena"; 
 
             // ensure a clean start
@@ -172,16 +172,16 @@ The access token brings the following safe operations for the SDK:
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena"; 
 
             // ensure a clean start
@@ -302,16 +302,16 @@ The access token brings the following safe operations for the SDK:
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena"; 
 
             // ensure a clean start
@@ -447,16 +447,16 @@ Deleting the user is simply deleting the user entity from the local database, wh
 
     package org.example.app;
 
-    import com.etogruppe.CryptpaySdk;
+    import com.cawaena.Wallet;
     import java.nio.file.Files;
     import java.nio.file.Paths;
     import java.io.IOException;
     import java.util.Map;
 
     public class app {
-        private CryptpaySdk sdk;
+        private Wallet sdk;
         public static void main(){
-            sdk = new CryptpaySdk();
+            sdk = new Wallet();
             String path = "/tmp/Cawaena"; 
 
             // ensure a clean start
