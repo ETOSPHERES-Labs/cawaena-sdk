@@ -585,6 +585,7 @@ mod tests {
         example_get_payment_details_response, example_get_user, example_network, example_viviswap_oder_response,
         set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, ORDER_ID, PIN, TOKEN, USERNAME,
     };
+    use crate::types::networks::Network;
     use crate::types::users::KycType;
     use crate::{
         core::Sdk,
@@ -593,7 +594,6 @@ mod tests {
         wallet_manager::{MockWalletManager, WalletBorrow},
         wallet_user::MockWalletUser,
     };
-    use api_types::api::transactions::ApiNetwork;
     use api_types::api::{dlt::SetUserAddressRequest, viviswap::order::GetOrdersResponse};
     use mockito::Matcher;
     use rand::Rng;
@@ -789,7 +789,7 @@ mod tests {
     )]
     #[tokio::test]
     async fn it_should_create_viviswap_deposit(
-        #[case] network: ApiNetwork,                      // Parametrized network
+        #[case] network: Network,                         // Parametrized network
         #[case] payment_detail_key: SwapPaymentDetailKey, // Payment detail key (Iota, Eth, etc.)
         #[case] payment_method_path: &str,                // The payment method query path
     ) {

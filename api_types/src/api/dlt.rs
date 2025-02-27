@@ -1,6 +1,7 @@
-use super::transactions::ApiNetwork;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use super::networks::ApiNetwork;
 
 /// Get/set system/user address query parameters
 #[derive(Debug, Deserialize, Serialize, Clone)]

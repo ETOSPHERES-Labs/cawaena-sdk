@@ -33,11 +33,11 @@ pub(crate) mod core_testing_utils;
 use crate::build;
 use crate::error::Result;
 use crate::types::currencies::Currency;
+use crate::types::networks::Network;
 use crate::types::newtypes::{AccessToken, EncryptionPin};
 use crate::types::users::ActiveUser;
 use crate::user::UserRepo;
 use crate::wallet_manager::WalletBorrow;
-use api_types::api::transactions::ApiNetwork;
 pub use config::Config;
 use log::debug;
 
@@ -56,7 +56,7 @@ pub struct Sdk {
     /// The currently active coin currency
     currency: Option<Currency>,
     /// The currently active network
-    network: Option<ApiNetwork>,
+    network: Option<Network>,
 }
 
 impl Drop for Sdk {
@@ -90,7 +90,7 @@ impl Sdk {
     }
 
     /// Set network
-    pub fn set_network(&mut self, network: ApiNetwork) {
+    pub fn set_network(&mut self, network: Network) {
         debug!("Selected Network: {:?}", network);
         self.network = Some(network);
     }

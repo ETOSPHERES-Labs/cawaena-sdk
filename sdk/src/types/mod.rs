@@ -6,6 +6,7 @@
 pub mod currencies;
 /// Errors related to sdk types
 pub mod error;
+pub mod networks;
 /// Newtypes used for sensitive data
 pub mod newtypes;
 /// business logic for transaction sdk module

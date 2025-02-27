@@ -9,9 +9,10 @@ use super::wallet_user_eth::WalletImplEth;
 use crate::backend::dlt::get_networks;
 use crate::core::{Config, UserRepoT};
 use crate::types::currencies::Currency;
+use crate::types::networks::{Network, NetworkType};
 use crate::types::newtypes::{AccessToken, EncryptionPin, EncryptionSalt, PlainPassword};
 use crate::wallet::error::{ErrorKind, Result, WalletError};
-use api_types::api::transactions::ApiNetwork;
+use api_types::api::networks::ApiNetwork;
 use async_trait::async_trait;
 use iota_sdk::crypto::keys::bip39::Mnemonic;
 use log::{info, warn};
@@ -139,7 +140,7 @@ pub trait WalletManager: std::fmt::Debug {
         config: &mut Config,
         access_token: &Option<AccessToken>,
         repo: &mut UserRepoT,
-        network: ApiNetwork,
+        network: Network,
         pin: &EncryptionPin,
     ) -> Result<WalletBorrow<'a>>;
 }
@@ -532,7 +533,7 @@ impl WalletManager for WalletManagerImpl {
         config: &mut Config,
         access_token: &Option<AccessToken>,
         repo: &mut UserRepoT,
-        network: ApiNetwork,
+        network: Network,
         pin: &EncryptionPin,
     ) -> Result<WalletBorrow<'a>> {
         let (mnemonic, _status) = self.try_resemble_shares(config, access_token, repo, pin).await?;
@@ -549,8 +550,9 @@ impl WalletManager for WalletManagerImpl {
         if config.networks.is_empty() {
             let access_token = access_token.as_ref().ok_or(WalletError::MissingAccessToken)?;
             let backend_networks = get_networks(config, &self.username, access_token).await?;
+            let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
 
-            let config_networks: HashMap<String, ApiNetwork> = backend_networks
+            let config_networks: HashMap<String, Network> = networks
                 .into_iter()
                 .map(|network| (network.id.clone(), network))
                 .collect();
@@ -563,11 +565,11 @@ impl WalletManager for WalletManagerImpl {
         }
 
         let bo = match network.network_type {
-            api_types::api::transactions::ApiNetworkType::Evm { node_url, chain_id } => {
+            NetworkType::Evm { node_url, chain_id } => {
                 let wallet = WalletImplEth::new(mnemonic, &path, node_url, chain_id).await?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
-            api_types::api::transactions::ApiNetworkType::Stardust { node_url } => {
+            NetworkType::Stardust { node_url } => {
                 let currency = Currency::try_from(network.currency)?;
                 let wallet = WalletImplStardust::new(mnemonic, &path, currency, node_url).await?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>

@@ -1,12 +1,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, dead_code)]
 
-use api_types::api::transactions::{ApiNetwork, ApiNetworkType};
+use api_types::api::networks::{ApiNetwork, ApiNetworkType};
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        currencies::Currency,
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
 use std::{collections::HashMap, path::Path};
 use testing::{CleanUp, USER_SATOSHI};

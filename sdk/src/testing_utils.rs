@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
 use crate::types::currencies::{CryptoAmount, Currency};
+use crate::types::networks::{Network, NetworkType};
 use crate::types::transactions::WalletTxInfo;
 use crate::types::users::{KycType, UserEntity};
 use crate::types::viviswap::{
@@ -15,7 +16,7 @@ use crate::{
     user::MockUserRepo,
     wallet_manager::WalletBorrow,
 };
-use api_types::api::transactions::{ApiNetwork, ApiNetworkType};
+use api_types::api::networks::{ApiNetwork, ApiNetworkType};
 use api_types::api::{
     account::Customer,
     postident::{CaseDetailsResponse, NewCaseIdResponse},
@@ -183,7 +184,7 @@ pub fn example_network_id(currency: Currency) -> String {
     }
 }
 
-pub fn example_network(currency: Currency) -> ApiNetwork {
+pub fn example_api_network(currency: Currency) -> ApiNetwork {
     match currency {
         Currency::Iota => ApiNetwork {
             id: example_network_id(currency),
@@ -204,6 +205,34 @@ pub fn example_network(currency: Currency) -> ApiNetwork {
             enabled: true,
             network_identifier: Some(String::from("ethereum_mainnet")),
             network_type: ApiNetworkType::Evm {
+                node_url: String::from("https://sepolia.mode.network"),
+                chain_id: 31337,
+            },
+        },
+    }
+}
+
+pub fn example_network(currency: Currency) -> Network {
+    match currency {
+        Currency::Iota => Network {
+            id: example_network_id(currency),
+            name: String::from("IOTA"),
+            currency: String::from("IOTA"),
+            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+            enabled: true,
+            network_identifier: Some(String::from("iota_mainnet")),
+            network_type: NetworkType::Stardust {
+                node_url: String::from("https://api.testnet.iotaledger.net"),
+            },
+        },
+        Currency::Eth => Network {
+            id: example_network_id(currency),
+            name: String::from("Eth Sepolia"),
+            currency: String::from("ETH"),
+            block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
+            enabled: true,
+            network_identifier: Some(String::from("ethereum_mainnet")),
+            network_type: NetworkType::Evm {
                 node_url: String::from("https://sepolia.mode.network"),
                 chain_id: 31337,
             },
@@ -346,19 +375,19 @@ pub fn example_customer() -> Customer {
     }
 }
 
-pub fn example_config_networks_filled_with_invalid_network(invalid_network_id: String) -> HashMap<String, ApiNetwork> {
+pub fn example_config_networks_filled_with_invalid_network(invalid_network_id: String) -> HashMap<String, Network> {
     let mut networks = HashMap::new();
 
     networks.insert(
         invalid_network_id.clone(),
-        ApiNetwork {
+        Network {
             id: invalid_network_id,
             name: String::new(),
             currency: String::new(),
             block_explorer_url: String::new(),
             enabled: false,
             network_identifier: None,
-            network_type: ApiNetworkType::Stardust {
+            network_type: NetworkType::Stardust {
                 node_url: String::new(),
             },
         },
@@ -367,7 +396,7 @@ pub fn example_config_networks_filled_with_invalid_network(invalid_network_id: S
     networks
 }
 
-pub fn example_config_networks() -> HashMap<String, ApiNetwork> {
+pub fn example_config_networks() -> HashMap<String, Network> {
     let mut networks = HashMap::new();
     networks.insert(example_network_id(Currency::Iota), example_network(Currency::Iota));
     networks.insert(example_network_id(Currency::Eth), example_network(Currency::Eth));

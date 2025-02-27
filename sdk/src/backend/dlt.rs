@@ -4,7 +4,7 @@ use super::error::{ApiError, Result};
 use crate::{core::config::Config, types::newtypes::AccessToken};
 use api_types::api::{
     dlt::{AddressQueryParameters, ApiGetNetworksResponse, SetUserAddressRequest},
-    transactions::ApiNetwork,
+    networks::ApiNetwork,
 };
 use log::{debug, error, info};
 use reqwest::StatusCode;
@@ -133,7 +133,7 @@ mod tests {
     use super::*;
     use crate::{
         testing_utils::{
-            example_network, example_network_id, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME,
+            example_api_network, example_network_id, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME,
             HEADER_X_APP_USERNAME, TOKEN, USERNAME,
         },
         types::currencies::Currency,
@@ -198,7 +198,7 @@ mod tests {
     }
 
     #[rstest::rstest]
-    #[case(200, Ok(ApiGetNetworksResponse {networks: vec![example_network(Currency::Iota), example_network(Currency::Eth)]}))]
+    #[case(200, Ok(ApiGetNetworksResponse {networks: vec![example_api_network(Currency::Iota), example_api_network(Currency::Eth)]}))]
     #[case(401, Err(ApiError::MissingAccessToken))]
     #[case(500, Err(ApiError::UnexpectedResponse {
         code: StatusCode::INTERNAL_SERVER_ERROR,
@@ -214,12 +214,12 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let resp_body = ApiGetNetworksResponse {
-            networks: vec![example_network(Currency::Iota), example_network(Currency::Eth)],
+            networks: vec![example_api_network(Currency::Iota), example_api_network(Currency::Eth)],
         };
         let mock_body_response = serde_json::to_string(&resp_body).unwrap();
 
         let mut mock_server = srv
-            .mock("GET", "/api/config/nodeurl")
+            .mock("GET", "/api/config/networks")
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())

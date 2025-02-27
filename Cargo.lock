@@ -1357,6 +1357,7 @@ dependencies = [
  "log",
  "ring",
  "sdk",
+ "serde",
  "serde_json",
  "tokio",
  "uuid",

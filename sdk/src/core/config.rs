@@ -5,9 +5,9 @@
 use super::Sdk;
 use crate::backend::dlt::get_networks;
 use crate::error::{Error, Result};
+use crate::types::networks::Network;
 use crate::user::repository::UserRepoImpl;
 use crate::user::UserRepo;
-use api_types::api::transactions::ApiNetwork;
 use log::info;
 use std::collections::HashMap;
 use std::path::Path;
@@ -33,7 +33,7 @@ pub struct Config {
     pub log_level: log::LevelFilter,
 
     /// The mapping of network_id to the network(s) to use.
-    pub networks: HashMap<String, ApiNetwork>,
+    pub networks: HashMap<String, Network>,
 }
 
 /// Struct representing the  deserialized version of the config in JSON format.
@@ -50,7 +50,7 @@ struct DeserializedConfig {
 
     auth_provider: String,
 
-    networks: Option<HashMap<String, ApiNetwork>>,
+    networks: Option<HashMap<String, Network>>,
 }
 
 #[cfg(test)]
@@ -102,7 +102,7 @@ impl TryFrom<DeserializedConfig> for Config {
             return Err(crate::Error::SetConfig("auth_provider must not be empty".to_string()));
         }
 
-        let config_networks: HashMap<String, ApiNetwork> = value.networks.unwrap_or_default();
+        let config_networks: HashMap<String, Network> = value.networks.unwrap_or_default();
 
         Ok(Self {
             backend_url: reqwest::Url::parse(&value.backend_url).map_err(|e| crate::Error::SetConfig(e.to_string()))?,
@@ -149,7 +149,7 @@ impl Sdk {
     }
 
     /// Get supported networks from backend
-    pub async fn get_networks_backend(&self) -> Result<HashMap<String, ApiNetwork>> {
+    pub async fn get_networks_backend(&self) -> Result<HashMap<String, Network>> {
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
         let username = &self
             .active_user
@@ -161,8 +161,9 @@ impl Sdk {
             .as_ref()
             .ok_or(crate::error::Error::MissingAccessToken)?;
         let backend_networks = get_networks(config, username, access_token).await?;
+        let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
 
-        let config_networks: HashMap<String, ApiNetwork> = backend_networks
+        let config_networks: HashMap<String, Network> = networks
             .into_iter()
             .map(|network| (network.id.clone(), network))
             .collect();
@@ -271,7 +272,7 @@ mod tests {
     use api_types::api::dlt::ApiGetNetworksResponse;
     use rstest::rstest;
 
-    fn valid_deserialized_config(networks: Option<HashMap<String, ApiNetwork>>) -> DeserializedConfig {
+    fn valid_deserialized_config(networks: Option<HashMap<String, Network>>) -> DeserializedConfig {
         DeserializedConfig {
             backend_url: "http://example.com".to_string(),
             log_level: "INFO".to_string(),
@@ -339,7 +340,7 @@ mod tests {
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[tokio::test]
-    async fn test_get_node_urls_backend(#[case] expected: Result<HashMap<String, ApiNetwork>>) {
+    async fn test_get_node_urls_backend(#[case] expected: Result<HashMap<String, Network>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
@@ -359,7 +360,7 @@ mod tests {
                 let mock_body_response = serde_json::to_string(&resp_body).unwrap();
 
                 mock_server = Some(
-                    srv.mock("GET", "/api/config/nodeurl")
+                    srv.mock("GET", "/api/config/networks")
                         .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())

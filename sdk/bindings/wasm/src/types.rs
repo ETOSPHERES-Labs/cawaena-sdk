@@ -1,4 +1,5 @@
 use crate::utils::{convert_enum, convert_simple_struct};
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -13,12 +14,12 @@ pub enum Level {
 convert_enum!(log::Level, Level, Error, Warn, Info, Debug, Trace,);
 
 #[wasm_bindgen]
-pub enum Network {
+pub enum Currency {
     Iota,
     Eth,
 }
 
-convert_enum!(sdk::types::currencies::Currency, Network, Iota, Eth,);
+convert_enum!(sdk::types::currencies::Currency, Currency, Iota, Eth,);
 
 #[wasm_bindgen(getter_with_clone, inspectable)]
 pub struct NewCaseIdResponse {
@@ -70,6 +71,229 @@ impl From<sdk::types::ApiTxStatus> for TxStatus {
             sdk::types::ApiTxStatus::ProcessingOutgoing => TxStatus::ProcessingOutgoing,
             sdk::types::ApiTxStatus::Completed => TxStatus::Completed,
             sdk::types::ApiTxStatus::Failed => TxStatus::Failed,
+        }
+    }
+}
+
+// #[wasm_bindgen]
+// pub struct Network2 {
+//     id: String,
+//     network_type: JsValue,
+// }
+
+// #[wasm_bindgen]
+// impl Network2 {
+//     #[wasm_bindgen(constructor)]
+//     pub fn new(id: String, network_type: JsValue) -> Self {
+//         Network2 { id, network_type }
+//     }
+// }
+
+// #[wasm_bindgen]
+// pub enum NetworkType {
+//     Evm { node_url: String, chain_id: u64 },
+//     Stardust { node_url: String },
+// }
+
+// pub trait NetworkTypeTrait {
+//     fn node_url(&self) -> String;
+//     fn chain_id(&self) -> Option<u64>;
+// }
+
+// #[wasm_bindgen]
+// pub struct Network {
+//     pub id: String,
+//     pub name: String,
+//     pub currency: String,
+//     pub block_explorer_url: String,
+//     pub enabled: bool,
+//     pub network_identifier: Option<String>,
+//     pub network_type: Box<dyn NetworkTypeTrait>,
+// }
+
+// #[wasm_bindgen]
+// impl Network {
+//     #[wasm_bindgen(constructor)]
+//     pub fn new(
+//         id: String,
+//         name: String,
+//         currency: String,
+//         block_explorer_url: String,
+//         enabled: bool,
+//         network_identifier: Option<String>,
+//         network_type: Box<dyn NetworkTypeTrait>,
+//     ) -> Self {
+//         Network {
+//             id,
+//             name,
+//             currency,
+//             block_explorer_url,
+//             enabled,
+//             network_identifier,
+//             network_type,
+//         }
+//     }
+// }
+
+// #[wasm_bindgen]
+// pub struct Evm {
+//     node_url: String,
+//     chain_id: u64, // #[wasm_bindgen(constructor)]
+//                    // pub fn new(node_url: String, chain_id: u64) -> Self {
+//                    //     Evm { node_url, chain_id }
+//                    // }
+// }
+
+// #[wasm_bindgen]
+// impl Evm {
+//     #[wasm_bindgen(constructor)]
+//     pub fn new(node_url: String, chain_id: u64) -> Self {
+//         Evm { node_url, chain_id }
+//     }
+// }
+
+// impl NetworkTypeTrait for Evm {
+//     fn node_url(&self) -> String {
+//         self.node_url.clone()
+//     }
+
+//     fn chain_id(&self) -> Option<u64> {
+//         Some(self.chain_id)
+//     }
+// }
+
+// #[wasm_bindgen]
+// pub struct Stardust {
+//     node_url: String,
+// }
+
+// #[wasm_bindgen]
+// impl Stardust {
+//     #[wasm_bindgen(constructor)]
+//     pub fn new(node_url: String) -> Self {
+//         Stardust { node_url }
+//     }
+// }
+
+// impl NetworkTypeTrait for Stardust {
+//     fn node_url(&self) -> String {
+//         self.node_url.clone()
+//     }
+
+//     fn chain_id(&self) -> Option<u64> {
+//         None
+//     }
+// }
+
+// impl NetworkTypeTrait for Evm {}
+
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize, Clone)]
+pub struct NetworkTypeWrapper {
+    variant: String,
+    node_url: String,
+    chain_id: Option<u64>,
+}
+
+#[wasm_bindgen]
+impl NetworkTypeWrapper {
+    #[wasm_bindgen]
+    pub fn evm(node_url: String, chain_id: u64) -> Self {
+        Self {
+            variant: String::from("Evm"),
+            node_url,
+            chain_id: Some(chain_id),
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn stardust(node_url: String) -> Self {
+        Self {
+            variant: String::from("Stardust"),
+            node_url,
+            chain_id: None,
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn get_variant(&self) -> String {
+        self.variant.clone()
+    }
+
+    #[wasm_bindgen]
+    pub fn get_node_url(&self) -> String {
+        self.node_url.clone()
+    }
+
+    #[wasm_bindgen]
+    pub fn get_chain_id(&self) -> Option<u64> {
+        self.chain_id
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
+pub struct Network {
+    id: String,
+    name: String,
+    currency: String,
+    block_explorer_url: String,
+    enabled: bool,
+    network_identifier: Option<String>,
+    network_type: NetworkTypeWrapper,
+}
+
+#[wasm_bindgen]
+impl Network {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        id: String,
+        name: String,
+        currency: String,
+        block_explorer_url: String,
+        enabled: bool,
+        network_identifier: Option<String>,
+        network_type: NetworkTypeWrapper,
+    ) -> Self {
+        Network {
+            id,
+            name,
+            currency,
+            block_explorer_url,
+            enabled,
+            network_identifier,
+            network_type,
+        }
+    }
+}
+
+impl From<sdk::types::networks::NetworkType> for NetworkTypeWrapper {
+    fn from(value: sdk::types::networks::NetworkType) -> Self {
+        match value {
+            sdk::types::networks::NetworkType::Evm { node_url, chain_id } => Self {
+                variant: String::from("Evm"),
+                node_url,
+                chain_id: Some(chain_id),
+            },
+            sdk::types::networks::NetworkType::Stardust { node_url } => Self {
+                variant: String::from("Stardust"),
+                node_url,
+                chain_id: None,
+            },
+        }
+    }
+}
+
+impl From<sdk::types::networks::Network> for Network {
+    fn from(value: sdk::types::networks::Network) -> Self {
+        Network {
+            id: value.id,
+            name: value.name,
+            currency: value.currency,
+            block_explorer_url: value.block_explorer_url,
+            enabled: value.enabled,
+            network_identifier: value.network_identifier,
+            network_type: NetworkTypeWrapper::from(value.network_type),
         }
     }
 }
