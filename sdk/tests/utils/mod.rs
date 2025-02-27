@@ -1,12 +1,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #![allow(dead_code)]
 
+use api_types::api::transactions::{ApiNetwork, ApiNetworkType};
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        currencies::Currency,
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
 use std::{collections::HashMap, path::Path};
 use testing::CleanUp;
@@ -35,7 +33,17 @@ pub async fn init_sdk_with_cleanup(username: &str, existing_cleanup: CleanUp) ->
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_network(Currency::Iota);
+    sdk.set_network(ApiNetwork {
+        id: String::from("67a1f08edf55756bae21e7eb"),
+        name: String::from("IOTA"),
+        currency: String::from("IOTA"),
+        block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+        enabled: true,
+        network_identifier: Some(String::from("iota_mainnet")),
+        network_type: ApiNetworkType::Stardust {
+            node_url: String::from("https://api.testnet.iotaledger.net"),
+        },
+    });
 
     (sdk, existing_cleanup)
 }

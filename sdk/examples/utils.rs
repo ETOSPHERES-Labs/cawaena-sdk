@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, dead_code)]
 
+use api_types::api::transactions::{ApiNetwork, ApiNetworkType};
 use sdk::{
     core::{Config, Sdk},
     types::{
@@ -30,10 +31,34 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
         auth_provider: "standalone".to_string(),
         log_level: log::LevelFilter::Debug,
         networks: HashMap::from([
-            (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
             (
-                Currency::Eth,
-                vec!["https://ethereum-sepolia-rpc.publicnode.com".to_string()],
+                String::from("67a1f08edf55756bae21e7eb"),
+                ApiNetwork {
+                    id: String::from("67a1f08edf55756bae21e7eb"),
+                    name: String::from("IOTA"),
+                    currency: String::from("IOTA"),
+                    block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+                    enabled: true,
+                    network_identifier: Some(String::from("iota_mainnet")),
+                    network_type: ApiNetworkType::Stardust {
+                        node_url: String::from("https://api.testnet.iotaledger.net"),
+                    },
+                },
+            ),
+            (
+                String::from("67a2080ddf55756bae21e7f5"),
+                ApiNetwork {
+                    id: String::from("67a2080ddf55756bae21e7f5"),
+                    name: String::from("Eth Sepolia"),
+                    currency: String::from("ETH"),
+                    block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
+                    enabled: true,
+                    network_identifier: Some(String::from("ethereum_mainnet")),
+                    network_type: ApiNetworkType::Evm {
+                        node_url: String::from("https://sepolia.mode.network"),
+                        chain_id: 31337,
+                    },
+                },
             ),
         ]),
     };
@@ -46,7 +71,17 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_network(Currency::Iota);
+    sdk.set_network(ApiNetwork {
+        id: String::from("67a1f08edf55756bae21e7eb"),
+        name: String::from("IOTA"),
+        currency: String::from("IOTA"),
+        block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+        enabled: true,
+        network_identifier: Some(String::from("iota_mainnet")),
+        network_type: ApiNetworkType::Stardust {
+            node_url: String::from("https://api.testnet.iotaledger.net"),
+        },
+    });
 
     (sdk, cleanup)
 }

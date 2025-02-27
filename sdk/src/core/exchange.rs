@@ -29,6 +29,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
+    use crate::testing_utils::example_network;
     use crate::{
         core::Sdk,
         error::Result,
@@ -65,7 +66,7 @@ mod tests {
                     wallet_manager: Box::new(MockWalletManager::new()),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.set_network(crate::types::currencies::Currency::Iota);
+                sdk.set_network(example_network(crate::types::currencies::Currency::Iota));
 
                 let body = serde_json::to_string(&example_exchange_rate_response()).unwrap();
                 mock_server = Some(
@@ -73,7 +74,7 @@ mod tests {
                         .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
-                        .match_query(Matcher::Exact("currency=Iota".to_string()))
+                        .match_query(Matcher::Exact("network_id=67a1f08edf55756bae21e7eb".to_string()))
                         .with_status(200)
                         .with_body(&body)
                         .expect(1)

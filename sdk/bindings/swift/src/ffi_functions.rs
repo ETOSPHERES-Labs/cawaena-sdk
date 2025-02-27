@@ -1285,13 +1285,13 @@ impl CawaenaSdk {
         sdk.set_recovery_share(share).await.map_err(|err| format!("{:#?}", err))
     }
 
-    /// Get the user's preferred currency.
+    /// Get the user's preferred network.
     ///
     /// # Returns
     ///
-    /// * Ok - the preferred currency, or `None` if it has not been set.
+    /// * Ok - the preferred network, or `None` if it has not been set.
     /// * Err - if there was an error contacting the backend.
-    pub async fn get_preferred_currency(&self) -> Result<PreferredCurrency, String> {
+    pub async fn get_preferred_network(&self) -> Result<PreferredCurrency, String> {
         let sdk = self.inner.write().await;
         sdk.get_preferred_network()
             .await

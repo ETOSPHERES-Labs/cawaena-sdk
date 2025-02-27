@@ -89,12 +89,6 @@ impl Sdk {
         Ok(s)
     }
 
-    /// Set currency
-    pub fn set_network(&mut self, currency: Currency) {
-        debug!("Selected Currency: {:?}", currency);
-        self.currency = Some(currency);
-    }
-
     /// Set network
     pub fn set_network(&mut self, network: ApiNetwork) {
         debug!("Selected Network: {:?}", network);
@@ -137,6 +131,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
+    use crate::testing_utils::example_network;
     use crate::{
         core::Sdk,
         error::Result,
@@ -166,7 +161,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_network(crate::types::currencies::Currency::Iota);
+                sdk.set_network(example_network(crate::types::currencies::Currency::Iota));
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 0, 0).await;

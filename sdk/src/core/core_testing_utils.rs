@@ -1,5 +1,5 @@
 use super::Sdk;
-use crate::testing_utils::{SALT, TOKEN};
+use crate::testing_utils::{example_network, SALT, TOKEN};
 use crate::types::users::UserEntity;
 use crate::wallet_manager::MockWalletManager;
 use crate::{
@@ -36,7 +36,7 @@ pub async fn handle_error_test_cases(
                 username: USERNAME.into(),
                 wallet_manager: Box::new(MockWalletManager::new()),
             });
-            sdk.set_network(crate::types::currencies::Currency::Iota);
+            sdk.set_network(example_network(crate::types::currencies::Currency::Iota));
             sdk.access_token = Some(TOKEN.clone());
             sdk.config = None;
         }
