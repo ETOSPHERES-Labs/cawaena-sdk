@@ -881,7 +881,7 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_currency(Currency::Iota);
+        sdk.set_network(Currency::Iota);
 
         let mock_user_repo = example_get_user(SwapPaymentDetailKey::Iota, false, 3, KycType::Viviswap);
         sdk.repo = Some(Box::new(mock_user_repo));
@@ -924,7 +924,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_currency(Currency::Iota);
+        sdk.set_network(Currency::Iota);
 
         sdk.repo = Some(Box::new(example_get_user(
             SwapPaymentDetailKey::Iota,

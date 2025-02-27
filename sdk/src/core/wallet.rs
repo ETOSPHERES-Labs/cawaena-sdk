@@ -1018,7 +1018,7 @@ mod tests {
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
                 sdk.set_network(example_network(crate::types::currencies::Currency::Iota));
 
                 let mock_request = SetUserAddressRequest {
@@ -1094,7 +1094,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 1, 0).await;
@@ -1144,7 +1144,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 1, 0).await;
@@ -1195,7 +1195,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 2, 0).await;
@@ -1242,7 +1242,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 1, 0).await;

@@ -46,7 +46,7 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_currency(Currency::Iota);
+    sdk.set_network(Currency::Iota);
 
     (sdk, cleanup)
 }

@@ -65,7 +65,7 @@ mod tests {
                     wallet_manager: Box::new(MockWalletManager::new()),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
 
                 let body = serde_json::to_string(&example_exchange_rate_response()).unwrap();
                 mock_server = Some(

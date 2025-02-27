@@ -126,7 +126,7 @@ mod ffi {
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
             let convert_currency = Currency::try_from(currency);
-            convert_currency.map(|c| sdk.set_currency(c))
+            convert_currency.map(|c| sdk.set_network(c))
         });
         result.map_err(|e| format!("{e:#?}"))
     }

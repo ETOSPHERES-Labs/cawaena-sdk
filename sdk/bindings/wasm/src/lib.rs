@@ -54,8 +54,8 @@ impl CryptpaySdk {
     ///     "backend_url": "<valid URL to the backend API>",
     ///     "storage_path": "/path/to/valid/folder",
     ///     "log_level": "info",
-    ///     "node_urls": {
-    ///         "iota": ["<first node url>", "<second node url>"]
+    ///     "networks": {
+    ///         "id": Network
     ///     }
     /// }
     /// ```
@@ -69,14 +69,14 @@ impl CryptpaySdk {
             .map_err(|err| format!("{:#?}", err))
     }
 
-    /// Selects the currency for the Cryptpay SDK.
+    /// Selects the network for the Cryptpay SDK.
     ///
-    /// @param {Currency} currency - The currency. Currently supports only ETH and IOTA.
+    /// @param {Network} network - The network.
     /// @returns {Promise<void>}
-    #[wasm_bindgen(skip_jsdoc, js_name = "setCurrency")]
-    pub async fn set_currency(&self, currency: Currency) {
+    #[wasm_bindgen(skip_jsdoc, js_name = "setNetwork")]
+    pub async fn set_network(&self, network: Network) {
         let mut sdk = self.inner.write().await;
-        sdk.set_currency(currency.into())
+        sdk.set_network(network.into())
     }
 
     /// Fetch available currencies and corresponding node urls.
@@ -1114,28 +1114,28 @@ impl CryptpaySdk {
         sdk.set_recovery_share(share).await.map_err(|err| format!("{:#?}", err))
     }
 
-    /// Get the preferred currency.
+    /// Get the preferred network.
     ///
-    /// @returns {Promise<Currency?>} The preferred currency, or `undefined` if none exists.
+    /// @returns {Promise<String?>} The id of preferred network, or `undefined` if none exists.
     #[wasm_bindgen(skip_jsdoc, js_name = "getPreferredCurrency")]
-    pub async fn get_preferred_currency(&self) -> Result<Option<Currency>, String> {
+    pub async fn get_preferred_network(&self) -> Result<Option<String>, String> {
         let sdk = self.inner.write().await;
         Ok(sdk
-            .get_preferred_currency()
+            .get_preferred_network()
             .await
             .map_err(|e| format!("{e:#?}"))?
             .map(Into::into))
     }
 
-    /// Set the preferred currency.
+    /// Set the preferred network.
     ///
-    /// @param {Currency?} currency - the currency, or null to reset it.
+    /// @param {String?} network - the id of the network, or null to reset it.
     ///
     /// @returns {Promise<()>}
     #[wasm_bindgen(skip_jsdoc, js_name = "setPreferredCurrency")]
-    pub async fn set_preferred_currency(&self, currency: Option<Currency>) -> Result<(), String> {
+    pub async fn set_preferred_network(&self, network: Option<String>) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_preferred_currency(currency.map(Into::into))
+        sdk.set_preferred_network(network.map(Into::into))
             .await
             .map_err(|e| format!("{e:#?}"))
     }

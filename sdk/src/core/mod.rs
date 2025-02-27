@@ -90,7 +90,7 @@ impl Sdk {
     }
 
     /// Set currency
-    pub fn set_currency(&mut self, currency: Currency) {
+    pub fn set_network(&mut self, currency: Currency) {
         debug!("Selected Currency: {:?}", currency);
         self.currency = Some(currency);
     }
@@ -166,7 +166,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_network(crate::types::currencies::Currency::Iota);
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 0, 0).await;

@@ -98,7 +98,7 @@ impl CawaenaSdk {
     /// * Err - if something went wrong.`
     pub async fn set_currency(&self, currency: Currency) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_currency(currency.into());
+        sdk.set_network(currency.into());
         Ok(())
     }
 

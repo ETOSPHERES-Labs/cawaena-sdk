@@ -36,7 +36,7 @@ pub async fn handle_error_test_cases(
                 username: USERNAME.into(),
                 wallet_manager: Box::new(MockWalletManager::new()),
             });
-            sdk.set_currency(crate::types::currencies::Currency::Iota);
+            sdk.set_network(crate::types::currencies::Currency::Iota);
             sdk.access_token = Some(TOKEN.clone());
             sdk.config = None;
         }
