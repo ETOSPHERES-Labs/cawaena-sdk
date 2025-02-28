@@ -136,6 +136,11 @@ impl Sdk {
         Ok(())
     }
 
+    /// Set networks
+    pub fn set_networks(&mut self, networks: Option<Vec<Network>>) {
+        self.networks = networks;
+    }
+
     /// Get networks
     pub fn get_networks(&self) -> Option<Vec<Network>> {
         self.networks.clone()
