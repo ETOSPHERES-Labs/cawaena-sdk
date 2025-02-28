@@ -68,7 +68,7 @@ impl CryptpaySdk {
 
     /// Selects the network for the Cryptpay SDK.
     ///
-    /// @param {Network} network - The network.
+    /// @param {String} network_id.
     /// @returns {Promise<void>}
     #[wasm_bindgen(skip_jsdoc, js_name = "setNetwork")]
     pub async fn set_network(&self, network_id: String) -> Result<(), String> {

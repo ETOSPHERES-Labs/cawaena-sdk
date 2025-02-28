@@ -20,7 +20,7 @@ mod type_conversions;
 use sdk::types::File;
 
 use once_cell::sync::OnceCell;
-use sdk::{core::Sdk, types::currencies::Currency};
+use sdk::core::Sdk;
 use std::sync::Arc;
 use tokio::{runtime::Runtime, sync::RwLock};
 
@@ -88,16 +88,12 @@ mod ffi {
     ///     "backend_url": "<valid URL to the backend API>",
     ///     "storage_path": "/path/to/valid/folder",
     ///     "log_level": "info",
-    ///     "node_urls": {
-    ///         "iota": ["<first node url>", "<second node url>"]
-    ///     }
     /// }
     /// }
     /// </pre>
     ///
     #[public_name = "setConfig"]
     pub fn setConfig(config: String) -> Result<(), String> {
-        // TODO: test + update comment
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
             sdk.set_config(Config::from_json(&config)?)
@@ -111,23 +107,19 @@ mod ffi {
     pub fn getNetworks() -> Result<String, String> {
         let result = runtime().block_on(async move {
             let sdk = get_or_init_sdk().write().await;
-            sdk.get_networks_backend().await
+            sdk.get_networks()
         });
 
-        match result {
-            Ok(value) => serde_json::to_string(&value).map_err(|e| format!("{e:#?}")),
-            Err(e) => Err(format!("{e:#?}")),
-        }
+        serde_json::to_string(&result).map_err(|e| format!("{e:#?}"))
     }
 
-    /// Selects the currency for the Cawaena SDK.
+    /// Selects the network for the Cryptpay SDK.
     ///
-    /// @param currency The input string representing the currency. Currently supports only SMR and IOTA.
-    pub fn setCurrency(currency: String) -> Result<(), String> {
+    /// @param network_id The input string representing the network id.
+    pub fn setNetwork(network_id: String) -> Result<(), String> {
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
-            let convert_currency = Currency::try_from(currency);
-            convert_currency.map(|c| sdk.set_network(c))
+            sdk.set_network(network_id).await
         });
         result.map_err(|e| format!("{e:#?}"))
     }
@@ -1132,29 +1124,25 @@ mod ffi {
         result.map_err(|e| format!("{e:#?}"))
     }
 
-    /// Get the user's preferred currency.
+    /// Get the user's preferred network.
     ///
-    /// @return The preferred currency, or `null` if it has not been set.
-    pub fn getPreferredCurrency() -> Result<Option<String>, String> {
+    /// @return The preferred network, or `null` if it has not been set.
+    pub fn getPreferredNetwork() -> Result<Option<String>, String> {
         let result = runtime().block_on(async move {
             let sdk = get_or_init_sdk().write().await;
-            sdk.get_preferred_currency().await
+            sdk.get_preferred_network().await
         });
 
         result.map(|s| s.map(|c| c.to_string())).map_err(|e| format!("{e:#?}"))
     }
 
-    /// Set the user's preferred currency.
+    /// Set the user's preferred network.
     ///
-    /// @param currency The preferred currency, or `null` if it should be unset.
-    pub fn setPreferredCurrency(currency: Option<String>) -> Result<(), String> {
+    /// @param network_id The preferred network, or `null` if it should be unset.
+    pub fn setPreferredNetwork(network_id: Option<String>) -> Result<(), String> {
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
-            let currency = match currency {
-                Some(c) => Some(Currency::try_from(c)?),
-                None => None,
-            };
-            sdk.set_preferred_currency(currency).await
+            sdk.set_preferred_network(network_id).await
         });
 
         result.map_err(|e| format!("{e:#?}"))
