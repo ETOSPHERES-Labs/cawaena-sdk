@@ -74,15 +74,35 @@ impl CryptpaySdk {
     /// @param {Network} network - The network.
     /// @returns {Promise<void>}
     #[wasm_bindgen(skip_jsdoc, js_name = "setNetwork")]
-    pub async fn set_network(&self, network: Network) {
+    pub async fn set_network(&self, network: Network) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_network(network.into())
+        // let try_network = sdk::types::networks::Network::try_from(network);
+        // match try_network {
+        //     Ok(n) => {
+        //         sdk.set_network(n);
+        //         Ok(())
+        //     }
+        //     Err(e) => Err(e),
+        // }
+
+        //sdk.create_new_user(&username).await.map_err(|e| format!("{e:#?}"))
+        // sdk::types::networks::Network::try_from(network)
+        //     .map(|n| {
+        //         sdk.set_network(n);
+        //         Ok(())
+        //     })
+        //     .map_err(|e| format!("{e:#?}"))
+
+        sdk::types::networks::Network::try_from(network).map_or_else(Err, |n| {
+            sdk.set_network(n);
+            Ok(())
+        })
     }
 
-    /// Fetch available currencies and corresponding node urls.
+    /// Fetch available networks.
     ///
-    /// @returns {String} Serialized string of a HashMap<String, Vec<String>> with currencies as key and node urls as value
-    pub async fn get_node_urls(&self) -> Result<String, String> {
+    /// @returns {String} Serialized string of a HashMap<String, Vec<Network>> with network id as key and network as value
+    pub async fn get_networks(&self) -> Result<String, String> {
         let sdk = self.inner.write().await;
         async move { sdk.get_networks_backend().await }
             .await
@@ -257,7 +277,7 @@ impl CryptpaySdk {
         .map_err(|e| format!("{e:#?}"))
     }
 
-    /// Generate a new receiver address based on selected currency in the config.
+    /// Generate a new receiver address based on selected network in the config.
     ///
     /// @param {string} pin - The input string representing the pin.
     ///
@@ -273,7 +293,7 @@ impl CryptpaySdk {
         .map_err(|e| format!("{e:#?}"))
     }
 
-    /// Fetches the current balance of the base crypto currency on the wallet
+    /// Fetches the current balance of the base crypto network on the wallet
     ///
     /// @param {string} pin - The input string representing the pin.
     ///
@@ -1116,8 +1136,8 @@ impl CryptpaySdk {
 
     /// Get the preferred network.
     ///
-    /// @returns {Promise<String?>} The id of preferred network, or `undefined` if none exists.
-    #[wasm_bindgen(skip_jsdoc, js_name = "getPreferredCurrency")]
+    /// @returns {Promise<String?>} The id of preferred network id, or `undefined` if none exists.
+    #[wasm_bindgen(skip_jsdoc, js_name = "getPreferredNetwork")]
     pub async fn get_preferred_network(&self) -> Result<Option<String>, String> {
         let sdk = self.inner.write().await;
         Ok(sdk
@@ -1132,7 +1152,7 @@ impl CryptpaySdk {
     /// @param {String?} network - the id of the network, or null to reset it.
     ///
     /// @returns {Promise<()>}
-    #[wasm_bindgen(skip_jsdoc, js_name = "setPreferredCurrency")]
+    #[wasm_bindgen(skip_jsdoc, js_name = "setPreferredNetwork")]
     pub async fn set_preferred_network(&self, network: Option<String>) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
         sdk.set_preferred_network(network.map(Into::into))

@@ -28,8 +28,12 @@ pub enum Error {
     MissingCurrency,
 
     /// Error occurs if the network is missing
-    #[error("No notwork id is set. Please use the set_network function.")]
+    #[error("No network is set. Please use the set_network function.")]
     MissingNetwork,
+
+    /// Error occurs if the chain id for evm network is missing
+    #[error("Chain ID cannot be empty for EVM network type.")]
+    EmptyChainIdForEvm,
 
     /// Error occurs when the config is not initialized or there are missing fields
     #[error("Error while setting the configuration: {0}")]

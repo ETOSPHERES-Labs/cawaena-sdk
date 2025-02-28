@@ -536,7 +536,7 @@ mod tests {
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[tokio::test]
-    async fn test_set_preferred_currency(#[case] expected: Result<()>) {
+    async fn test_set_preferred_network(#[case] expected: Result<()>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
@@ -588,7 +588,7 @@ mod tests {
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[tokio::test]
-    async fn test_get_preferred_currency(#[case] expected: Result<Option<String>>) {
+    async fn test_get_preferred_network(#[case] expected: Result<Option<String>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();

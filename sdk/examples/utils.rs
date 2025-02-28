@@ -1,9 +1,11 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, dead_code)]
 
-use api_types::api::networks::{ApiNetwork, ApiNetworkType};
 use sdk::{
     core::{Config, Sdk},
-    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
+    types::{
+        networks::{Network, NetworkType},
+        newtypes::{AccessToken, EncryptionPin, PlainPassword},
+    },
 };
 use std::{collections::HashMap, path::Path};
 use testing::{CleanUp, USER_SATOSHI};
@@ -30,28 +32,28 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
         networks: HashMap::from([
             (
                 String::from("67a1f08edf55756bae21e7eb"),
-                ApiNetwork {
+                Network {
                     id: String::from("67a1f08edf55756bae21e7eb"),
                     name: String::from("IOTA"),
                     currency: String::from("IOTA"),
                     block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
                     enabled: true,
                     network_identifier: Some(String::from("iota_mainnet")),
-                    network_type: ApiNetworkType::Stardust {
+                    network_type: NetworkType::Stardust {
                         node_url: String::from("https://api.testnet.iotaledger.net"),
                     },
                 },
             ),
             (
                 String::from("67a2080ddf55756bae21e7f5"),
-                ApiNetwork {
+                Network {
                     id: String::from("67a2080ddf55756bae21e7f5"),
                     name: String::from("Eth Sepolia"),
                     currency: String::from("ETH"),
                     block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
                     enabled: true,
                     network_identifier: Some(String::from("ethereum_mainnet")),
-                    network_type: ApiNetworkType::Evm {
+                    network_type: NetworkType::Evm {
                         node_url: String::from("https://sepolia.mode.network"),
                         chain_id: 31337,
                     },
@@ -68,14 +70,14 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_network(ApiNetwork {
+    sdk.set_network(Network {
         id: String::from("67a1f08edf55756bae21e7eb"),
         name: String::from("IOTA"),
         currency: String::from("IOTA"),
         block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
         enabled: true,
         network_identifier: Some(String::from("iota_mainnet")),
-        network_type: ApiNetworkType::Stardust {
+        network_type: NetworkType::Stardust {
             node_url: String::from("https://api.testnet.iotaledger.net"),
         },
     });
