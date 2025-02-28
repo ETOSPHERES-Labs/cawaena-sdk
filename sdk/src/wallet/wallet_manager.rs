@@ -543,24 +543,6 @@ impl WalletManager for WalletManagerImpl {
             .join(&self.username)
             .join(network.clone().id);
 
-        // // Get networks from backend if they are not set in the config
-        // if config.networks.is_empty() {
-        //     let access_token = access_token.as_ref().ok_or(WalletError::MissingAccessToken)?;
-        //     let backend_networks = get_networks(config, &self.username, access_token).await?;
-        //     let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
-
-        //     let config_networks: HashMap<String, Network> = networks
-        //         .into_iter()
-        //         .map(|network| (network.id.clone(), network))
-        //         .collect();
-
-        //     config.networks = config_networks;
-        // }
-
-        // if !config.networks.contains_key(&network.id) {
-        //     return Err(WalletError::NetworkNotPresentInConfig { network_id: network.id });
-        // }
-
         let bo = match network.network_type {
             NetworkType::Evm { node_url, chain_id } => {
                 let wallet = WalletImplEth::new(mnemonic, &path, node_url, chain_id).await?;

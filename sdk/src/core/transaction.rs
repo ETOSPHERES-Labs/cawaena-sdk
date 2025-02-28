@@ -542,7 +542,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network_id(Currency::Iota));
+        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
         let mut mock_server = None;
 
         match &expected {
@@ -608,7 +608,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network_id(Currency::Iota));
+        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
         let mut mock_server_details = None;
         let mut mock_server_commit = None;
 
@@ -793,7 +793,7 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network_id(Currency::Iota));
+        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         match &expected {
             Ok(_) => {
@@ -847,7 +847,7 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network_id(Currency::Iota));
+        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         let wallet_transaction = WalletTxInfo {
             date: String::new(),

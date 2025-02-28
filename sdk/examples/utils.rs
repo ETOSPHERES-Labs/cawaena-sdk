@@ -2,12 +2,9 @@
 
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        networks::{Network, NetworkType},
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
-use std::{collections::HashMap, path::Path};
+use std::path::Path;
 use testing::{CleanUp, USER_SATOSHI};
 
 pub async fn init_sdk() -> (Sdk, CleanUp) {

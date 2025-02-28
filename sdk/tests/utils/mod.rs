@@ -3,10 +3,7 @@
 
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        networks::{Network, NetworkType},
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
 use std::path::Path;
 use testing::CleanUp;

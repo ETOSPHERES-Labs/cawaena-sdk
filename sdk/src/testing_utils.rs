@@ -34,7 +34,7 @@ use api_types::api::{
 };
 use mockito::{Server, ServerOpts};
 use rust_decimal_macros::dec;
-use std::{collections::HashMap, sync::LazyLock};
+use std::sync::LazyLock;
 use testing::CleanUp;
 
 pub const USERNAME: &str = "test_user";
@@ -377,27 +377,6 @@ pub fn example_customer() -> Customer {
         contract_currency: api_types::api::account::ContractCurrency::EUR,
         vat_id: None,
     }
-}
-
-pub fn example_config_networks_filled_with_invalid_network(invalid_network_id: String) -> HashMap<String, Network> {
-    let mut networks = HashMap::new();
-
-    networks.insert(
-        invalid_network_id.clone(),
-        Network {
-            id: invalid_network_id,
-            name: String::new(),
-            currency: String::new(),
-            block_explorer_url: String::new(),
-            enabled: false,
-            network_identifier: None,
-            network_type: NetworkType::Stardust {
-                node_url: String::new(),
-            },
-        },
-    );
-
-    networks
 }
 
 pub fn example_wallet_borrow() -> MockWalletManager {
