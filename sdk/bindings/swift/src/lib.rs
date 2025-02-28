@@ -211,12 +211,6 @@ pub mod ffi {
         Eth,
     }
 
-    pub enum PreferredCurrency {
-        None,
-        Iota,
-        Eth,
-    }
-
     pub enum OfficialDocumentType {
         Id,
         Passport,
@@ -252,10 +246,10 @@ pub mod ffi {
 
         #[swift_bridge(swift_name = "setConfig")]
         async fn set_config(&self, config: String) -> Result<(), String>;
-        #[swift_bridge(swift_name = "getNodeUrls")]
-        async fn get_node_urls(&self) -> Result<String, String>;
-        #[swift_bridge(swift_name = "setCurrency")]
-        async fn set_currency(&self, currency: Currency) -> Result<(), String>;
+        #[swift_bridge(swift_name = "getNetworks")]
+        async fn get_networks(&self) -> Result<String, String>;
+        #[swift_bridge(swift_name = "setNetwork")]
+        async fn set_network(&self, network_id: String) -> Result<(), String>;
         async fn destroy(&self) -> Result<(), String>;
         #[swift_bridge(swift_name = "createNewUser")]
         async fn create_new_user(&self, username: String) -> Result<(), String>;
@@ -435,10 +429,10 @@ pub mod ffi {
         async fn get_recovery_share(&self) -> Result<String, String>;
         #[swift_bridge(swift_name = "setRecoveryShare")]
         async fn set_recovery_share(&self, share: String) -> Result<(), String>;
-        #[swift_bridge(swift_name = "getPreferredCurrency")]
-        async fn get_preferred_currency(&self) -> Result<PreferredCurrency, String>;
+        #[swift_bridge(swift_name = "getPreferredNetwork")]
+        async fn get_preferred_network(&self) -> Result<Option<String>, String>;
         #[swift_bridge(swift_name = "setPreferredCurrency")]
-        async fn set_preferred_currency(&self, currency: PreferredCurrency) -> Result<(), String>;
+        async fn set_preferred_network(&self, network_id: Option<String>) -> Result<(), String>;
         #[swift_bridge(swift_name = "getBuildInfo")]
         fn get_build_info(&self) -> String;
     }

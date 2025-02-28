@@ -72,33 +72,32 @@ impl CawaenaSdk {
             .map_err(|err| format!("{:#?}", err))
     }
 
-    /// Fetch available currencies and corresponding node urls.
+    /// Fetch available networks.
     ///
     /// # Returns
     ///
-    /// * Ok - Serialized string of a HashMap<String, Vec<String>> with currencies as key and node urls as value
-    /// * Err - if there is an error fetching the currencies and urls.
-    pub async fn get_node_urls(&self) -> Result<String, String> {
+    /// * Ok - Serialized string of a Vec<Network>>
+    /// * Err - if there is an error fetching the networks.
+    pub async fn get_networks(&self) -> Result<String, String> {
         let sdk = self.inner.write().await;
-        async move { sdk.get_networks_backend().await }
-            .await
-            .map_err(|err| format!("{:#?}", err))
-            .map(|v| serde_json::to_string(&v).map_err(|e| format!("{e:#?}")))?
+        sdk.get_networks()
+            .ok_or_else(|| "No networks found".to_string())
+            .and_then(|v| serde_json::to_string(&v).map_err(|e| format!("{e:#?}")))
     }
 
-    /// Selects the currency for the Cawaena SDK.
+    /// Selects the network for the Cawaena SDK.
     ///
     /// # Arguments
     ///
-    /// * `currency` - The input enum representing the currency. Currently supports only SMR and IOTA.
+    /// * `network_id` - The input string representing the network id.
     ///
     /// # Returns
     ///
     /// * Ok - if the currency is set successfully.
     /// * Err - if something went wrong.`
-    pub async fn set_currency(&self, currency: Currency) -> Result<(), String> {
+    pub async fn set_network(&self, network_id: String) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_network(currency.into());
+        sdk.set_network(network_id);
         Ok(())
     }
 
@@ -1291,7 +1290,7 @@ impl CawaenaSdk {
     ///
     /// * Ok - the preferred network, or `None` if it has not been set.
     /// * Err - if there was an error contacting the backend.
-    pub async fn get_preferred_network(&self) -> Result<PreferredCurrency, String> {
+    pub async fn get_preferred_network(&self) -> Result<Option<String>, String> {
         let sdk = self.inner.write().await;
         sdk.get_preferred_network()
             .await
@@ -1299,19 +1298,19 @@ impl CawaenaSdk {
             .map_err(|err| format!("{:#?}", err))
     }
 
-    /// Set the user's preferred currency.
+    /// Set the user's preferred network.
     ///
     /// # Arguments
     ///
-    /// * `currency` - The preferred currency, or `None` if it should be unset.
+    /// * `network_id` - The preferred network, or `None` if it should be unset.
     ///
     /// # Returns
     ///
-    /// * Ok - if setting the preferred currency was successful.
+    /// * Ok - if setting the preferred network was successful.
     /// * Err - if there was an error contacting the backend.
-    pub async fn set_preferred_currency(&self, currency: PreferredCurrency) -> Result<(), String> {
+    pub async fn set_preferred_network(&self, network_id: Option<String>) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_preferred_network(currency.into())
+        sdk.set_preferred_network(network_id)
             .await
             .map_err(|err| format!("{:#?}", err))
     }
