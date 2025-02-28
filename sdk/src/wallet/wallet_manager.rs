@@ -6,18 +6,15 @@
 use super::share::Share;
 use super::wallet_user::{WalletImplStardust, WalletUser};
 use super::wallet_user_eth::WalletImplEth;
-use crate::backend::dlt::get_networks;
 use crate::core::{Config, UserRepoT};
 use crate::types::currencies::Currency;
 use crate::types::networks::{Network, NetworkType};
 use crate::types::newtypes::{AccessToken, EncryptionPin, EncryptionSalt, PlainPassword};
 use crate::wallet::error::{ErrorKind, Result, WalletError};
-use api_types::api::networks::ApiNetwork;
 use async_trait::async_trait;
 use iota_sdk::crypto::keys::bip39::Mnemonic;
 use log::{info, warn};
 use secrecy::{ExposeSecret, SecretBox};
-use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
@@ -546,23 +543,23 @@ impl WalletManager for WalletManagerImpl {
             .join(&self.username)
             .join(network.clone().id);
 
-        // Get networks from backend if they are not set in the config
-        if config.networks.is_empty() {
-            let access_token = access_token.as_ref().ok_or(WalletError::MissingAccessToken)?;
-            let backend_networks = get_networks(config, &self.username, access_token).await?;
-            let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
+        // // Get networks from backend if they are not set in the config
+        // if config.networks.is_empty() {
+        //     let access_token = access_token.as_ref().ok_or(WalletError::MissingAccessToken)?;
+        //     let backend_networks = get_networks(config, &self.username, access_token).await?;
+        //     let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
 
-            let config_networks: HashMap<String, Network> = networks
-                .into_iter()
-                .map(|network| (network.id.clone(), network))
-                .collect();
+        //     let config_networks: HashMap<String, Network> = networks
+        //         .into_iter()
+        //         .map(|network| (network.id.clone(), network))
+        //         .collect();
 
-            config.networks = config_networks;
-        }
+        //     config.networks = config_networks;
+        // }
 
-        if !config.networks.contains_key(&network.id) {
-            return Err(WalletError::NetworkNotPresentInConfig { network_id: network.id });
-        }
+        // if !config.networks.contains_key(&network.id) {
+        //     return Err(WalletError::NetworkNotPresentInConfig { network_id: network.id });
+        // }
 
         let bo = match network.network_type {
             NetworkType::Evm { node_url, chain_id } => {

@@ -240,7 +240,11 @@ pub fn example_network(currency: Currency) -> Network {
     }
 }
 
-pub fn example_networks() -> Vec<ApiNetwork> {
+pub fn example_networks() -> Vec<Network> {
+    vec![example_network(Currency::Iota), example_network(Currency::Eth)]
+}
+
+pub fn example_api_networks() -> Vec<ApiNetwork> {
     vec![
         ApiNetwork {
             id: example_network_id(Currency::Iota),
@@ -393,13 +397,6 @@ pub fn example_config_networks_filled_with_invalid_network(invalid_network_id: S
         },
     );
 
-    networks
-}
-
-pub fn example_config_networks() -> HashMap<String, Network> {
-    let mut networks = HashMap::new();
-    networks.insert(example_network_id(Currency::Iota), example_network(Currency::Iota));
-    networks.insert(example_network_id(Currency::Eth), example_network(Currency::Eth));
     networks
 }
 

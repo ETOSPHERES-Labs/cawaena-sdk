@@ -9,7 +9,6 @@ use crate::types::networks::Network;
 use crate::user::repository::UserRepoImpl;
 use crate::user::UserRepo;
 use log::info;
-use std::collections::HashMap;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -31,9 +30,6 @@ pub struct Config {
 
     /// Log level for filtering which log messages that end up in the log file.
     pub log_level: log::LevelFilter,
-
-    /// The mapping of network_id to the network(s) to use.
-    pub networks: HashMap<String, Network>,
 }
 
 /// Struct representing the  deserialized version of the config in JSON format.
@@ -49,22 +45,17 @@ struct DeserializedConfig {
     storage_path: String,
 
     auth_provider: String,
-
-    networks: Option<HashMap<String, Network>>,
 }
 
 #[cfg(test)]
 impl Default for DeserializedConfig {
     /// Create a new [`DeserializedConfig`].
     fn default() -> Self {
-        use crate::testing_utils::example_config_networks;
-
         Self {
             backend_url: "http://example.com".to_string(),
             auth_provider: "standalone".to_string(),
             log_level: default_log_level(),
             storage_path: default_storage_path(),
-            networks: Some(example_config_networks()),
         }
     }
 }
@@ -102,15 +93,12 @@ impl TryFrom<DeserializedConfig> for Config {
             return Err(crate::Error::SetConfig("auth_provider must not be empty".to_string()));
         }
 
-        let config_networks: HashMap<String, Network> = value.networks.unwrap_or_default();
-
         Ok(Self {
             backend_url: reqwest::Url::parse(&value.backend_url).map_err(|e| crate::Error::SetConfig(e.to_string()))?,
             log_level: log::LevelFilter::from_str(&value.log_level)
                 .map_err(|e| crate::Error::SetConfig(format!("Could not parse log level: {e:#?}")))?,
             auth_provider: value.auth_provider,
             path_prefix: path_prefix.into(),
-            networks: config_networks,
         })
     }
 }
@@ -148,8 +136,13 @@ impl Sdk {
         Ok(())
     }
 
+    /// Get networks
+    pub fn get_networks(&self) -> Option<Vec<Network>> {
+        self.networks.clone()
+    }
+
     /// Get supported networks from backend
-    pub async fn get_networks_backend(&self) -> Result<HashMap<String, Network>> {
+    pub async fn get_networks_backend(&self) -> Result<Vec<Network>> {
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
         let username = &self
             .active_user
@@ -163,12 +156,7 @@ impl Sdk {
         let backend_networks = get_networks(config, username, access_token).await?;
         let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
 
-        let config_networks: HashMap<String, Network> = networks
-            .into_iter()
-            .map(|network| (network.id.clone(), network))
-            .collect();
-
-        Ok(config_networks)
+        Ok(networks)
     }
 
     /// Set path prefix
@@ -209,23 +197,8 @@ impl Sdk {
 #[cfg(test)]
 #[allow(clippy::expect_used)] // this is testing code so expect is fine
 impl Config {
-    // fn default_test_node_urls() -> HashMap<Currency, Vec<String>> {
-    //     HashMap::from([
-    //         (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
-    //         (
-    //             Currency::Eth,
-    //             vec![
-    //                 "https://ethereum-sepolia-rpc.publicnode.com/".to_string(),
-    //                 "31337".to_string(),
-    //             ],
-    //         ),
-    //     ])
-    // }
-
     /// Create a new [`Config`] with a [`testing::CleanUp`] as the path_prefix.
     pub fn new_test_with_cleanup() -> (Self, testing::CleanUp) {
-        use crate::testing_utils::example_config_networks;
-
         let cleanup = testing::CleanUp::default();
         (
             Self {
@@ -233,7 +206,6 @@ impl Config {
                 path_prefix: Path::new(&cleanup.path_prefix).into(),
                 auth_provider: "standalone".to_string(),
                 log_level: log::LevelFilter::Debug,
-                networks: example_config_networks(),
             },
             cleanup,
         )
@@ -241,8 +213,6 @@ impl Config {
 
     /// Create a new [`Config`] with the specified backend url and a [`testing::CleanUp`] as the path_prefix.
     pub fn new_test_with_cleanup_url(url: &str) -> (Self, testing::CleanUp) {
-        use crate::testing_utils::example_config_networks;
-
         let cleanup = testing::CleanUp::default();
         (
             Self {
@@ -250,7 +220,6 @@ impl Config {
                 path_prefix: Path::new(&cleanup.path_prefix).into(),
                 auth_provider: "standalone".to_string(),
                 log_level: log::LevelFilter::Debug,
-                networks: example_config_networks(),
             },
             cleanup,
         )
@@ -261,36 +230,31 @@ impl Config {
 mod tests {
     use super::*;
     use crate::core::core_testing_utils::handle_error_test_cases;
-    use crate::testing_utils::{example_config_networks_filled_with_invalid_network, example_networks};
+    use crate::testing_utils::{example_api_networks, example_networks};
     use crate::{
-        testing_utils::{
-            example_config_networks, set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN,
-            USERNAME,
-        },
+        testing_utils::{set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN, USERNAME},
         wallet_manager::MockWalletManager,
     };
     use api_types::api::dlt::ApiGetNetworksResponse;
     use rstest::rstest;
 
-    fn valid_deserialized_config(networks: Option<HashMap<String, Network>>) -> DeserializedConfig {
+    fn valid_deserialized_config() -> DeserializedConfig {
         DeserializedConfig {
             backend_url: "http://example.com".to_string(),
             log_level: "INFO".to_string(),
             storage_path: ".".to_string(),
             auth_provider: "nonempty".to_string(),
-            networks,
         }
     }
 
     #[test]
     fn test_valid_config() {
-        Config::try_from(valid_deserialized_config(None)).unwrap();
-        Config::try_from(valid_deserialized_config(Some(example_config_networks()))).unwrap();
+        Config::try_from(valid_deserialized_config()).unwrap();
     }
 
     #[test]
     fn test_path_prefix_error() {
-        let mut config = valid_deserialized_config(None);
+        let mut config = valid_deserialized_config();
         config.storage_path = "nonexistent_file.txt".to_string();
 
         Config::try_from(config).unwrap_err();
@@ -298,7 +262,7 @@ mod tests {
 
     #[test]
     fn test_empty_auth_provider_error() {
-        let mut config = valid_deserialized_config(None);
+        let mut config = valid_deserialized_config();
         config.auth_provider = "".to_string();
 
         Config::try_from(config).unwrap_err();
@@ -306,7 +270,7 @@ mod tests {
 
     #[test]
     fn test_invalid_backend_url_error() {
-        let mut config = valid_deserialized_config(None);
+        let mut config = valid_deserialized_config();
         config.backend_url = "invalid url".to_string();
 
         Config::try_from(config).unwrap_err();
@@ -324,23 +288,13 @@ mod tests {
         assert_eq!(storage_path, ".".to_string())
     }
 
-    #[test]
-    fn test_set_config_invalid_node_url() {
-        let config = Config::try_from(valid_deserialized_config(Some(
-            example_config_networks_filled_with_invalid_network(String::from("BTC")),
-        )));
-        let error_msg =
-            "Error while setting the configuration: invalid currency key `btc` while parsing node_urls. Valid keys are: iota, eth.".to_string();
-        assert_eq!(config.unwrap_err().to_string(), error_msg);
-    }
-
     #[rstest]
-    #[case::success(Ok(example_config_networks()))]
+    #[case::success(Ok(example_networks()))]
     #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[tokio::test]
-    async fn test_get_node_urls_backend(#[case] expected: Result<HashMap<String, Network>>) {
+    async fn test_get_node_urls_backend(#[case] expected: Result<Vec<Network>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
@@ -355,7 +309,7 @@ mod tests {
                 sdk.access_token = Some(TOKEN.clone());
 
                 let resp_body = ApiGetNetworksResponse {
-                    networks: example_networks(),
+                    networks: example_api_networks(),
                 };
                 let mock_body_response = serde_json::to_string(&resp_body).unwrap();
 
@@ -400,35 +354,6 @@ mod tests {
             "storage_path": ".",
             "log_level": "INFO",
             "auth_provider": "standalone",
-            "networks": {
-                "67a1f08edf55756bae21e7eb": {
-                    "id": "67a1f08edf55756bae21e7eb",
-                    "name": "IOTA",
-                    "currency": "IOTA",
-                    "block_explorer_url": "https://explorer.shimmer.network/testnet/",
-                    "enabled": true,
-                    "network_identifier": "iota_mainnet",
-                    "network_type": {
-                        "Stardust": {
-                            "node_url": "https://api.testnet.iotaledger.net"
-                        }
-                    }
-                },
-                "67a2080ddf55756bae21e7f5": {
-                    "id": "67a2080ddf55756bae21e7f5",
-                    "name": "Eth Sepolia",
-                    "currency": "ETH",
-                    "block_explorer_url": "https://sepolia.explorer.mode.network",
-                    "enabled": true,
-                    "network_identifier": "ethereum_mainnet",
-                    "network_type": {
-                        "Evm": {
-                            "node_url": "https://sepolia.mode.network",
-                            "chain_id": 31337
-                        }
-                    }
-                }
-            }
           }"#,
         Ok(DeserializedConfig::default())
     )]

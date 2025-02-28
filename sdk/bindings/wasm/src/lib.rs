@@ -54,14 +54,11 @@ impl CryptpaySdk {
     ///     "backend_url": "<valid URL to the backend API>",
     ///     "storage_path": "/path/to/valid/folder",
     ///     "log_level": "info",
-    ///     "networks": {
-    ///         "id": Network
-    ///     }
     /// }
     /// ```
     ///
     /// @returns {Promise<void>}
-    #[wasm_bindgen(skip_jsdoc, js_name = "setConfig")] // TODO: add test + update description
+    #[wasm_bindgen(skip_jsdoc, js_name = "setConfig")]
     pub async fn set_config(&self, config: String) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
         Config::from_json(&config)
@@ -74,23 +71,17 @@ impl CryptpaySdk {
     /// @param {Network} network - The network.
     /// @returns {Promise<void>}
     #[wasm_bindgen(skip_jsdoc, js_name = "setNetwork")]
-    pub async fn set_network(&self, network: Network) -> Result<(), String> {
+    pub async fn set_network(&self, network_id: String) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk::types::networks::Network::try_from(network).map_or_else(Err, |n| {
-            sdk.set_network(n);
-            Ok(())
-        })
+        sdk.set_network(network_id).await.map_err(|e| format!("{e:#?}"))
     }
 
     /// Fetch available networks.
     ///
-    /// @returns {String} Serialized string of a HashMap<String, Vec<Network>> with network id as key and network as value
-    pub async fn get_networks(&self) -> Result<String, String> {
+    /// @returns {Option<Vec<Network>>} Sdk networks
+    pub async fn get_networks(&self) -> Option<Vec<Network>> {
         let sdk = self.inner.write().await;
-        async move { sdk.get_networks_backend().await }
-            .await
-            .map_err(|err| format!("{:#?}", err))
-            .map(|v| serde_json::to_string(&v).map_err(|e| format!("{e:#?}")))?
+        sdk.get_networks().map(|ns| ns.into_iter().map(Network::from).collect())
     }
 
     /// Initializes the cryptpay logger

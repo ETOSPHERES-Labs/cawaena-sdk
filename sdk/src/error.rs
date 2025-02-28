@@ -31,6 +31,10 @@ pub enum Error {
     #[error("No network is set. Please use the set_network function.")]
     MissingNetwork,
 
+    /// Error occurs if the network is unavailable
+    #[error("Network with id {0} is unavailable.")]
+    NetworkUnavailable(String),
+
     /// Error occurs if the chain id for evm network is missing
     #[error("Chain ID cannot be empty for EVM network type.")]
     EmptyChainIdForEvm,

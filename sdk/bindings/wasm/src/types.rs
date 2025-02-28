@@ -76,107 +76,11 @@ impl From<sdk::types::ApiTxStatus> for TxStatus {
 }
 
 #[wasm_bindgen]
-#[derive(Serialize, Deserialize, Clone)]
-pub struct NetworkTypeWrapper {
-    variant: NetworkTypeConst,
-    node_url: String,
-    chain_id: Option<u64>,
-}
-
-#[wasm_bindgen]
-impl NetworkTypeWrapper {
-    #[wasm_bindgen]
-    pub fn evm(node_url: String, chain_id: u64) -> Self {
-        Self {
-            variant: NetworkTypeConst::Evm,
-            node_url,
-            chain_id: Some(chain_id),
-        }
-    }
-
-    #[wasm_bindgen]
-    pub fn stardust(node_url: String) -> Self {
-        Self {
-            variant: NetworkTypeConst::Stardust,
-            node_url,
-            chain_id: None,
-        }
-    }
-
-    #[wasm_bindgen]
-    pub fn get_variant(&self) -> NetworkTypeConst {
-        self.variant.clone()
-    }
-
-    #[wasm_bindgen]
-    pub fn get_node_url(&self) -> String {
-        self.node_url.clone()
-    }
-
-    #[wasm_bindgen]
-    pub fn get_chain_id(&self) -> Option<u64> {
-        self.chain_id
-    }
-}
-
-#[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
 pub struct Network {
     id: String,
     name: String,
     currency: String,
-    block_explorer_url: String,
-    enabled: bool,
-    network_identifier: Option<String>,
-    network_type: NetworkTypeWrapper,
-}
-
-#[wasm_bindgen]
-impl Network {
-    #[wasm_bindgen(constructor)]
-    pub fn new(
-        id: String,
-        name: String,
-        currency: String,
-        block_explorer_url: String,
-        enabled: bool,
-        network_identifier: Option<String>,
-        network_type: NetworkTypeWrapper,
-    ) -> Self {
-        Network {
-            id,
-            name,
-            currency,
-            block_explorer_url,
-            enabled,
-            network_identifier,
-            network_type,
-        }
-    }
-}
-
-#[wasm_bindgen]
-#[derive(Serialize, Deserialize, Clone)]
-pub enum NetworkTypeConst {
-    Evm,
-    Stardust,
-}
-
-impl From<sdk::types::networks::NetworkType> for NetworkTypeWrapper {
-    fn from(value: sdk::types::networks::NetworkType) -> Self {
-        match value {
-            sdk::types::networks::NetworkType::Evm { node_url, chain_id } => Self {
-                variant: NetworkTypeConst::Evm,
-                node_url,
-                chain_id: Some(chain_id),
-            },
-            sdk::types::networks::NetworkType::Stardust { node_url } => Self {
-                variant: NetworkTypeConst::Stardust,
-                node_url,
-                chain_id: None,
-            },
-        }
-    }
 }
 
 impl From<sdk::types::networks::Network> for Network {
@@ -185,49 +89,7 @@ impl From<sdk::types::networks::Network> for Network {
             id: value.id,
             name: value.name,
             currency: value.currency,
-            block_explorer_url: value.block_explorer_url,
-            enabled: value.enabled,
-            network_identifier: value.network_identifier,
-            network_type: NetworkTypeWrapper::from(value.network_type),
         }
-    }
-}
-
-impl TryFrom<NetworkTypeWrapper> for sdk::types::networks::NetworkType {
-    type Error = String;
-
-    fn try_from(value: NetworkTypeWrapper) -> Result<Self, String> {
-        match value.variant {
-            NetworkTypeConst::Evm => {
-                if let Some(chain_id) = value.chain_id {
-                    Ok(Self::Evm {
-                        node_url: value.node_url,
-                        chain_id,
-                    })
-                } else {
-                    Err(String::from("The chain ID cannot be empty for the EVM network type."))
-                }
-            }
-            NetworkTypeConst::Stardust => Ok(Self::Stardust {
-                node_url: value.node_url,
-            }),
-        }
-    }
-}
-
-impl TryFrom<Network> for sdk::types::networks::Network {
-    type Error = String;
-
-    fn try_from(value: Network) -> Result<Self, String> {
-        Ok(Self {
-            id: value.id,
-            name: value.name,
-            currency: value.currency,
-            block_explorer_url: value.block_explorer_url,
-            enabled: value.enabled,
-            network_identifier: value.network_identifier,
-            network_type: value.network_type.try_into()?,
-        })
     }
 }
 

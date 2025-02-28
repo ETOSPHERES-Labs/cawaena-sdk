@@ -57,6 +57,8 @@ pub struct Sdk {
     currency: Option<Currency>,
     /// The currently active network
     network: Option<Network>,
+    /// Available networks
+    networks: Option<Vec<Network>>,
 }
 
 impl Drop for Sdk {
@@ -76,6 +78,7 @@ impl Default for Sdk {
             repo: None,
             currency: None,
             network: None,
+            networks: None,
         }
     }
 }
@@ -90,9 +93,30 @@ impl Sdk {
     }
 
     /// Set network
-    pub fn set_network(&mut self, network: Network) {
+    pub async fn set_network(&mut self, network_id: String) -> Result<()> {
+        debug!("Selected network_id: {:?}", network_id.clone());
+        let networks = match &self.networks {
+            Some(n) => n,
+            None => {
+                let result = self.get_networks_backend().await;
+                &match result {
+                    Ok(n) => {
+                        self.networks = Some(n.clone());
+                        n
+                    }
+                    Err(e) => Err(e)?,
+                }
+            }
+        };
+
+        let Some(network) = networks.iter().find(|network| network.id == network_id) else {
+            return Err(crate::Error::NetworkUnavailable(network_id));
+        };
+
         debug!("Selected Network: {:?}", network);
-        self.network = Some(network);
+        self.network = Some(network.clone());
+
+        Ok(())
     }
 
     /// Tries to get the wallet of the currently active user. Or returns an error if no user is
@@ -131,7 +155,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
-    use crate::testing_utils::example_network;
+    use crate::testing_utils::example_network_id;
     use crate::{
         core::Sdk,
         error::Result,
@@ -161,7 +185,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_network(example_network(crate::types::currencies::Currency::Iota));
+                sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota));
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 0, 0).await;

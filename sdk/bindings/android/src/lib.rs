@@ -97,6 +97,7 @@ mod ffi {
     ///
     #[public_name = "setConfig"]
     pub fn setConfig(config: String) -> Result<(), String> {
+        // TODO: test + update comment
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
             sdk.set_config(Config::from_json(&config)?)
@@ -107,7 +108,7 @@ mod ffi {
     /// Fetch available currencies and corresponding node urls.
     ///
     /// @return Serialized string of a hashmap with currencies as key and node urls as value
-    pub fn getNodeUrls() -> Result<String, String> {
+    pub fn getNetworks() -> Result<String, String> {
         let result = runtime().block_on(async move {
             let sdk = get_or_init_sdk().write().await;
             sdk.get_networks_backend().await

@@ -35,17 +35,7 @@ pub async fn init_sdk_with_cleanup(username: &str, existing_cleanup: CleanUp) ->
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_network(Network {
-        id: String::from("67a1f08edf55756bae21e7eb"),
-        name: String::from("IOTA"),
-        currency: String::from("IOTA"),
-        block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
-        enabled: true,
-        network_identifier: Some(String::from("iota_mainnet")),
-        network_type: NetworkType::Stardust {
-            node_url: String::from("https://api.testnet.iotaledger.net"),
-        },
-    });
+    sdk.set_network(String::from("67a1f08edf55756bae21e7eb")).await.unwrap();
 
     (sdk, existing_cleanup)
 }

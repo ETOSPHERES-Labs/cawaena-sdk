@@ -582,8 +582,9 @@ mod tests {
     use super::*;
     use crate::testing_utils::{
         example_bank_details, example_contract_response, example_crypto_details, example_exchange_rate_response,
-        example_get_payment_details_response, example_get_user, example_network, example_viviswap_oder_response,
-        set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, ORDER_ID, PIN, TOKEN, USERNAME,
+        example_get_payment_details_response, example_get_user, example_network, example_network_id,
+        example_viviswap_oder_response, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME,
+        ORDER_ID, PIN, TOKEN, USERNAME,
     };
     use crate::types::networks::Network;
     use crate::types::users::KycType;
@@ -798,7 +799,7 @@ mod tests {
         let mut sdk = Sdk::new(config).unwrap();
         sdk.access_token = Some(TOKEN.clone());
 
-        sdk.set_network(network.clone()); // Set parametrized network
+        sdk.set_network(network.id.clone()); // Set parametrized network
         sdk.refresh_access_token(Some(TOKEN.clone())).await.unwrap();
 
         let mock_user_repo = example_get_user(payment_detail_key, false, 5, KycType::Viviswap);
@@ -881,7 +882,7 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network(Currency::Iota));
+        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         let mock_user_repo = example_get_user(SwapPaymentDetailKey::Iota, false, 3, KycType::Viviswap);
         sdk.repo = Some(Box::new(mock_user_repo));
@@ -924,7 +925,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network(Currency::Iota));
+        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         sdk.repo = Some(Box::new(example_get_user(
             SwapPaymentDetailKey::Iota,
