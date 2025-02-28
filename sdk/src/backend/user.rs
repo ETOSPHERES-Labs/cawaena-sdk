@@ -4,10 +4,7 @@
 //! It requires a `Config` object, an access token, and the username of the user to be deleted.
 
 use super::error::{ApiError, Result};
-use crate::{
-    core::Config,
-    types::newtypes::AccessToken,
-};
+use crate::{core::Config, types::newtypes::AccessToken};
 use api_types::api::dlt::{GetPreferredNetworkResponse, SetPreferredNetworkRequest};
 use log::{debug, error, info};
 use reqwest::StatusCode;
@@ -185,7 +182,7 @@ mod tests {
         body: "".to_string() 
     }))]
     #[case(501, Err(ApiError::UnexpectedResponse {
-        code: StatusCode::NOT_IMPLEMENTED, 
+        code: StatusCode::NOT_IMPLEMENTED,
         body: "".to_string() 
     }))]
     #[tokio::test]
@@ -285,7 +282,13 @@ mod tests {
             .create();
 
         // Act
-        let response = set_preferred_network(&config, &TOKEN, USERNAME, Some(String::from("67a1f08edf55756bae21e7eb"))).await;
+        let response = set_preferred_network(
+            &config,
+            &TOKEN,
+            USERNAME,
+            Some(String::from("67a1f08edf55756bae21e7eb")),
+        )
+        .await;
 
         // Assert
         match expected {
