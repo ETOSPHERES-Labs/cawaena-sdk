@@ -93,7 +93,7 @@ impl CawaenaSdk {
     ///
     /// # Returns
     ///
-    /// * Ok - if the currency is set successfully.
+    /// * Ok - if the network is set successfully.
     /// * Err - if something went wrong.`
     pub async fn set_network(&self, network_id: String) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
