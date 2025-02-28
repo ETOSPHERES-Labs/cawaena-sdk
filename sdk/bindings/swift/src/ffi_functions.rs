@@ -14,10 +14,9 @@
 //! The conversion of types between Swift and Rust is done in the `type_conversion.rs` module.
 
 use crate::ffi::{
-    CaseDetailsResponse, Currency, File, IdentityOfficialDocumentData, IdentityPersonalDocumentData, KycAmlaQuestion,
-    KycOpenDocument, NewCaseIdResponse, NewViviswapUser, Order, PreferredCurrency, PurchaseDetails, TxInfo,
-    ViviswapAddressDetail, ViviswapDeposit, ViviswapKycStatus, ViviswapPartiallyKycDetails, ViviswapWithdrawal,
-    WalletTxInfo,
+    CaseDetailsResponse, File, IdentityOfficialDocumentData, IdentityPersonalDocumentData, KycAmlaQuestion,
+    KycOpenDocument, NewCaseIdResponse, NewViviswapUser, Order, PurchaseDetails, TxInfo, ViviswapAddressDetail,
+    ViviswapDeposit, ViviswapKycStatus, ViviswapPartiallyKycDetails, ViviswapWithdrawal, WalletTxInfo,
 };
 use sdk::core::{Config, Sdk};
 use sdk::types::currencies::CryptoAmount;
@@ -1290,12 +1289,13 @@ impl CawaenaSdk {
     ///
     /// * Ok - the preferred network, or `None` if it has not been set.
     /// * Err - if there was an error contacting the backend.
-    pub async fn get_preferred_network(&self) -> Result<Option<String>, String> {
+    pub async fn get_preferred_network(&self) -> Result<String, String> {
         let sdk = self.inner.write().await;
-        sdk.get_preferred_network()
-            .await
-            .map(Into::into)
-            .map_err(|err| format!("{:#?}", err))
+        let result = sdk.get_preferred_network().await;
+        match result {
+            Ok(network) => Ok(network.unwrap_or_default()),
+            Err(err) => Err(format!("{:#?}", err)),
+        }
     }
 
     /// Set the user's preferred network.
