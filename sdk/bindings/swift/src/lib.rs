@@ -431,7 +431,7 @@ pub mod ffi {
         async fn set_recovery_share(&self, share: String) -> Result<(), String>;
         #[swift_bridge(swift_name = "getPreferredNetwork")]
         async fn get_preferred_network(&self) -> Result<Option<String>, String>;
-        #[swift_bridge(swift_name = "setPreferredCurrency")]
+        #[swift_bridge(swift_name = "setPreferredNetwork")]
         async fn set_preferred_network(&self, network_id: Option<String>) -> Result<(), String>;
         #[swift_bridge(swift_name = "getBuildInfo")]
         fn get_build_info(&self) -> String;
