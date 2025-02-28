@@ -799,7 +799,8 @@ mod tests {
         let mut sdk = Sdk::new(config).unwrap();
         sdk.access_token = Some(TOKEN.clone());
 
-        sdk.set_network(network.id.clone()); // Set parametrized network
+        sdk.set_networks(Some(example_networks()));
+        sdk.set_network(network.id.clone()).await.unwrap(); // Set parametrized network
         sdk.refresh_access_token(Some(TOKEN.clone())).await.unwrap();
 
         let mock_user_repo = example_get_user(payment_detail_key, false, 5, KycType::Viviswap);
@@ -882,7 +883,7 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.networks = Some(example_networks());
+        sdk.set_networks(Some(example_networks()));
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         let mock_user_repo = example_get_user(SwapPaymentDetailKey::Iota, false, 3, KycType::Viviswap);
@@ -926,7 +927,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.networks = Some(example_networks());
+        sdk.set_networks(Some(example_networks()));
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         sdk.repo = Some(Box::new(example_get_user(

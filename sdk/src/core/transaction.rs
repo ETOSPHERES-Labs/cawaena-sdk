@@ -542,7 +542,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.networks = Some(example_networks());
+        sdk.set_networks(Some(example_networks()));
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
         let mut mock_server = None;
 
@@ -609,7 +609,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.networks = Some(example_networks());
+        sdk.set_networks(Some(example_networks()));
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
         let mut mock_server_details = None;
         let mut mock_server_commit = None;
@@ -795,7 +795,7 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.networks = Some(example_networks());
+        sdk.set_networks(Some(example_networks()));
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         match &expected {
@@ -850,7 +850,7 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.networks = Some(example_networks());
+        sdk.set_networks(Some(example_networks()));
         sdk.set_network(example_network_id(Currency::Eth)).await.unwrap();
 
         let wallet_transaction = WalletTxInfo {

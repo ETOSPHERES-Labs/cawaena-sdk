@@ -68,7 +68,7 @@ mod tests {
                     wallet_manager: Box::new(MockWalletManager::new()),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.networks = Some(example_networks());
+                sdk.set_networks(Some(example_networks()));
                 sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
                     .await
                     .unwrap();

@@ -186,7 +186,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.networks = Some(example_networks());
+                sdk.set_networks(Some(example_networks()));
                 sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
                     .await
                     .unwrap();
