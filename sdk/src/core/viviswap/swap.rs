@@ -582,7 +582,7 @@ mod tests {
     use super::*;
     use crate::testing_utils::{
         example_bank_details, example_contract_response, example_crypto_details, example_exchange_rate_response,
-        example_get_payment_details_response, example_get_user, example_network, example_network_id,
+        example_get_payment_details_response, example_get_user, example_network, example_network_id, example_networks,
         example_viviswap_oder_response, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME,
         ORDER_ID, PIN, TOKEN, USERNAME,
     };
@@ -882,6 +882,7 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let mut sdk = Sdk::new(config).unwrap();
+        sdk.networks = Some(example_networks());
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         let mock_user_repo = example_get_user(SwapPaymentDetailKey::Iota, false, 3, KycType::Viviswap);
@@ -925,6 +926,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
+        sdk.networks = Some(example_networks());
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         sdk.repo = Some(Box::new(example_get_user(

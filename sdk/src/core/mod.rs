@@ -155,7 +155,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
-    use crate::testing_utils::example_network_id;
+    use crate::testing_utils::{example_network_id, example_networks};
     use crate::{
         core::Sdk,
         error::Result,
@@ -170,6 +170,7 @@ mod tests {
     #[case::success(Ok(WalletBorrow::from(MockWalletUser::new())))]
     #[case::repo_init_error(Err(crate::Error::UserRepoNotInitialized))]
     #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
+    #[case::missing_network(Err(crate::Error::MissingNetwork))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[tokio::test]
     async fn test_try_get_active_user_wallet(#[case] expected: Result<WalletBorrow<'_>>) {
@@ -185,6 +186,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
+                sdk.networks = Some(example_networks());
                 sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
                     .await
                     .unwrap();

@@ -334,9 +334,9 @@ mod tests {
     use super::*;
     use crate::core::core_testing_utils::handle_error_test_cases;
     use crate::testing_utils::{
-        example_api_network, example_get_user, example_network_id, example_tx_details, example_tx_metadata,
-        example_wallet_borrow, set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, PURCHASE_ID, TOKEN,
-        TX_INDEX, USERNAME,
+        example_api_network, example_get_user, example_network_id, example_networks, example_tx_details,
+        example_tx_metadata, example_wallet_borrow, set_config, AUTH_PROVIDER, HEADER_X_APP_NAME,
+        HEADER_X_APP_USERNAME, PURCHASE_ID, TOKEN, TX_INDEX, USERNAME,
     };
     use crate::types::currencies::Currency;
     use crate::types::transactions::WalletTxInfo;
@@ -542,6 +542,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
+        sdk.networks = Some(example_networks());
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
         let mut mock_server = None;
 
@@ -608,6 +609,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
+        sdk.networks = Some(example_networks());
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
         let mut mock_server_details = None;
         let mut mock_server_commit = None;
@@ -793,6 +795,7 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
+        sdk.networks = Some(example_networks());
         sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
         match &expected {
@@ -847,7 +850,8 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
+        sdk.networks = Some(example_networks());
+        sdk.set_network(example_network_id(Currency::Eth)).await.unwrap();
 
         let wallet_transaction = WalletTxInfo {
             date: String::new(),

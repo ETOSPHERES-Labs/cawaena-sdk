@@ -294,7 +294,7 @@ mod tests {
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[tokio::test]
-    async fn test_get_node_urls_backend(#[case] expected: Result<Vec<Network>>) {
+    async fn test_get_networks_backend(#[case] expected: Result<Vec<Network>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
@@ -353,7 +353,7 @@ mod tests {
             "backend_url": "http://example.com",
             "storage_path": ".",
             "log_level": "INFO",
-            "auth_provider": "standalone",
+            "auth_provider": "standalone"
           }"#,
         Ok(DeserializedConfig::default())
     )]

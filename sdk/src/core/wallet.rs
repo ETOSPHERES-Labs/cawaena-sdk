@@ -513,13 +513,15 @@ impl Sdk {
         info!("Wallet getting list of transactions");
         self.verify_pin(pin).await?;
 
-        let currency = self.currency.ok_or(crate::Error::MissingCurrency)?;
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
         let user = self.get_user().await?;
         let wallet = self.try_get_active_user_wallet(pin).await?;
 
-        let tx_list = match currency {
-            crate::types::currencies::Currency::Iota => wallet.get_wallet_tx_list(start, limit).await?,
-            crate::types::currencies::Currency::Eth => {
+        let tx_list = match network.network_type {
+            crate::types::networks::NetworkType::Evm {
+                node_url: _,
+                chain_id: _,
+            } => {
                 // We retrieve the transaction list from the wallet,
                 // then synchronize selected transactions (by fetching their current status from the network),
                 // and finally, save the refreshed list back to the wallet
@@ -535,6 +537,9 @@ impl Sdk {
                 WalletTxInfoList {
                     transactions: wallet_transactions,
                 }
+            }
+            crate::types::networks::NetworkType::Stardust { node_url: _ } => {
+                wallet.get_wallet_tx_list(start, limit).await?
             }
         };
 
@@ -571,8 +576,9 @@ mod tests {
     use super::*;
     use crate::core::core_testing_utils::handle_error_test_cases;
     use crate::testing_utils::{
-        example_get_user, example_network_id, example_wallet_tx_info, set_config, ADDRESS, AUTH_PROVIDER,
-        BACKUP_PASSWORD, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, MNEMONIC, PIN, SALT, TOKEN, TX_INDEX, USERNAME,
+        example_get_user, example_network_id, example_networks, example_wallet_tx_info, set_config, ADDRESS,
+        AUTH_PROVIDER, BACKUP_PASSWORD, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, MNEMONIC, PIN, SALT, TOKEN, TX_INDEX,
+        USERNAME,
     };
     use crate::types::currencies::Currency;
     use crate::types::users::UserEntity;
@@ -1019,6 +1025,7 @@ mod tests {
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
                 sdk.access_token = Some(TOKEN.clone());
+                sdk.networks = Some(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
                 let mock_request = SetUserAddressRequest {
@@ -1094,6 +1101,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
+                sdk.networks = Some(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
@@ -1144,6 +1152,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
+                sdk.networks = Some(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
@@ -1195,6 +1204,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
+                sdk.networks = Some(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
@@ -1242,6 +1252,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
+                sdk.networks = Some(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
