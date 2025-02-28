@@ -61,7 +61,7 @@ impl CryptpaySdk {
     /// ```
     ///
     /// @returns {Promise<void>}
-    #[wasm_bindgen(skip_jsdoc, js_name = "setConfig")]
+    #[wasm_bindgen(skip_jsdoc, js_name = "setConfig")] // TODO: add test + update description
     pub async fn set_config(&self, config: String) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
         Config::from_json(&config)
@@ -76,23 +76,6 @@ impl CryptpaySdk {
     #[wasm_bindgen(skip_jsdoc, js_name = "setNetwork")]
     pub async fn set_network(&self, network: Network) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        // let try_network = sdk::types::networks::Network::try_from(network);
-        // match try_network {
-        //     Ok(n) => {
-        //         sdk.set_network(n);
-        //         Ok(())
-        //     }
-        //     Err(e) => Err(e),
-        // }
-
-        //sdk.create_new_user(&username).await.map_err(|e| format!("{e:#?}"))
-        // sdk::types::networks::Network::try_from(network)
-        //     .map(|n| {
-        //         sdk.set_network(n);
-        //         Ok(())
-        //     })
-        //     .map_err(|e| format!("{e:#?}"))
-
         sdk::types::networks::Network::try_from(network).map_or_else(Err, |n| {
             sdk.set_network(n);
             Ok(())
