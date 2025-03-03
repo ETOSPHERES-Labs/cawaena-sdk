@@ -5,7 +5,7 @@ use crate::backend::viviswap::{
 use crate::core::viviswap::ViviswapError;
 use crate::core::Sdk;
 use crate::error::Result;
-use crate::types::currencies::CryptoAmount;
+use crate::types::currencies::{CryptoAmount, Currency};
 use crate::types::newtypes::EncryptionPin;
 use crate::types::viviswap::{
     ViviswapAddressDetail, ViviswapDeposit, ViviswapDepositDetails, ViviswapDetailUpdateStrategy, ViviswapWithdrawal,
@@ -263,11 +263,10 @@ impl Sdk {
         };
 
         let iban_method_id = self.get_payment_method_id_viviswap(SwapPaymentDetailKey::Sepa).await?;
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
+        let currency = Currency::try_from(network.currency)?;
 
-        let payment_method_key = self
-            .currency
-            .ok_or(crate::Error::MissingCurrency)?
-            .to_vivi_payment_method_key();
+        let payment_method_key = currency.to_vivi_payment_method_key();
 
         let coin_method_id = self.get_payment_method_id_viviswap(payment_method_key).await?;
 
@@ -334,10 +333,9 @@ impl Sdk {
     /// - [`crate::Error::ViviswapMissingUserError`] - If the viviswap user is missing.
     // MARK5:create_detail_for_viviswap
     pub async fn create_detail_for_viviswap(&mut self, pin: &EncryptionPin) -> Result<ViviswapAddressDetail> {
-        let payment_method_key = self
-            .currency
-            .ok_or(crate::Error::MissingCurrency)?
-            .to_vivi_payment_method_key();
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
+        let currency = Currency::try_from(network.currency)?;
+        let payment_method_key = currency.to_vivi_payment_method_key();
 
         info!("Creating a payment detail for viviswap for {payment_method_key:?}");
         // load user entity
@@ -455,7 +453,8 @@ impl Sdk {
             return Err(crate::Error::Viviswap(ViviswapError::MissingUser));
         };
 
-        let currency = self.currency.ok_or(crate::Error::MissingCurrency)?;
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
+        let currency = Currency::try_from(network.currency)?;
 
         // check if iban exists, otherwise error
         let Some(iban_detail) = viviswap_state.current_iban else {

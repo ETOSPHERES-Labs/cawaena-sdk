@@ -32,7 +32,6 @@ pub(crate) mod core_testing_utils;
 
 use crate::build;
 use crate::error::Result;
-use crate::types::currencies::Currency;
 use crate::types::networks::Network;
 use crate::types::newtypes::{AccessToken, EncryptionPin};
 use crate::types::users::ActiveUser;
@@ -53,8 +52,6 @@ pub struct Sdk {
     access_token: Option<AccessToken>,
     /// Contains the user repository for storing and loading different users.
     repo: Option<UserRepoT>,
-    /// The currently active coin currency
-    currency: Option<Currency>,
     /// The currently active network
     network: Option<Network>,
     /// Available networks
@@ -76,7 +73,6 @@ impl Default for Sdk {
             active_user: None,
             access_token: None,
             repo: None,
-            currency: None,
             network: None,
             networks: None,
         }

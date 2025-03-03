@@ -23,10 +23,6 @@ pub enum Error {
     #[error("No config is set. Please use the set_config function.")]
     MissingConfig,
 
-    /// Error occurs if the currency is missing
-    #[error("No currency is set. Please use the set_currency function.")]
-    MissingCurrency,
-
     /// Error occurs if the network is missing
     #[error("No network is set. Please use the set_network function.")]
     MissingNetwork,
