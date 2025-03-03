@@ -44,6 +44,7 @@ public class SdkUnitTest {
     private static final String TOKEN_HEADER_VALUE = String.format("Bearer %s", token);
     private static final String CASE_ID = "123456789ABC";
     private static final String PURCHASE_ID = "3be5b0c8-e292-4957-bc70-923e13d01423";
+    private static final String IOTA_NETWORK_ID = "67a1f08edf55756bae21e7eb";
 
     private double initBalance;
     private static byte[] backupBytes;
@@ -70,7 +71,7 @@ public class SdkUnitTest {
                     }
                     """.formatted(directory.toString()));
 
-            sdk.setNetwork("67a1f08edf55756bae21e7eb");
+            sdk.setNetwork(IOTA_NETWORK_ID);
             sdk.refreshAccessToken(token);
         } catch (Exception e) {
             fail(e.getMessage());
@@ -664,10 +665,10 @@ public class SdkUnitTest {
     }
 
     @Test
-    public void ZHshouldGetPreferredCurrency() throws Exception {
+    public void ZHshouldGetPreferredNetwork() throws Exception {
 
         String body = """
-                    {"currency": "Iota"}
+                    {"network_id": "67a1f08edf55756bae21e7eb"}
                 """;
         wireMockRule.stubFor(get(urlPathEqualTo("/api/user/network"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
@@ -677,20 +678,20 @@ public class SdkUnitTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
-        String currency = sdk.getPreferredCurrency();
-        assertEquals(currency, "Iota");
+        String network = sdk.getPreferredNetwork();
+        assertEquals(network, IOTA_NETWORK_ID);
 
     }
 
     @Test
-    public void ZIshouldSetPreferredCurrency() throws Exception {
+    public void ZIshouldSetPreferredNetwork() throws Exception {
         wireMockRule.stubFor(put(urlPathEqualTo("/api/user/network"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
                 .withHeader("X-APP-USERNAME", equalTo(USERNAME))
                 .withHeader("X-APP-NAME", equalTo(AUTH_PROVIDER))
                 .willReturn(aResponse()
                         .withStatus(202)));
-        sdk.setPreferredCurrency("Iota");
+        sdk.setPreferredNetwork(IOTA_NETWORK_ID);
 
     }
 
