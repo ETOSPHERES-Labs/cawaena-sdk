@@ -60,7 +60,7 @@ public class utils {
             sdk.refreshAccessToken(access_token);
             System.out.println("retrieved access token");
 
-            sdk.setCurrency("Iota");
+            sdk.setNetwork("67a1f08edf55756bae21e7eb");
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize SDK", e);
         }

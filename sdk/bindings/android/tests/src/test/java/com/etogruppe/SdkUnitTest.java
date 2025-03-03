@@ -67,13 +67,10 @@ public class SdkUnitTest {
                         "storage_path": "%s",
                         "log_level": "debug",
                         "auth_provider": "standalone",
-                        "node_urls": {
-                            "iota": ["https://api.testnet.iotaledger.net"]
-                        }
                     }
                     """.formatted(directory.toString()));
 
-            sdk.setCurrency("IOTA");
+            sdk.setNetwork("67a1f08edf55756bae21e7eb");
             sdk.refreshAccessToken(token);
         } catch (Exception e) {
             fail(e.getMessage());
