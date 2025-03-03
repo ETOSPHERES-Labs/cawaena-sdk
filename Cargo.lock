@@ -1358,7 +1358,6 @@ dependencies = [
  "ring",
  "sdk",
  "serde",
- "serde_json",
  "tokio",
  "uuid",
  "wasm-bindgen",
