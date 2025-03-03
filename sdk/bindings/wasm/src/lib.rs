@@ -1114,11 +1114,7 @@ impl CryptpaySdk {
     #[wasm_bindgen(skip_jsdoc, js_name = "getPreferredNetwork")]
     pub async fn get_preferred_network(&self) -> Result<Option<String>, String> {
         let sdk = self.inner.write().await;
-        Ok(sdk
-            .get_preferred_network()
-            .await
-            .map_err(|e| format!("{e:#?}"))?
-            .map(Into::into))
+        sdk.get_preferred_network().await.map_err(|e| format!("{e:#?}"))
     }
 
     /// Set the preferred network.
@@ -1129,9 +1125,7 @@ impl CryptpaySdk {
     #[wasm_bindgen(skip_jsdoc, js_name = "setPreferredNetwork")]
     pub async fn set_preferred_network(&self, network: Option<String>) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_preferred_network(network.map(Into::into))
-            .await
-            .map_err(|e| format!("{e:#?}"))
+        sdk.set_preferred_network(network).await.map_err(|e| format!("{e:#?}"))
     }
 
     /// Get sdk build information.
