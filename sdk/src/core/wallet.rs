@@ -1029,7 +1029,6 @@ mod tests {
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
                 let mock_request = SetUserAddressRequest {
-                    network_id: String::from("67a1f08edf55756bae21e7eb"),
                     address: ADDRESS.into(),
                 };
                 let body = serde_json::to_string(&mock_request).unwrap();

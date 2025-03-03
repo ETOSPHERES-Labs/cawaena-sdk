@@ -16,8 +16,6 @@ pub struct AddressQueryParameters {
 pub struct SetUserAddressRequest {
     /// User address
     pub address: String,
-    /// Network
-    pub network_id: String,
 }
 
 /// Get user address response

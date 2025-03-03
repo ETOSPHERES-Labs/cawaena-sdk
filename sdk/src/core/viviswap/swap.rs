@@ -851,7 +851,6 @@ mod tests {
 
         let mock_request = SetUserAddressRequest {
             address: ADDRESS.to_string(),
-            network_id: network.clone().id,
         };
         let body = serde_json::to_string(&mock_request).unwrap();
 

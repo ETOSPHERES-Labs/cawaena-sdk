@@ -37,7 +37,6 @@ pub async fn put_user_address(
 
     info!("Used url: {url:#?}");
     let body = SetUserAddressRequest {
-        network_id,
         address: address.to_string(),
     };
     info!("Putting user address {address}");
@@ -160,7 +159,6 @@ mod tests {
 
         let mock_request = SetUserAddressRequest {
             address: ADDRESS.into(),
-            network_id: iota_network_id.clone(),
         };
         let body = serde_json::to_string(&mock_request).unwrap();
 
@@ -209,7 +207,7 @@ mod tests {
         body: "".to_string() 
     }))]
     #[tokio::test]
-    async fn test_get_node_urls(#[case] status_code: usize, #[case] expected: Result<ApiGetNetworksResponse>) {
+    async fn test_get_networks(#[case] status_code: usize, #[case] expected: Result<ApiGetNetworksResponse>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
 
