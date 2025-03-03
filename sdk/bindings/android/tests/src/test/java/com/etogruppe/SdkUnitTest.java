@@ -70,8 +70,6 @@ public class SdkUnitTest {
                         "auth_provider": "standalone",
                     }
                     """.formatted(directory.toString()));
-
-            sdk.setNetwork(IOTA_NETWORK_ID);
             sdk.refreshAccessToken(token);
         } catch (Exception e) {
             fail(e.getMessage());
@@ -94,6 +92,44 @@ public class SdkUnitTest {
 
     @Test
     public void AshouldCreateNewUser() throws Exception {
+        String body = """
+                    "networks":[
+                        {
+                            "id": "67a1f08edf55756bae21e7eb",
+                            "name": "IOTA",
+                            "currency": "IOTA",
+                            "block_explorer_url": "https://explorer.shimmer.network/testnet/",
+                            "enabled": true,
+                            "network_identifier": "iota_mainnet",
+                            "network_type": {
+                                "node_url": "https://api.testnet.iotaledger.net",
+                            },
+                        },
+                        {
+                            "id": "67a2080ddf55756bae21e7f5",
+                            "name": "Eth Sepolia",
+                            "currency": "ETH",
+                            "block_explorer_url": "https://sepolia.explorer.mode.network",
+                            "enabled": true,
+                            "network_identifier": "ethereum_mainnet",
+                            "network_type": {
+                                "node_url": "https://sepolia.mode.network",
+                                "chain_id": 31337,
+                            },
+                        }
+                    ]
+                """;
+        wireMockRule.stubFor(get(urlPathEqualTo("/api/config/networks"))
+                .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
+                .withHeader("X-APP-USERNAME", equalTo(USERNAME))
+                .withHeader("X-APP-NAME", equalTo(AUTH_PROVIDER))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+
+        sdk.setNetwork(IOTA_NETWORK_ID);
+
         sdk.createNewUser(USERNAME);
         logger.debug(String.format("User %s created", USERNAME));
     }
