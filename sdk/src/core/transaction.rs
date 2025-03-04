@@ -317,7 +317,7 @@ impl Sdk {
                         receiver: val.outgoing.username,
                         reference_id: val.index,
                         amount: val.incoming.amount.try_into()?,
-                        currency: val.incoming.network.currency, // ?????????????????????
+                        currency: val.incoming.network.currency,
                         application_metadata: val.application_metadata,
                         status: val.status,
                         transaction_hash: val.incoming.transaction_id,

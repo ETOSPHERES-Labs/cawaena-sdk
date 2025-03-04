@@ -44,20 +44,6 @@ pub enum WalletError {
     #[error("Unauthorized: Missing Access Token")]
     MissingAccessToken,
 
-    /// Error raises if node urls are missing
-    #[error("Missing node url for {network_id:?}")]
-    MissingNodeUrls {
-        /// the id of the network for which node url is missing
-        network_id: String,
-    },
-
-    /// Error raises if network is missing in config
-    #[error("Network not present in config {network_id:?}")]
-    NetworkNotPresentInConfig {
-        /// the id of the network which is missing
-        network_id: String,
-    },
-
     /// Error raises if the wallet address is empty
     #[error("Wallet address is empty")]
     EmptyWalletAddress,

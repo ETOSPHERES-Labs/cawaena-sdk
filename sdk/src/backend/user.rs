@@ -139,7 +139,7 @@ pub async fn get_preferred_network(
     let base_url = &config.backend_url;
     let url = format!("{base_url}/user/network");
     info!("Used url: {url:#?}");
-    info!("Getting preferred currency for {username}");
+    info!("Getting preferred network for {username}");
 
     let client = reqwest::Client::new();
     let response = client
@@ -153,7 +153,6 @@ pub async fn get_preferred_network(
 
     match response.status() {
         StatusCode::OK => Ok(response.json::<GetPreferredNetworkResponse>().await?.network_id),
-        //.map(Into::into)),
         StatusCode::UNAUTHORIZED => Err(ApiError::MissingAccessToken),
         _ => {
             let status = response.status();
