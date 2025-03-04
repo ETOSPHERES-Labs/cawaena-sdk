@@ -5,12 +5,9 @@ use api_types::api::transactions::ApiTxStatus;
 use rust_decimal_macros::dec;
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        currencies::{CryptoAmount, Currency},
-        newtypes::AccessToken,
-    },
+    types::{currencies::CryptoAmount, newtypes::AccessToken},
 };
-use std::{collections::HashMap, path::Path, time::Duration};
+use std::{path::Path, time::Duration};
 use testing::{CleanUp, USER_HANS34, USER_HANS48, USER_SATOSHI};
 use tokio::time;
 
