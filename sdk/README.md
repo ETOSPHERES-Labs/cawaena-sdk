@@ -445,7 +445,7 @@ To build the public docs, you need to do some preparation. First, setup a new py
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install mkdocs-material mike  mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin-2 mkdocs-git-authors-plugin mkdocs-typedoc azure-cli
+pip install mkdocs-material mike mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin-2 mkdocs-git-authors-plugin mkdocs-typedoc
 pnpm install
 ```
 
