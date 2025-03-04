@@ -12,25 +12,9 @@ The static configuration is provided by passing a JSON formatted string to the S
     "auth_provider": "<authentication provider name>",
     "backend_url": "<valid URL to the backend API>",
     "storage_path": "/path/to/valid/folder",
-    "log_level": "info",
-    "node_urls": {
-        "iota": ["<first node url>", "<second node url>"]
-    }
-}
-```
-
-Note that `node_urls` are optional here in case you want to set them. You can set the configuration also without them:
-
-```json
-{
-    "auth_provider": "<authentication provider name>",
-    "backend_url": "<valid URL to the backend API>",
-    "storage_path": "/path/to/valid/folder",
     "log_level": "info"
 }
 ```
-
-If not set in the configuration then, the SDK will assign them automatically. Check [Configuring the currency and Node URLs](./Configuration.md#configuring-the-currency-and-node-urls) section below.
 
 
 ### Configuring authentication provider
@@ -134,89 +118,6 @@ For all platforms, except for when using the TypeScript/Javascript bindings, it 
 
 Whenever the SDK is configured, the logger is automatically initialized. For all platforms except TypeScript/Javascript, whenever a valid log level is specified in the `log_level` field, the logger is initialized to append log messages to a `cryptpay_sdk.log` file in the specified `storage_path` folder. The different log levels that can be set for the logger are: `trace`, `debug`, `info`, `warn`, `error` and allow for fine-tuning the amount of log messages that are generated. A value of `off` can also be specified to disable logging completely. It is important and recommended to enable the logger since this information can be exported and analyzed during testing and integration, which can help diagnose any issues.
 
-
-### Configuring the currency and Node URLs
-
-The SDK requires a correct currency to be configured. Before one can setup the wallet, the currency / coin to use must be selected. This is done with the [`set_currency`](../SDK%20Reference/SDK%20API%20Reference.md#set-currency) function.
-
-The following currencies are currently supported:
-
-- `iota` - IOTA network. 
-- `eth` - Ethereum network.
-
-=== "Rust"
-
-    ```rust linenums="1"
-    async fn main() {
-        let mut sdk = Sdk::default();
-        sdk.set_config("...").unwrap();
-
-        sdk.set_currency(Currency::Iota);
-    }
-    ```
-
-=== "Java"
-
-    ```java linenums="1"
-    package org.example.app;
-    import com.etogruppe.CawaenaSdk;
-
-    public class app {
-        public static void main(){
-            CawaenaSdk sdk = new CawaenaSdk();
-
-            try {
-                sdk.setConfig("...");
-                sdk.setCurrency("Iota");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    ```
-
-=== "Swift"
-
-    ```swift linenums="1"
-    import Foundation
-    import CawaenaSdk
-
-    let sdk = CawaenaSdk()
-    try await sdk.setConfig(config: "...")
-
-    do {
-        try await sdk.setCurrency(Currency.Iota)
-    } catch {
-        print(error.localizedDescription)
-    }
-    ```
-
-=== "Typescript"
-
-    ```typescript linenums="1"
-    import * as wasm from "../pkg/cryptpay_sdk_wasm";
-
-    const sdk = await new CawaenaSdk();
-    await sdk.setConfig("...")
-
-    await sdk.setCurrency(Currency.Iota);
-    ```
-
-In addition, the URLs of the nodes to connect to must be configured for each currency. This allows selection of test or main networks, or using a custom self-hosted node, for example. Note that for purchases to work correctly, the backend need to be configured with the same node URLs. For the SDK, these are specified in the `node_urls` mapping object of the configuration and consists of simple key-values that map the above currencies to a list of valid URLs:
-```json
-{
-    ...
-    "node_urls": {
-        "Iota": ["https://api.testnet.iotaledger.net"],
-        "Eth": ["https://ethereum-sepolia-rpc.publicnode.com"],
-    }
-    ...
-}
-```
-!!! Note
-
-    - If the Node URLs are not provided in the configuration, the SDK will automatically fetch the supported ones.
-    - If they are provided in the configuration, the SDK will use the provided values instead.
 
 ## Complete example
 

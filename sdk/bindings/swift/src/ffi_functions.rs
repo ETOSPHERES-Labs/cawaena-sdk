@@ -53,10 +53,7 @@ impl CawaenaSdk {
     ///     "auth_provider": "<authentication provider name>",
     ///     "backend_url": "<valid URL to the backend API>",
     ///     "storage_path": "/path/to/valid/folder",
-    ///     "log_level": "info",
-    ///     "node_urls": {
-    ///         "iota": ["<first node url>", "<second node url>"]
-    ///     }
+    ///     "log_level": "info"
     /// }
     /// ```
     ///

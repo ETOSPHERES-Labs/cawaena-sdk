@@ -15,10 +15,7 @@ export async function initSdk() {
     {
         "backend_url": "${url}",
         "log_level": "info",
-        "auth_provider": "standalone",
-        "node_urls": {
-            "iota": ["https://api.testnet.iotaledger.net"]
-        }
+        "auth_provider": "standalone"
     }
     `);
     await sdk.setCurrency(wasm.Currency.Iota);

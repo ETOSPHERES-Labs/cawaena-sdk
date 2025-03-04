@@ -1,7 +1,5 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-
 use super::networks::ApiNetwork;
+use serde::{Deserialize, Serialize};
 
 /// Get/set system/user address query parameters
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -40,14 +38,7 @@ pub struct GetPreferredNetworkResponse {
     pub network_id: Option<String>,
 }
 
-// Struct to get node urls from backend
-#[derive(Debug, Deserialize, Serialize, Clone)]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
-pub struct ApiGetNodeUrlsResponse {
-    pub node_urls: HashMap<String, Vec<String>>,
-}
-
-// Struct to get networks from backend +
+// Get networks from the backend
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ApiGetNetworksResponse {
