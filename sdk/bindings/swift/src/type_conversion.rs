@@ -272,23 +272,3 @@ impl From<ffi::IdentityPersonalDocumentData> for sdk::types::IdentityPersonalDoc
         }
     }
 }
-
-impl From<ffi::PreferredCurrency> for Option<sdk::types::currencies::Currency> {
-    fn from(value: ffi::PreferredCurrency) -> Self {
-        match value {
-            ffi::PreferredCurrency::None => None,
-            ffi::PreferredCurrency::Iota => Some(sdk::types::currencies::Currency::Iota),
-            ffi::PreferredCurrency::Eth => Some(sdk::types::currencies::Currency::Eth),
-        }
-    }
-}
-
-impl From<Option<sdk::types::currencies::Currency>> for ffi::PreferredCurrency {
-    fn from(value: Option<sdk::types::currencies::Currency>) -> Self {
-        match value {
-            None => Self::None,
-            Some(sdk::types::currencies::Currency::Iota) => Self::Iota,
-            Some(sdk::types::currencies::Currency::Eth) => Self::Eth,
-        }
-    }
-}

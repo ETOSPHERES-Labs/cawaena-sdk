@@ -1,9 +1,5 @@
 use super::{kdbx::KdbxStorageError, share::ShareError};
-use crate::{
-    backend::error::ApiError,
-    types::{currencies::Currency, error::TypeError},
-    user::error::UserKvStorageError,
-};
+use crate::{backend::error::ApiError, types::error::TypeError, user::error::UserKvStorageError};
 use iota_sdk::types::block;
 use serde::Serialize;
 
@@ -47,13 +43,6 @@ pub enum WalletError {
     /// Error raises if authentication token is outdated or invalid
     #[error("Unauthorized: Missing Access Token")]
     MissingAccessToken,
-
-    /// Error raises if node urls are missing
-    #[error("Missing node url for {currency:?}")]
-    MissingNodeUrls {
-        /// the currency for which node url is missing
-        currency: Currency,
-    },
 
     /// Error raises if the wallet address is empty
     #[error("Wallet address is empty")]

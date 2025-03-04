@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
-use crate::types::currencies::CryptoAmount;
+use crate::types::currencies::{CryptoAmount, Currency};
+use crate::types::networks::{Network, NetworkType};
 use crate::types::transactions::WalletTxInfo;
 use crate::types::users::{KycType, UserEntity};
 use crate::types::viviswap::{
@@ -15,9 +16,9 @@ use crate::{
     user::MockUserRepo,
     wallet_manager::WalletBorrow,
 };
+use api_types::api::networks::{ApiNetwork, ApiNetworkType};
 use api_types::api::{
     account::Customer,
-    generic::ApiCryptoCurrency,
     postident::{CaseDetailsResponse, NewCaseIdResponse},
     transactions::{ApiApplicationMetadata, ApiTxStatus, GetTransactionDetailsResponse},
     viviswap::{
@@ -33,7 +34,7 @@ use api_types::api::{
 };
 use mockito::{Server, ServerOpts};
 use rust_decimal_macros::dec;
-use std::{collections::HashMap, sync::LazyLock};
+use std::sync::LazyLock;
 use testing::CleanUp;
 
 pub const USERNAME: &str = "test_user";
@@ -162,8 +163,113 @@ pub fn example_tx_details() -> GetTransactionDetailsResponse {
         system_address: ADDRESS.to_string(),
         amount: AMOUNT.inner(),
         status: ApiTxStatus::Completed,
-        currency: ApiCryptoCurrency::Iota,
+        network: ApiNetwork {
+            id: String::from("67a1f08edf55756bae21e7eb"),
+            name: String::from("IOTA"),
+            currency: String::from("IOTA"),
+            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+            enabled: true,
+            network_identifier: Some(String::from("iota_mainnet")),
+            network_type: ApiNetworkType::Stardust {
+                node_url: String::from("https://api.testnet.iotaledger.net"),
+            },
+        },
     }
+}
+
+pub fn example_network_id(currency: Currency) -> String {
+    match currency {
+        Currency::Iota => String::from("67a1f08edf55756bae21e7eb"),
+        Currency::Eth => String::from("67a2080ddf55756bae21e7f5"),
+    }
+}
+
+pub fn example_api_network(currency: Currency) -> ApiNetwork {
+    match currency {
+        Currency::Iota => ApiNetwork {
+            id: example_network_id(currency),
+            name: String::from("IOTA"),
+            currency: String::from("IOTA"),
+            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+            enabled: true,
+            network_identifier: Some(String::from("iota_mainnet")),
+            network_type: ApiNetworkType::Stardust {
+                node_url: String::from("https://api.testnet.iotaledger.net"),
+            },
+        },
+        Currency::Eth => ApiNetwork {
+            id: example_network_id(currency),
+            name: String::from("Eth Sepolia"),
+            currency: String::from("ETH"),
+            block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
+            enabled: true,
+            network_identifier: Some(String::from("ethereum_mainnet")),
+            network_type: ApiNetworkType::Evm {
+                node_url: String::from("https://sepolia.mode.network"),
+                chain_id: 31337,
+            },
+        },
+    }
+}
+
+pub fn example_network(currency: Currency) -> Network {
+    match currency {
+        Currency::Iota => Network {
+            id: example_network_id(currency),
+            name: String::from("IOTA"),
+            currency: String::from("IOTA"),
+            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+            enabled: true,
+            network_identifier: Some(String::from("iota_mainnet")),
+            network_type: NetworkType::Stardust {
+                node_url: String::from("https://api.testnet.iotaledger.net"),
+            },
+        },
+        Currency::Eth => Network {
+            id: example_network_id(currency),
+            name: String::from("Eth Sepolia"),
+            currency: String::from("ETH"),
+            block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
+            enabled: true,
+            network_identifier: Some(String::from("ethereum_mainnet")),
+            network_type: NetworkType::Evm {
+                node_url: String::from("https://sepolia.mode.network"),
+                chain_id: 31337,
+            },
+        },
+    }
+}
+
+pub fn example_networks() -> Vec<Network> {
+    vec![example_network(Currency::Iota), example_network(Currency::Eth)]
+}
+
+pub fn example_api_networks() -> Vec<ApiNetwork> {
+    vec![
+        ApiNetwork {
+            id: example_network_id(Currency::Iota),
+            name: String::from("IOTA"),
+            currency: String::from("IOTA"),
+            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
+            enabled: true,
+            network_identifier: Some(String::from("iota_mainnet")),
+            network_type: ApiNetworkType::Stardust {
+                node_url: String::from("https://api.testnet.iotaledger.net"),
+            },
+        },
+        ApiNetwork {
+            id: example_network_id(Currency::Eth),
+            name: String::from("Eth Sepolia"),
+            currency: String::from("ETH"),
+            block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
+            enabled: true,
+            network_identifier: Some(String::from("ethereum_mainnet")),
+            network_type: ApiNetworkType::Evm {
+                node_url: String::from("https://sepolia.mode.network"),
+                chain_id: 31337,
+            },
+        },
+    ]
 }
 
 pub fn example_new_case_id() -> NewCaseIdResponse {
@@ -270,29 +376,6 @@ pub fn example_customer() -> Customer {
         business_partner: api_types::api::account::BusinessPartner::Privat,
         contract_currency: api_types::api::account::ContractCurrency::EUR,
         vat_id: None,
-    }
-}
-
-pub fn example_node_urls(invalid_currency: Option<&str>) -> HashMap<String, Vec<String>> {
-    let mut node_urls = HashMap::from([
-        (
-            "IOTA".to_string(),
-            vec!["https://api.stardust-mainnet.iotaledger.net/".to_string()],
-        ),
-        (
-            "ETH".to_string(),
-            vec![
-                "https://ethereum-sepolia-rpc.publicnode.com/".to_string(),
-                "31337".to_string(),
-            ],
-        ),
-    ]);
-
-    if let Some(key) = invalid_currency {
-        node_urls.insert(key.to_string(), vec!["some network".to_string()]);
-        node_urls
-    } else {
-        node_urls
     }
 }
 

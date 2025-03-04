@@ -281,10 +281,7 @@ Task {
                 "backend_url": "http://test.url.com/api",
                 "storage_path": ".",
                 "log_level": "info",
-                "auth_provider": "standalone",
-                "node_urls": {
-                    "iota": ["https://api.testnet.iotaledger.net"]
-                }
+                "auth_provider": "standalone"
             }
             """)
         print("sdk configured")

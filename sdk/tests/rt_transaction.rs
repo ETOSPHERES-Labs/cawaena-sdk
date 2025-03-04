@@ -5,12 +5,9 @@ use api_types::api::transactions::ApiTxStatus;
 use rust_decimal_macros::dec;
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        currencies::{CryptoAmount, Currency},
-        newtypes::AccessToken,
-    },
+    types::{currencies::CryptoAmount, newtypes::AccessToken},
 };
-use std::{collections::HashMap, path::Path, time::Duration};
+use std::{path::Path, time::Duration};
 use testing::{CleanUp, USER_HANS34, USER_HANS48, USER_SATOSHI};
 use tokio::time;
 
@@ -91,7 +88,8 @@ async fn it_should_create_purchase_request_and_confirm_it() {
     let user: utils::TestUser = (*USER_HANS34).clone().into();
 
     /*
-    configure sdk manually to run only this test on the iota mainnet
+    TODO: define network with iota mainnet for tests
+    DEPRECATED: configure sdk manually to run only this test on the iota mainnet
     */
     let existing_cleanup = CleanUp::default();
     let password = std::env::var("SATOSHI_PASSWORD").unwrap();
@@ -103,16 +101,6 @@ async fn it_should_create_purchase_request_and_confirm_it() {
         path_prefix: Path::new(&existing_cleanup.path_prefix).into(),
         auth_provider: "standalone".to_string(),
         log_level: log::LevelFilter::Debug,
-        node_urls: HashMap::from([
-            (
-                Currency::Iota,
-                vec!["https://api.stardust-mainnet.iotaledger.net".to_string()],
-            ),
-            (
-                Currency::Eth,
-                vec!["https://ethereum-sepolia-rpc.publicnode.com".to_string()],
-            ),
-        ]),
     };
 
     let mut sdk = Sdk::new(config).expect("should not fail to initialize sdk"); // set the backend url if the environment variable is set
@@ -122,7 +110,10 @@ async fn it_should_create_purchase_request_and_confirm_it() {
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_currency(Currency::Iota);
+    // calling `set_network` method will automatically query the backend for the list of available networks
+    // (because the network list is empty). You can manually add networks by calling `set_networks()`
+    // to avoid fetching the list from the backend
+    sdk.set_network(String::from("67a1f08edf55756bae21e7eb")).await.unwrap();
 
     /*
     rest of the test
