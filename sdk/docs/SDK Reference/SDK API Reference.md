@@ -82,48 +82,48 @@ The Rustdoc API reference is available [here](../rust-docs/doc/sdk/index.html). 
     public func setConfig(config: String) throws
     ```
 
-### Get supported node urls
+### Get supported networks
 
 | Method | Arguments | Returns | Dependencies | Level | Repeat|
 |--------|-----------|---------|--------------|-------|-------|
-| Get the supported currencies and their corresponding node urls. | | Returns a serialized string of a hashmap with currencies as key (String) and node urls as value (vector of strings). | | [Constructor](./SDK%20API%20Reference.md#instantiating-the-sdk), [Set Configuration](./SDK%20API%20Reference.md#set-configuration), [Refresh access token](./SDK%20API%20Reference.md#refreshing-access-token), [User initialization](./SDK%20API%20Reference.md#initializing-a-user) | Basic | Handle |
+| Get the supported networks. | | Returns a list of ApiNetwork. | | [Constructor](./SDK%20API%20Reference.md#instantiating-the-sdk), [Set Configuration](./SDK%20API%20Reference.md#set-configuration), [Refresh access token](./SDK%20API%20Reference.md#refreshing-access-token), [User initialization](./SDK%20API%20Reference.md#initializing-a-user) | Basic | Handle |
 
 === "Rust"
-    [get_node_urls_backend](../rust-docs/doc/sdk/core/struct.Sdk.html#method.get_node_urls_backend)
+    [getNetworks](../rust-docs/doc/sdk/core/struct.Sdk.html#method.get_networks)
 
 === "Java"
-    [getNodeUrls](../javadoc/com/etogruppe/CryptpaySdk.html#getNodeUrls())
+    [getNetworks](../javadoc/com/etogruppe/CryptpaySdk.html#get_networks())
 
 === "Typescript"
-    [get_node_urls](../jstsdocs/classes/CryptpaySdk.html#get_node_urls)
+    [getNetworks](../jstsdocs/classes/CryptpaySdk.html#get_networks)
 
 === "Swift"
     Not available yet!
 
     ```swift
-    public func getNodeUrls() throws -> String
+    public func getNetworks() throws -> String
     ```
 
-### Set currency
+### Set network
 
 | Method | Arguments | Returns | Dependencies | Level | Repeat|
 |--------|-----------|---------|--------------|-------|-------|
-| Sets the currency | `currency` - The currency as string. Allowed values are `smr`, `iota` and `eth` | | [Constructor](./SDK%20API%20Reference.md#instantiating-the-sdk) | Basic | Handle |
+| Sets the network | `network_id` - The network_id as string.| | [Constructor](./SDK%20API%20Reference.md#instantiating-the-sdk) | Basic | Handle |
 
 === "Rust"
-    [set_currency](../rust-docs/doc/sdk/core/struct.Sdk.html#method.set_currency)
+    [set_network](../rust-docs/doc/sdk/core/struct.Sdk.html#method.set_network)
 
 === "Java"
-    [setCurrency](../javadoc/com/etogruppe/CryptpaySdk.html#setCurrency(java.lang.String))
+    [setNetwork](../javadoc/com/etogruppe/CryptpaySdk.html#setCurrency(java.lang.String))
 
 === "Typescript"
-    [setCurrency](../jstsdocs/classes/CryptpaySdk.html#setCurrency)
+    [setNetwork](../jstsdocs/classes/CryptpaySdk.html#setCurrency)
 
 === "Swift"
     Not available yet!
 
     ```swift
-    public func setCurrency(currency: Currency) throws 
+    public func setNetwork(network_id: String) throws 
     ```
 
 ### Get build information 
