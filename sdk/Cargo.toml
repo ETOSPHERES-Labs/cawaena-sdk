@@ -76,7 +76,7 @@ alloy-consensus = { version = "0.8.0", features = ["k256"] }
 alloy-primitives = "0.8.3"
 alloy-provider = { version = "0.8.0", default-features = false, features = ["reqwest", "reqwest-rustls-tls"] }
 alloy-json-rpc = "0.8.0"
-alloy-transport = "0.8.0"
+alloy-transport = "0.11.1"
 shadow-rs = { version = "0.35.2", default-features = false }
 
 [dependencies.rusty_secrets]
