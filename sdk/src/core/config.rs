@@ -147,7 +147,7 @@ impl Sdk {
     }
 
     /// Get supported networks from backend
-    pub async fn get_networks_backend(&self) -> Result<Vec<Network>> {
+    pub(crate) async fn get_networks_backend(&self) -> Result<Vec<Network>> {
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
         let username = &self
             .active_user
