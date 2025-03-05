@@ -1,4 +1,5 @@
 use crate::utils::{convert_enum, convert_simple_struct};
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -70,6 +71,24 @@ impl From<sdk::types::ApiTxStatus> for TxStatus {
             sdk::types::ApiTxStatus::ProcessingOutgoing => TxStatus::ProcessingOutgoing,
             sdk::types::ApiTxStatus::Completed => TxStatus::Completed,
             sdk::types::ApiTxStatus::Failed => TxStatus::Failed,
+        }
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
+pub struct Network {
+    id: String,
+    name: String,
+    currency: String,
+}
+
+impl From<sdk::types::networks::Network> for Network {
+    fn from(value: sdk::types::networks::Network) -> Self {
+        Network {
+            id: value.id,
+            name: value.name,
+            currency: value.currency,
         }
     }
 }

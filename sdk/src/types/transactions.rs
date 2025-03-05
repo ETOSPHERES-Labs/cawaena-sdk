@@ -1,4 +1,7 @@
-use api_types::api::transactions::{ApiApplicationMetadata, ApiTxStatus};
+use api_types::api::{
+    networks::ApiNetwork,
+    transactions::{ApiApplicationMetadata, ApiTxStatus},
+};
 use chrono::{LocalResult, TimeZone, Utc};
 use iota_sdk::{
     types::block::{helper::network_name_to_id, output::Output, payload::transaction::TransactionEssence},
@@ -126,6 +129,8 @@ pub struct PurchaseDetails {
     pub amount: Decimal,
     /// The status of transaction
     pub status: ApiTxStatus,
+    /// The network that the transaction is sent in
+    pub network: ApiNetwork,
 }
 
 /// Gas estimation (EIP-1559)

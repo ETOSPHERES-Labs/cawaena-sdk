@@ -32,7 +32,7 @@ pub(crate) mod core_testing_utils;
 
 use crate::build;
 use crate::error::Result;
-use crate::types::currencies::Currency;
+use crate::types::networks::Network;
 use crate::types::newtypes::{AccessToken, EncryptionPin};
 use crate::types::users::ActiveUser;
 use crate::user::UserRepo;
@@ -52,8 +52,10 @@ pub struct Sdk {
     access_token: Option<AccessToken>,
     /// Contains the user repository for storing and loading different users.
     repo: Option<UserRepoT>,
-    /// The currently active coin currency
-    currency: Option<Currency>,
+    /// The currently active network
+    network: Option<Network>,
+    /// Available networks
+    networks: Option<Vec<Network>>,
 }
 
 impl Drop for Sdk {
@@ -71,7 +73,8 @@ impl Default for Sdk {
             active_user: None,
             access_token: None,
             repo: None,
-            currency: None,
+            network: None,
+            networks: None,
         }
     }
 }
@@ -85,10 +88,31 @@ impl Sdk {
         Ok(s)
     }
 
-    /// Set currency
-    pub fn set_currency(&mut self, currency: Currency) {
-        debug!("Selected Currency: {:?}", currency);
-        self.currency = Some(currency);
+    /// Set network
+    pub async fn set_network(&mut self, network_id: String) -> Result<()> {
+        debug!("Selected network_id: {:?}", network_id.clone());
+        let networks = match &self.networks {
+            Some(n) => n,
+            None => {
+                let result = self.get_networks_backend().await;
+                &match result {
+                    Ok(n) => {
+                        self.networks = Some(n.clone());
+                        n
+                    }
+                    Err(e) => Err(e)?,
+                }
+            }
+        };
+
+        let Some(network) = networks.iter().find(|network| network.id == network_id) else {
+            return Err(crate::Error::NetworkUnavailable(network_id));
+        };
+
+        debug!("Selected Network: {:?}", network);
+        self.network = Some(network.clone());
+
+        Ok(())
     }
 
     /// Tries to get the wallet of the currently active user. Or returns an error if no user is
@@ -104,11 +128,11 @@ impl Sdk {
         let Some(active_user) = &mut self.active_user else {
             return Err(crate::Error::UserNotInitialized);
         };
-        let currency = self.currency.ok_or(crate::Error::MissingCurrency)?;
+        let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
         let config = self.config.as_mut().ok_or(crate::Error::MissingConfig)?;
         let wallet = active_user
             .wallet_manager
-            .try_get(config, &self.access_token, repo, currency, pin)
+            .try_get(config, &self.access_token, repo, network, pin)
             .await?;
         Ok(wallet)
     }
@@ -127,6 +151,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
+    use crate::testing_utils::{example_network_id, example_networks};
     use crate::{
         core::Sdk,
         error::Result,
@@ -141,6 +166,7 @@ mod tests {
     #[case::success(Ok(WalletBorrow::from(MockWalletUser::new())))]
     #[case::repo_init_error(Err(crate::Error::UserRepoNotInitialized))]
     #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
+    #[case::missing_network(Err(crate::Error::MissingNetwork))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[tokio::test]
     async fn test_try_get_active_user_wallet(#[case] expected: Result<WalletBorrow<'_>>) {
@@ -156,7 +182,10 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_currency(crate::types::currencies::Currency::Iota);
+                sdk.set_networks(Some(example_networks()));
+                sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
+                    .await
+                    .unwrap();
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 0, 0).await;

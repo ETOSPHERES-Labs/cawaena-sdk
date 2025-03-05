@@ -2,12 +2,9 @@
 
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        currencies::Currency,
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
-use std::{collections::HashMap, path::Path};
+use std::path::Path;
 use testing::{CleanUp, USER_SATOSHI};
 
 pub async fn init_sdk() -> (Sdk, CleanUp) {
@@ -29,13 +26,6 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
         path_prefix: Path::new(&cleanup.path_prefix).into(),
         auth_provider: "standalone".to_string(),
         log_level: log::LevelFilter::Debug,
-        node_urls: HashMap::from([
-            (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
-            (
-                Currency::Eth,
-                vec!["https://ethereum-sepolia-rpc.publicnode.com".to_string()],
-            ),
-        ]),
     };
     let mut sdk = Sdk::new(config).expect("should not fail to initialize sdk"); // set the backend url if the environment variable is set
 
@@ -46,7 +36,9 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
-    sdk.set_currency(Currency::Iota);
+    sdk.set_network(String::from("67a1f08edf55756bae21e7eb"))
+        .await
+        .expect("should not fail to set network");
 
     (sdk, cleanup)
 }

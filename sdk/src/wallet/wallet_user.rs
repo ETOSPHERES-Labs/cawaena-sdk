@@ -1,5 +1,4 @@
 use super::error::{Result, WalletError};
-use crate::core::Config;
 use crate::types::currencies::{CryptoAmount, Currency};
 use crate::types::transactions::{GasCostEstimation, WalletTxInfo, WalletTxInfoList};
 use alloy_consensus::TxEip1559;
@@ -92,7 +91,6 @@ pub trait WalletUser: Debug {
     /// * `amount` - The amount to send (Ether).
     /// * `tag` - The transactions tag. Optional.
     /// * `message` - The transactions message. Optional.
-    /// * `chain_id` - The identifier of the chain to which the transaction belongs (e.g., 1 for Ethereum mainnet).
     ///
     ///
     /// Returns a `Result` containing the sent transaction id if successful, or an `Error` if it fails.
@@ -107,7 +105,6 @@ pub trait WalletUser: Debug {
         amount: CryptoAmount,
         tag: Option<TaggedDataPayload>,
         message: Option<String>,
-        chain_id: u64,
     ) -> Result<String>;
 
     /// Send a transaction with one output.
@@ -134,7 +131,6 @@ pub trait WalletUser: Debug {
     /// * `index` - The index of the transaction.
     /// * `address` - The address to send the amount.
     /// * `amount` - The amount to send (Ether)
-    /// * `chain_id` - The identifier of the chain to which the transaction belongs (e.g., 1 for Ethereum mainnet).
     ///
     /// # Returns
     ///
@@ -144,13 +140,7 @@ pub trait WalletUser: Debug {
     ///
     /// This function can return an error if it fails to synchronize the wallet, if there is insufficient balance, or encounters any other issues.
     #[allow(clippy::too_many_arguments)]
-    async fn send_transaction_eth(
-        &self,
-        index: &str,
-        address: &str,
-        amount: CryptoAmount,
-        chain_id: u64,
-    ) -> Result<String>;
+    async fn send_transaction_eth(&self, index: &str, address: &str, amount: CryptoAmount) -> Result<String>;
 
     /// Synchronizes the wallet with the network.
     ///
@@ -223,13 +213,9 @@ pub struct WalletImplStardust {
 
 impl WalletImplStardust {
     /// Creates a new [`WalletImpl`] from the specified [`Config`] and [`Mnemonic`].
-    pub async fn new(config: &Config, mnemonic: Mnemonic, path: &Path, currency: Currency) -> Result<Self> {
+    pub async fn new(mnemonic: Mnemonic, path: &Path, currency: Currency, node_url: String) -> Result<Self> {
         // we now have the mnemonic and can initialize a wallet
-        let node_urls = config
-            .node_urls
-            .get(&currency)
-            .ok_or(WalletError::MissingNodeUrls { currency })
-            .map(|e| e.iter().map(|i| i.as_str()).collect::<Vec<&str>>())?;
+        let node_urls = vec![node_url.as_str()];
 
         info!("Used node_urls: {:?}", node_urls);
         let client_options = ClientOptions::new()
@@ -360,7 +346,6 @@ impl WalletUser for WalletImplStardust {
         _amount: CryptoAmount,
         _tag: Option<TaggedDataPayload>,
         _message: Option<String>,
-        _chain_id: u64,
     ) -> Result<String> {
         Err(WalletError::WalletFeatureNotImplemented)
     }
@@ -379,13 +364,7 @@ impl WalletUser for WalletImplStardust {
     }
 
     #[allow(clippy::too_many_arguments)]
-    async fn send_transaction_eth(
-        &self,
-        _index: &str,
-        _address: &str,
-        _amount: CryptoAmount,
-        _chain_id: u64,
-    ) -> Result<String> {
+    async fn send_transaction_eth(&self, _index: &str, _address: &str, _amount: CryptoAmount) -> Result<String> {
         Err(WalletError::WalletFeatureNotImplemented)
     }
 
@@ -483,6 +462,7 @@ async fn prepare_and_send_transaction(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::Config;
     use crate::testing_utils::MNEMONIC;
     use crate::types::{self, currencies::Currency};
     use iota_sdk::{
@@ -500,8 +480,9 @@ mod tests {
 
     /// helper function to get a [`WalletUser`] instance.
     async fn get_wallet_user(mnemonic: impl Into<Mnemonic>, currency: Currency) -> (WalletImplStardust, CleanUp) {
-        let (config, cleanup) = Config::new_test_with_cleanup();
-        let wallet = WalletImplStardust::new(&config, mnemonic.into(), Path::new(&cleanup.path_prefix), currency)
+        let (_, cleanup) = Config::new_test_with_cleanup();
+        let node_url = String::from("https://api.testnet.iotaledger.net");
+        let wallet = WalletImplStardust::new(mnemonic.into(), Path::new(&cleanup.path_prefix), currency, node_url)
             .await
             .expect("should initialize wallet");
         (wallet, cleanup)

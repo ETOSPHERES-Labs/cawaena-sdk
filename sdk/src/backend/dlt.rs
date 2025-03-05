@@ -1,14 +1,13 @@
 //! Connects to the dlt-service and puts the user address.
 
 use super::error::{ApiError, Result};
-use crate::{
-    core::config::Config,
-    types::{currencies::Currency, newtypes::AccessToken},
+use crate::{core::config::Config, types::newtypes::AccessToken};
+use api_types::api::{
+    dlt::{AddressQueryParameters, ApiGetNetworksResponse, SetUserAddressRequest},
+    networks::ApiNetwork,
 };
-use api_types::api::dlt::{AddressQueryParameters, ApiGetNodeUrlsResponse, SetUserAddressRequest};
 use log::{debug, error, info};
 use reqwest::StatusCode;
-use std::collections::HashMap;
 
 /// Puts the user crypto currency address in the backend
 ///
@@ -27,13 +26,13 @@ pub async fn put_user_address(
     config: &Config,
     username: &str,
     access_token: &AccessToken,
-    currency: Currency,
+    network_id: String,
     address: &str,
 ) -> Result<()> {
     let base_url = &config.backend_url;
     let url = format!("{base_url}/user/address");
     let query = AddressQueryParameters {
-        currency: currency.into(),
+        network_id: network_id.clone(),
     };
 
     info!("Used url: {url:#?}");
@@ -73,7 +72,7 @@ pub async fn put_user_address(
     Ok(())
 }
 
-/// Get node urls from backend.
+/// Get networks from backend.
 ///
 /// # Arguments
 ///
@@ -83,23 +82,19 @@ pub async fn put_user_address(
 ///
 /// # Returns
 ///
-/// Returns a `Result` containing the node urls corresponding to each supported currency as a `HashMap<String, String>` if successful, or an `Error` if an error occurs.
+/// Returns a `Result` containing the networks if successful, or an `Error` if an error occurs.
 ///
 /// # Errors
 ///
 /// Returns an `Err` variant with the following possible values:
 /// * [`ApiError::MissingAccessToken`] if the request is unauthorized.
 /// * [`ApiError::UnexpectedResponse`] if an unhandled error occurs.
-pub async fn get_node_urls(
-    config: &Config,
-    username: &str,
-    access_token: &AccessToken,
-) -> Result<HashMap<String, Vec<String>>> {
+pub async fn get_networks(config: &Config, username: &str, access_token: &AccessToken) -> Result<Vec<ApiNetwork>> {
     let base_url = &config.backend_url;
-    let url = format!("{base_url}/config/nodeurl");
+    let url = format!("{base_url}/config/networks");
 
     info!("Used url: {url:#?}");
-    info!("Getting node urls ..");
+    info!("Getting networks ..");
 
     let client = reqwest::Client::new();
     let response = client
@@ -113,8 +108,8 @@ pub async fn get_node_urls(
 
     match response.status() {
         StatusCode::OK => {
-            let node_urls = response.json::<ApiGetNodeUrlsResponse>().await?.node_urls;
-            Ok(node_urls)
+            let networks = response.json::<ApiGetNetworksResponse>().await?.networks;
+            Ok(networks)
         }
         StatusCode::UNAUTHORIZED => Err(ApiError::MissingAccessToken),
         _ => {
@@ -135,9 +130,12 @@ pub async fn get_node_urls(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::testing_utils::{
-        example_node_urls, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN,
-        USERNAME,
+    use crate::{
+        testing_utils::{
+            example_api_network, example_network_id, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME,
+            HEADER_X_APP_USERNAME, TOKEN, USERNAME,
+        },
+        types::currencies::Currency,
     };
     use mockito::Matcher;
 
@@ -157,6 +155,8 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
 
+        let iota_network_id = example_network_id(Currency::Iota);
+
         let mock_request = SetUserAddressRequest {
             address: ADDRESS.into(),
         };
@@ -168,7 +168,7 @@ mod tests {
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
             .match_header("content-type", "application/json")
-            .match_query(Matcher::Exact("currency=Iota".to_string()))
+            .match_query(Matcher::Exact(format!("network_id={}", iota_network_id)))
             .match_body(Matcher::Exact(body))
             .with_status(status_code)
             .expect(1)
@@ -176,7 +176,14 @@ mod tests {
             .create();
 
         // Act
-        let response = put_user_address(&config, USERNAME, &TOKEN, Currency::Iota, ADDRESS).await;
+        let response = put_user_address(
+            &config,
+            USERNAME,
+            &TOKEN,
+            String::from("67a1f08edf55756bae21e7eb"),
+            ADDRESS,
+        )
+        .await;
 
         // Assert
         match expected {
@@ -189,7 +196,7 @@ mod tests {
     }
 
     #[rstest::rstest]
-    #[case(200, Ok(ApiGetNodeUrlsResponse {node_urls: example_node_urls(None)}))]
+    #[case(200, Ok(ApiGetNetworksResponse {networks: vec![example_api_network(Currency::Iota), example_api_network(Currency::Eth)]}))]
     #[case(401, Err(ApiError::MissingAccessToken))]
     #[case(500, Err(ApiError::UnexpectedResponse {
         code: StatusCode::INTERNAL_SERVER_ERROR,
@@ -200,17 +207,17 @@ mod tests {
         body: "".to_string() 
     }))]
     #[tokio::test]
-    async fn test_get_node_urls(#[case] status_code: usize, #[case] expected: Result<ApiGetNodeUrlsResponse>) {
+    async fn test_get_networks(#[case] status_code: usize, #[case] expected: Result<ApiGetNetworksResponse>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
 
-        let resp_body = ApiGetNodeUrlsResponse {
-            node_urls: example_node_urls(None),
+        let resp_body = ApiGetNetworksResponse {
+            networks: vec![example_api_network(Currency::Iota), example_api_network(Currency::Eth)],
         };
         let mock_body_response = serde_json::to_string(&resp_body).unwrap();
 
         let mut mock_server = srv
-            .mock("GET", "/api/config/nodeurl")
+            .mock("GET", "/api/config/networks")
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header(HEADER_X_APP_USERNAME, USERNAME)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
@@ -223,12 +230,12 @@ mod tests {
         let mock_server = mock_server.expect(1).create();
 
         // Act
-        let response = get_node_urls(&config, USERNAME, &TOKEN).await;
+        let response = get_networks(&config, USERNAME, &TOKEN).await;
 
         // Assert
         match expected {
             Ok(resp) => {
-                assert_eq!(response.unwrap(), resp.node_urls);
+                assert_eq!(response.unwrap(), resp.networks);
             }
             Err(ref expected_err) => {
                 assert_eq!(response.err().unwrap().to_string(), expected_err.to_string());

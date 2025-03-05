@@ -3,13 +3,12 @@
 //!
 
 use super::Sdk;
-use crate::backend::dlt::get_node_urls;
+use crate::backend::dlt::get_networks;
 use crate::error::{Error, Result};
-use crate::types::currencies::Currency;
+use crate::types::networks::Network;
 use crate::user::repository::UserRepoImpl;
 use crate::user::UserRepo;
 use log::info;
-use std::collections::HashMap;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -31,9 +30,6 @@ pub struct Config {
 
     /// Log level for filtering which log messages that end up in the log file.
     pub log_level: log::LevelFilter,
-
-    /// The mapping of currency to the node url(s) to use.
-    pub node_urls: HashMap<Currency, Vec<String>>,
 }
 
 /// Struct representing the  deserialized version of the config in JSON format.
@@ -49,22 +45,17 @@ struct DeserializedConfig {
     storage_path: String,
 
     auth_provider: String,
-
-    node_urls: Option<HashMap<String, Vec<String>>>,
 }
 
 #[cfg(test)]
 impl Default for DeserializedConfig {
     /// Create a new [`DeserializedConfig`].
     fn default() -> Self {
-        use crate::testing_utils::example_node_urls;
-
         Self {
             backend_url: "http://example.com".to_string(),
             auth_provider: "standalone".to_string(),
             log_level: default_log_level(),
             storage_path: default_storage_path(),
-            node_urls: Some(example_node_urls(None)),
         }
     }
 }
@@ -102,31 +93,12 @@ impl TryFrom<DeserializedConfig> for Config {
             return Err(crate::Error::SetConfig("auth_provider must not be empty".to_string()));
         }
 
-        let mut node_urls = HashMap::new();
-        if let Some(urls) = value.node_urls {
-            for (k, v) in urls {
-                // parse the key into our currency
-                let currency = match k.to_lowercase().as_str() {
-                    "iota" => Currency::Iota,
-                    "eth" => Currency::Eth,
-                    other => {
-                        return Err(crate::Error::SetConfig(format!(
-                            "invalid currency key `{other}` while parsing node_urls. Valid keys are: iota, eth."
-                        )));
-                    }
-                };
-
-                node_urls.insert(currency, v);
-            }
-        }
-
         Ok(Self {
             backend_url: reqwest::Url::parse(&value.backend_url).map_err(|e| crate::Error::SetConfig(e.to_string()))?,
             log_level: log::LevelFilter::from_str(&value.log_level)
                 .map_err(|e| crate::Error::SetConfig(format!("Could not parse log level: {e:#?}")))?,
             auth_provider: value.auth_provider,
             path_prefix: path_prefix.into(),
-            node_urls,
         })
     }
 }
@@ -164,8 +136,18 @@ impl Sdk {
         Ok(())
     }
 
-    /// Get supported currencies and node urls from backend
-    pub async fn get_node_urls_backend(&self) -> Result<HashMap<String, Vec<String>>> {
+    /// Set networks
+    pub fn set_networks(&mut self, networks: Option<Vec<Network>>) {
+        self.networks = networks;
+    }
+
+    /// Get networks
+    pub fn get_networks(&self) -> Option<Vec<Network>> {
+        self.networks.clone()
+    }
+
+    /// Get supported networks from backend
+    pub(crate) async fn get_networks_backend(&self) -> Result<Vec<Network>> {
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
         let username = &self
             .active_user
@@ -176,9 +158,10 @@ impl Sdk {
             .access_token
             .as_ref()
             .ok_or(crate::error::Error::MissingAccessToken)?;
-        let backend_node_urls = get_node_urls(config, username, access_token).await?;
+        let backend_networks = get_networks(config, username, access_token).await?;
+        let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
 
-        Ok(backend_node_urls)
+        Ok(networks)
     }
 
     /// Set path prefix
@@ -219,19 +202,6 @@ impl Sdk {
 #[cfg(test)]
 #[allow(clippy::expect_used)] // this is testing code so expect is fine
 impl Config {
-    fn default_test_node_urls() -> HashMap<Currency, Vec<String>> {
-        HashMap::from([
-            (Currency::Iota, vec!["https://api.testnet.iotaledger.net".to_string()]),
-            (
-                Currency::Eth,
-                vec![
-                    "https://ethereum-sepolia-rpc.publicnode.com/".to_string(),
-                    "31337".to_string(),
-                ],
-            ),
-        ])
-    }
-
     /// Create a new [`Config`] with a [`testing::CleanUp`] as the path_prefix.
     pub fn new_test_with_cleanup() -> (Self, testing::CleanUp) {
         let cleanup = testing::CleanUp::default();
@@ -241,7 +211,6 @@ impl Config {
                 path_prefix: Path::new(&cleanup.path_prefix).into(),
                 auth_provider: "standalone".to_string(),
                 log_level: log::LevelFilter::Debug,
-                node_urls: Self::default_test_node_urls(),
             },
             cleanup,
         )
@@ -256,7 +225,6 @@ impl Config {
                 path_prefix: Path::new(&cleanup.path_prefix).into(),
                 auth_provider: "standalone".to_string(),
                 log_level: log::LevelFilter::Debug,
-                node_urls: Self::default_test_node_urls(),
             },
             cleanup,
         )
@@ -267,34 +235,31 @@ impl Config {
 mod tests {
     use super::*;
     use crate::core::core_testing_utils::handle_error_test_cases;
+    use crate::testing_utils::{example_api_networks, example_networks};
     use crate::{
-        testing_utils::{
-            example_node_urls, set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN, USERNAME,
-        },
+        testing_utils::{set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN, USERNAME},
         wallet_manager::MockWalletManager,
     };
-    use api_types::api::dlt::ApiGetNodeUrlsResponse;
+    use api_types::api::dlt::ApiGetNetworksResponse;
     use rstest::rstest;
 
-    fn valid_deserialized_config(node_urls: Option<HashMap<String, Vec<String>>>) -> DeserializedConfig {
+    fn valid_deserialized_config() -> DeserializedConfig {
         DeserializedConfig {
             backend_url: "http://example.com".to_string(),
             log_level: "INFO".to_string(),
             storage_path: ".".to_string(),
             auth_provider: "nonempty".to_string(),
-            node_urls,
         }
     }
 
     #[test]
     fn test_valid_config() {
-        Config::try_from(valid_deserialized_config(None)).unwrap();
-        Config::try_from(valid_deserialized_config(Some(example_node_urls(None)))).unwrap();
+        Config::try_from(valid_deserialized_config()).unwrap();
     }
 
     #[test]
     fn test_path_prefix_error() {
-        let mut config = valid_deserialized_config(None);
+        let mut config = valid_deserialized_config();
         config.storage_path = "nonexistent_file.txt".to_string();
 
         Config::try_from(config).unwrap_err();
@@ -302,7 +267,7 @@ mod tests {
 
     #[test]
     fn test_empty_auth_provider_error() {
-        let mut config = valid_deserialized_config(None);
+        let mut config = valid_deserialized_config();
         config.auth_provider = "".to_string();
 
         Config::try_from(config).unwrap_err();
@@ -310,7 +275,7 @@ mod tests {
 
     #[test]
     fn test_invalid_backend_url_error() {
-        let mut config = valid_deserialized_config(None);
+        let mut config = valid_deserialized_config();
         config.backend_url = "invalid url".to_string();
 
         Config::try_from(config).unwrap_err();
@@ -328,21 +293,13 @@ mod tests {
         assert_eq!(storage_path, ".".to_string())
     }
 
-    #[test]
-    fn test_set_config_invalid_node_url() {
-        let config = Config::try_from(valid_deserialized_config(Some(example_node_urls(Some("BTC")))));
-        let error_msg =
-            "Error while setting the configuration: invalid currency key `btc` while parsing node_urls. Valid keys are: iota, eth.".to_string();
-        assert_eq!(config.unwrap_err().to_string(), error_msg);
-    }
-
     #[rstest]
-    #[case::success(Ok(example_node_urls(None)))]
+    #[case::success(Ok(example_networks()))]
     #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[tokio::test]
-    async fn test_get_node_urls_backend(#[case] expected: Result<HashMap<String, Vec<String>>>) {
+    async fn test_get_networks_backend(#[case] expected: Result<Vec<Network>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
@@ -356,13 +313,13 @@ mod tests {
                 });
                 sdk.access_token = Some(TOKEN.clone());
 
-                let resp_body = ApiGetNodeUrlsResponse {
-                    node_urls: example_node_urls(None),
+                let resp_body = ApiGetNetworksResponse {
+                    networks: example_api_networks(),
                 };
                 let mock_body_response = serde_json::to_string(&resp_body).unwrap();
 
                 mock_server = Some(
-                    srv.mock("GET", "/api/config/nodeurl")
+                    srv.mock("GET", "/api/config/networks")
                         .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
                         .match_header(HEADER_X_APP_USERNAME, USERNAME)
                         .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
@@ -379,7 +336,7 @@ mod tests {
         }
 
         // Act
-        let response = Sdk::get_node_urls_backend(&sdk).await;
+        let response = Sdk::get_networks_backend(&sdk).await;
 
         // Assert
         match expected {
@@ -401,11 +358,7 @@ mod tests {
             "backend_url": "http://example.com",
             "storage_path": ".",
             "log_level": "INFO",
-            "auth_provider": "standalone",
-            "node_urls": {
-                "IOTA": ["https://api.stardust-mainnet.iotaledger.net/"],
-                "ETH": ["https://ethereum-sepolia-rpc.publicnode.com/", "31337"]
-            }
+            "auth_provider": "standalone"
           }"#,
         Ok(DeserializedConfig::default())
     )]

@@ -5,6 +5,7 @@ pub mod account;
 pub mod dlt;
 pub mod generic;
 pub mod kyc;
+pub mod networks;
 pub mod postident;
 pub mod transactions;
 pub mod user;

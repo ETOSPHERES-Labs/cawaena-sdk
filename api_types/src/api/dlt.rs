@@ -1,12 +1,11 @@
-use super::generic::ApiCryptoCurrency;
+use super::networks::ApiNetwork;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Get/set system/user address query parameters
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema, utoipa::IntoParams))]
 pub struct AddressQueryParameters {
-    pub currency: ApiCryptoCurrency,
+    pub network_id: String,
 }
 
 /// Get User address request
@@ -27,21 +26,21 @@ pub struct GetUserAddressResponse {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
-pub struct SetPreferredCurrencyRequest {
-    /// The currency to set as the users preferred currency, or None if it should be cleared.
-    pub currency: Option<ApiCryptoCurrency>,
+pub struct SetPreferredNetworkRequest {
+    /// The id of the preferred network, or None if it should be cleared.
+    pub network_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
-pub struct GetPreferredCurrencyResponse {
-    /// The currency set as the users preferred currency, or None if it is not set.
-    pub currency: Option<ApiCryptoCurrency>,
+pub struct GetPreferredNetworkResponse {
+    /// The id of the preferred network, or None if it is not set.
+    pub network_id: Option<String>,
 }
 
-// Struct to get node urls from backend
+// Get networks from the backend
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
-pub struct ApiGetNodeUrlsResponse {
-    pub node_urls: HashMap<String, Vec<String>>,
+pub struct ApiGetNetworksResponse {
+    pub networks: Vec<ApiNetwork>,
 }

@@ -23,9 +23,17 @@ pub enum Error {
     #[error("No config is set. Please use the set_config function.")]
     MissingConfig,
 
-    /// Error occurs if the currency is missing
-    #[error("No currency is set. Please use the set_currency function.")]
-    MissingCurrency,
+    /// Error occurs if the network is missing
+    #[error("No network is set. Please use the set_network function.")]
+    MissingNetwork,
+
+    /// Error occurs if the network is unavailable
+    #[error("Network with id {0} is unavailable.")]
+    NetworkUnavailable(String),
+
+    /// Error occurs if the chain id for evm network is missing
+    #[error("Chain ID cannot be empty for EVM network type.")]
+    EmptyChainIdForEvm,
 
     /// Error occurs when the config is not initialized or there are missing fields
     #[error("Error while setting the configuration: {0}")]
