@@ -114,10 +114,10 @@ The Rustdoc API reference is available [here](../rust-docs/doc/sdk/index.html). 
     [set_network](../rust-docs/doc/sdk/core/struct.Sdk.html#method.set_network)
 
 === "Java"
-    [setNetwork](../javadoc/com/etogruppe/CryptpaySdk.html#setCurrency(java.lang.String))
+    [setNetwork](../javadoc/com/etogruppe/CryptpaySdk.html#setNetwork(java.lang.String))
 
 === "Typescript"
-    [setNetwork](../jstsdocs/classes/CryptpaySdk.html#setCurrency)
+    [setNetwork](../jstsdocs/classes/CryptpaySdk.html#setNetwork)
 
 === "Swift"
     Not available yet!
@@ -491,7 +491,7 @@ The Rustdoc API reference is available [here](../rust-docs/doc/sdk/index.html). 
 
 | Method | Arguments | Returns | Dependencies | Level | Repeat|
 |--------|-----------|---------|--------------|-------|-------|
-| Generates a new receiver address for the wallet based on the currency selected in the config | `pin` - The PIN for the wallet | Returns the generated address as a `String` if successful. | [Wallet initialization](./SDK%20API%20Reference.md#create-new-wallet), [Set currency](./SDK%20API%20Reference.md#set-currency) | Usage | Application |
+| Generates a new receiver address for the wallet based on the selected network. | `pin` - The PIN for the wallet | Returns the generated address as a `String` if successful. | [Wallet initialization](./SDK%20API%20Reference.md#create-new-wallet), [Set network](./SDK%20API%20Reference.md#set-network) | Usage | Application |
 
 === "Rust"
     [generate_new_address](../rust-docs/doc/sdk/core/struct.Sdk.html#method.generate_new_address)
@@ -1929,46 +1929,46 @@ The Rustdoc API reference is available [here](../rust-docs/doc/sdk/index.html). 
     public func getCustomer() throws
     ```
 
-### Get user preferred currency
+### Get user preferred network
 
 | Method | Arguments | Returns | Dependencies | Level | Repeat|
 |--------|-----------|---------|--------------|-------|-------|
-| Fetches the users preferred currency | | Returns the currency if successful or an empty value if no preferred currency has been set. | [User initialization](./SDK%20API%20Reference.md#initializing-a-user) | Usage | Application |
+| Fetches the users preferred network | | Returns the network if successful or an empty value if no preferred network has been set. | [User initialization](./SDK%20API%20Reference.md#initializing-a-user) | Usage | Application |
 
 === "Rust"
-    [get_preferred_currency](../rust-docs/doc/sdk/core/struct.Sdk.html#method.get_preferred_currency)
+    [get_preferred_network](../rust-docs/doc/sdk/core/struct.Sdk.html#method.get_preferred_network)
 
 === "Java"
-    [getPreferredCurrency](../javadoc/com/etogruppe/CryptpaySdk.html#getPreferredCurrency())
+    [getPreferredNetwork](../javadoc/com/etogruppe/CryptpaySdk.html#getPreferredNetwork())
 
 === "Typescript"
-    [getPreferredCurrency](../jstsdocs/classes/CryptpaySdk.html#getPreferredCurrency)
+    [getPreferredNetwork](../jstsdocs/classes/CryptpaySdk.html#getPreferredNetwork)
 
 === "Swift"
     Not available yet!
 
     ```swift
-    public func getPreferredCurrency() throws -> PreferredCurrency
+    public func getPreferredNetwork() throws -> PreferredNetwork
     ```
 
-### Set user preferred currency
+### Set user preferred network
 
 | Method | Arguments | Returns | Dependencies | Level | Repeat|
 |--------|-----------|---------|--------------|-------|-------|
-| Sets the users preferred currency, or resets it if an empty value is provided. | `currency` - The preferred user currency. Optional value. | | [User initialization](./SDK%20API%20Reference.md#initializing-a-user) | Usage | Application |
+| Sets the users preferred network, or resets it if an empty value is provided. | `network_id` - The preferred user network. Optional value. | | [User initialization](./SDK%20API%20Reference.md#initializing-a-user) | Usage | Application |
 
 === "Rust"
-    [set_preferred_currency](../rust-docs/doc/sdk/core/struct.Sdk.html#method.set_preferred_currency)
+    [set_preferred_network](../rust-docs/doc/sdk/core/struct.Sdk.html#method.set_preferred_network)
 
 === "Java"
-    [setPreferredCurrency](../javadoc/com/etogruppe/CryptpaySdk.html#setPreferredCurrency(java.lang.String))
+    [setPreferredNetwork](../javadoc/com/etogruppe/CryptpaySdk.html#setPreferredNetwork(java.lang.String))
 
 === "Typescript"
-    [setPreferredCurrency](../jstsdocs/classes/CryptpaySdk.html#setPreferredCurrency)
+    [setPreferredNetwork](../jstsdocs/classes/CryptpaySdk.html#setPreferredNetwork)
 
 === "Swift"
     Not available yet!
 
     ```swift
-    public func setPreferredCurrency(currency: PreferredCurrency) throws
+    public func setPreferredNetwork(network_id: String) throws
     ```
