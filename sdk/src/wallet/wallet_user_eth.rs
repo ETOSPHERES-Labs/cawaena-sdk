@@ -462,10 +462,6 @@ impl WalletUser for WalletImplEth {
         Ok(balance_eth_crypto_amount)
     }
 
-    async fn claim_outputs(&self) -> Result<()> {
-        Err(WalletError::WalletFeatureNotImplemented)
-    }
-
     async fn send_amount(
         &self,
         address: &str,

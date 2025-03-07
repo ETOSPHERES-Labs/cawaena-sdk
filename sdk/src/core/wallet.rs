@@ -467,26 +467,6 @@ impl Sdk {
         Ok(balance)
     }
 
-    /// Claim outputs
-    ///
-    /// Claims the outputs of the wallet.
-    ///
-    /// # Returns
-    ///
-    /// Returns `Ok(())` if the outputs are claimed successfully, otherwise returns an `Error`.
-    ///
-    /// # Errors
-    ///
-    /// * [`crate::Error::UserNotInitialized`] - If there is an error initializing the user.
-    /// * [`WalletError::WalletNotInitialized`] - If there is an error initializing the wallet.
-    pub async fn claim_outputs(&mut self, pin: &EncryptionPin) -> Result<()> {
-        info!("Claiming outputs");
-        self.verify_pin(pin).await?;
-        let wallet = self.try_get_active_user_wallet(pin).await?;
-        wallet.claim_outputs().await?;
-        Ok(())
-    }
-
     /// wallet transaction list
     ///
     /// Returns paginated list of wallet transaction list.
@@ -1219,52 +1199,6 @@ mod tests {
             Ok(resp) => {
                 assert_eq!(response.unwrap(), resp);
             }
-            Err(ref expected_err) => {
-                assert_eq!(response.err().unwrap().to_string(), expected_err.to_string());
-            }
-        }
-    }
-
-    #[rstest]
-    #[case::success(Ok(()))]
-    #[case::repo_init_error(Err(crate::Error::UserRepoNotInitialized))]
-    #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
-    #[case::missing_config(Err(crate::Error::MissingConfig))]
-    #[tokio::test]
-    async fn test_claim_outputs(#[case] expected: Result<()>) {
-        // Arrange
-        let (_srv, config, _cleanup) = set_config().await;
-        let mut sdk = Sdk::new(config).unwrap();
-
-        match &expected {
-            Ok(_) => {
-                let mock_user_repo = example_get_user(SwapPaymentDetailKey::Iota, false, 1, KycType::Undefined);
-                sdk.repo = Some(Box::new(mock_user_repo));
-
-                let mut mock_wallet_manager = MockWalletManager::new();
-                mock_wallet_manager.expect_try_get().returning(move |_, _, _, _, _| {
-                    let mut mock_wallet_user = MockWalletUser::new();
-                    mock_wallet_user.expect_claim_outputs().once().returning(|| Ok(()));
-                    Ok(WalletBorrow::from(mock_wallet_user))
-                });
-                sdk.active_user = Some(crate::types::users::ActiveUser {
-                    username: USERNAME.into(),
-                    wallet_manager: Box::new(mock_wallet_manager),
-                });
-                sdk.set_networks(Some(example_networks()));
-                sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
-            }
-            Err(error) => {
-                handle_error_test_cases(error, &mut sdk, 1, 0).await;
-            }
-        }
-
-        // Act
-        let response = sdk.claim_outputs(&PIN).await;
-
-        // Assert
-        match expected {
-            Ok(()) => response.unwrap(),
             Err(ref expected_err) => {
                 assert_eq!(response.err().unwrap().to_string(), expected_err.to_string());
             }

@@ -1028,18 +1028,6 @@ mod ffi {
         })
     }
 
-    /// Claims the dust and time-locked outputs and consolidates them. Needed only for IOTA and SMR due to dust protection
-    ///
-    /// @param pin The input string representing the pin.
-    pub fn claimOutputs(pin: String) -> Result<(), String> {
-        let result = runtime().block_on(async move {
-            let mut sdk = get_or_init_sdk().write().await;
-            let pin = EncryptionPin::try_from_string(pin)?;
-            sdk.claim_outputs(&pin).await
-        });
-        result.map_err(|e| format!("{e:#?}"))
-    }
-
     /// Deletes the user in Cawaena. Hazmat!
     ///
     /// @param pin The wallet pin for confirmation. Optional in case there is an active wallet.

@@ -8,9 +8,9 @@ use iota_sdk::crypto::keys::bip39::Mnemonic;
 use iota_sdk::types::block::payload::transaction::TransactionId;
 use iota_sdk::types::block::payload::TaggedDataPayload;
 use iota_sdk::wallet::account::types::Transaction;
-use iota_sdk::wallet::account::{Account, OutputsToClaim, SyncOptions, TransactionOptions};
+use iota_sdk::wallet::account::{Account, SyncOptions, TransactionOptions};
 use iota_sdk::wallet::ClientOptions;
-use log::{debug, error, info};
+use log::{error, info};
 use rust_decimal_macros::dec;
 use std::fmt::Debug;
 use std::path::Path;
@@ -48,17 +48,6 @@ pub trait WalletUser: Debug {
     ///
     /// This function can return an error if it fails to synchronize the wallet or encounters any other issues.
     async fn get_balance(&self) -> Result<CryptoAmount>;
-
-    /// Claim outputs
-    ///
-    /// # Returns
-    ///
-    /// Returns `Ok(())` if the outputs are successfully claimed, or an error if it fails.
-    ///
-    /// # Errors
-    ///
-    /// This function can return an error if there is an issue claiming the outputs or if there are no outputs to claim.
-    async fn claim_outputs(&self) -> Result<()>;
 
     /// Send amount to receiver
     ///
@@ -290,31 +279,6 @@ impl WalletUser for WalletImplStardust {
         let available_balance_glow = balance.base_coin().available();
         let available_balance_iota = CryptoAmount::from(available_balance_glow) / GLOW_TO_IOTA_DIVISOR;
         Ok(available_balance_iota)
-    }
-
-    async fn claim_outputs(&self) -> Result<()> {
-        self.sync_wallet().await?;
-        let account = self.account_manager.get_account(APP_NAME).await?;
-
-        let output_ids = account.claimable_outputs(OutputsToClaim::All).await?;
-        if output_ids == vec![] {
-            info!("No outputs to claim.");
-            return Ok(());
-        }
-
-        info!("Available outputs to claim: {:?}", output_ids.len());
-        for output_id in &output_ids {
-            debug!("Claiming output: {:?}", output_id);
-        }
-        let transaction = account.claim_outputs(output_ids).await?;
-        debug!("Transaction sent: {:?}", transaction.transaction_id);
-
-        let block_id = account
-            .retry_transaction_until_included(&transaction.transaction_id, None, None)
-            .await?;
-        debug!("Transaction confirmed in block: {:?}", block_id);
-
-        Ok(())
     }
 
     async fn send_amount(

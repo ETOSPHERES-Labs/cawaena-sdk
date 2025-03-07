@@ -407,8 +407,6 @@ pub mod ffi {
         async fn create_customer(&self, country_code: String) -> Result<(), String>;
         #[swift_bridge(swift_name = "getCustomer")]
         async fn get_customer(&self) -> Result<(), String>;
-        #[swift_bridge(swift_name = "claimOutputs")]
-        async fn claim_outputs(&self, pin: String) -> Result<(), String>;
         #[swift_bridge(swift_name = "deleteUser")]
         async fn delete_user(&self, pin: Option<String>) -> Result<(), String>;
         #[swift_bridge(swift_name = "getSwapList")]

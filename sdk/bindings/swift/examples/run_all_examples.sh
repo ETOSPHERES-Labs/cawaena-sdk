@@ -19,7 +19,6 @@ examples=(
     "12_change_password"
     "13_send_amount"
     "14_get_exchange_rate"
-    "15_claim_output"
     "16_get_tx_list"
     "17_create_customer"
     "18_delete_user"

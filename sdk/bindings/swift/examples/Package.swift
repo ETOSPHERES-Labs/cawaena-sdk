@@ -154,15 +154,6 @@ let package = Package(
         ),
 
         .executableTarget(
-            name: "15_claim_output",
-            dependencies: [
-                .product(name: "CawaenaSdk", package: "CawaenaSdk"),
-                "utils",
-            ],
-            path: "Sources/15_claim_output"
-        ),
-
-        .executableTarget(
             name: "16_get_tx_list",
             dependencies: [
                 .product(name: "CawaenaSdk", package: "CawaenaSdk"),

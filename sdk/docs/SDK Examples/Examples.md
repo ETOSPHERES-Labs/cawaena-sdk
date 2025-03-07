@@ -378,32 +378,6 @@ The environment configuration to `Development` attaches the SDK to the developme
     --8<-- "bindings/wasm/examples/14-get_exchange_rate.ts"
     ```
 
-## 15. Claim Outputs
-
-=== "Rust"
-
-    ```rust
-    --8<-- "examples/15_claim_output.rs"
-    ```
-
-=== "Java"
-
-    ```java
-    --8<-- "bindings/android/tests/src/main/java/com/etogruppe/examples/ClaimOutput15.java"
-    ```
-
-=== "Swift"
-
-    ```swift
-    --8<-- "bindings/swift/examples/Sources/15_claim_output/main.swift"
-    ```
-
-=== "JS/TS"
-
-    ```typescript
-    --8<-- "bindings/wasm/examples/15-claim_output.ts"
-    ```
-
 ## 16. Get Purchase List
 
 === "Rust"

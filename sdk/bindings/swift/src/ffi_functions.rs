@@ -1152,26 +1152,6 @@ impl CawaenaSdk {
         })
     }
 
-    /// Claims output
-    ///
-    /// # Arguments
-    ///
-    /// * `pin` - The current pin for the wallet.
-    ///
-    /// # Returns
-    ///
-    /// * Ok - empty if the outputs are claimed successfully.
-    /// * Err - if there is an error initializing the wallet.
-    pub async fn claim_outputs(&self, pin: String) -> Result<(), String> {
-        let mut sdk = self.inner.write().await;
-        async move {
-            let pin = EncryptionPin::try_from_string(pin)?;
-            sdk.claim_outputs(&pin).await
-        }
-        .await
-        .map_err(|err| format!("{:#?}", err))
-    }
-
     /// Deletes the user
     ///
     /// # Arguments

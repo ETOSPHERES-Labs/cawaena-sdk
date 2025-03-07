@@ -551,21 +551,6 @@ impl CryptpaySdk {
         })
     }
 
-    /// Claims the dust and time-locked outputs and consolidates them. Needed only for IOTA and SMR due to dust protection
-    ///
-    /// @param {pin} pin - The wallet pin
-    /// @returns {Promise<void>}
-    #[wasm_bindgen(skip_jsdoc, js_name = "claimOutputs")]
-    pub async fn claim_outputs(&self, pin: String) -> Result<(), String> {
-        let mut sdk = self.inner.write().await;
-        async move {
-            let pin = EncryptionPin::try_from_string(pin)?;
-            sdk.claim_outputs(&pin).await
-        }
-        .await
-        .map_err(|e| format!("{e:#?}"))
-    }
-
     /// Deletes the user in cryptpay. Hazmat!
     ///
     /// @param {string} pin - The wallet pin for confirmation. Optional in case there is an active wallet.
