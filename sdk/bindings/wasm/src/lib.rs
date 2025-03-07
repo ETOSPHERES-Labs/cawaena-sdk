@@ -79,9 +79,17 @@ impl CryptpaySdk {
     /// Fetch available networks.
     ///
     /// @returns {Option<Vec<Network>>} Sdk networks
-    pub async fn get_networks(&self) -> Option<Vec<Network>> {
-        let sdk = self.inner.write().await;
-        sdk.get_networks().map(|ns| ns.into_iter().map(Network::from).collect())
+    pub async fn get_networks(&self) -> Result<Vec<Network>, String> {
+        let mut sdk = self.inner.write().await;
+        let networks = sdk
+            .get_networks()
+            .await
+            .map_err(|e| format!("{e:#?}"))?
+            .iter()
+            .map(|n| Network::from(n.clone()))
+            .collect::<Vec<Network>>();
+
+        Ok(networks)
     }
 
     /// Initializes the cryptpay logger

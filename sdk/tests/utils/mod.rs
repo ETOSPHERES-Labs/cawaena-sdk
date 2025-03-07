@@ -31,7 +31,7 @@ pub async fn init_sdk_with_cleanup(username: &str, existing_cleanup: CleanUp) ->
     let mut sdk = Sdk::new(config).expect("should not fail to initialize sdk"); // set the backend url if the environment variable is set
 
     // set networks
-    sdk.set_networks(Some(vec![
+    sdk.set_networks(vec![
         Network {
             id: String::from("67a1f08edf55756bae21e7eb"),
             name: String::from("IOTA"),
@@ -55,7 +55,7 @@ pub async fn init_sdk_with_cleanup(username: &str, existing_cleanup: CleanUp) ->
                 chain_id: 31337,
             },
         },
-    ]));
+    ]);
     sdk.set_network(String::from("67a1f08edf55756bae21e7eb")).await.unwrap();
 
     // generate access token

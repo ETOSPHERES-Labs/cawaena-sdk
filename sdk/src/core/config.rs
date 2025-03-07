@@ -3,9 +3,7 @@
 //!
 
 use super::Sdk;
-use crate::backend::dlt::get_networks;
 use crate::error::{Error, Result};
-use crate::types::networks::Network;
 use crate::user::repository::UserRepoImpl;
 use crate::user::UserRepo;
 use log::info;
@@ -136,34 +134,6 @@ impl Sdk {
         Ok(())
     }
 
-    /// Set networks
-    pub fn set_networks(&mut self, networks: Option<Vec<Network>>) {
-        self.networks = networks;
-    }
-
-    /// Get networks
-    pub fn get_networks(&self) -> Option<Vec<Network>> {
-        self.networks.clone()
-    }
-
-    /// Get supported networks from backend
-    pub(crate) async fn get_networks_backend(&self) -> Result<Vec<Network>> {
-        let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
-        let username = &self
-            .active_user
-            .as_ref()
-            .ok_or(crate::Error::UserNotInitialized)?
-            .username;
-        let access_token = self
-            .access_token
-            .as_ref()
-            .ok_or(crate::error::Error::MissingAccessToken)?;
-        let backend_networks = get_networks(config, username, access_token).await?;
-        let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
-
-        Ok(networks)
-    }
-
     /// Set path prefix
     fn initialize_user_repository(&mut self) -> Result<()> {
         // initialize jammdb
@@ -234,13 +204,6 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::core_testing_utils::handle_error_test_cases;
-    use crate::testing_utils::{example_api_networks, example_networks};
-    use crate::{
-        testing_utils::{set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN, USERNAME},
-        wallet_manager::MockWalletManager,
-    };
-    use api_types::api::dlt::ApiGetNetworksResponse;
     use rstest::rstest;
 
     fn valid_deserialized_config() -> DeserializedConfig {
@@ -291,65 +254,6 @@ mod tests {
     fn test_default_storage_path() {
         let storage_path = default_storage_path();
         assert_eq!(storage_path, ".".to_string())
-    }
-
-    #[rstest]
-    #[case::success(Ok(example_networks()))]
-    #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
-    #[case::missing_config(Err(crate::Error::MissingConfig))]
-    #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
-    #[tokio::test]
-    async fn test_get_networks_backend(#[case] expected: Result<Vec<Network>>) {
-        // Arrange
-        let (mut srv, config, _cleanup) = set_config().await;
-        let mut sdk = Sdk::new(config).unwrap();
-        let mut mock_server = None;
-
-        match &expected {
-            Ok(_) => {
-                sdk.active_user = Some(crate::types::users::ActiveUser {
-                    username: USERNAME.into(),
-                    wallet_manager: Box::new(MockWalletManager::new()),
-                });
-                sdk.access_token = Some(TOKEN.clone());
-
-                let resp_body = ApiGetNetworksResponse {
-                    networks: example_api_networks(),
-                };
-                let mock_body_response = serde_json::to_string(&resp_body).unwrap();
-
-                mock_server = Some(
-                    srv.mock("GET", "/api/config/networks")
-                        .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
-                        .match_header(HEADER_X_APP_USERNAME, USERNAME)
-                        .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
-                        .with_status(200)
-                        .with_header("content-type", "application/json")
-                        .with_body(&mock_body_response)
-                        .expect(1)
-                        .create(),
-                );
-            }
-            Err(error) => {
-                handle_error_test_cases(error, &mut sdk, 0, 0).await;
-            }
-        }
-
-        // Act
-        let response = Sdk::get_networks_backend(&sdk).await;
-
-        // Assert
-        match expected {
-            Ok(resp) => {
-                assert_eq!(response.unwrap(), resp);
-            }
-            Err(ref expected_err) => {
-                assert_eq!(response.err().unwrap().to_string(), expected_err.to_string());
-            }
-        }
-        if let Some(m) = mock_server {
-            m.assert();
-        }
     }
 
     #[rstest]

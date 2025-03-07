@@ -25,7 +25,7 @@ pub async fn handle_error_test_cases(
             sdk.active_user = None;
         }
         crate::Error::MissingConfig => {
-            sdk.set_networks(Some(example_networks()));
+            sdk.set_networks(example_networks());
             sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
                 .await
                 .unwrap();
@@ -55,7 +55,7 @@ pub async fn handle_error_test_cases(
                 username: USERNAME.into(),
                 wallet_manager: Box::new(MockWalletManager::new()),
             });
-            sdk.set_networks(Some(example_networks()));
+            sdk.set_networks(example_networks());
             sdk.network = None;
             sdk.access_token = Some(TOKEN.clone());
             sdk.config = None;
