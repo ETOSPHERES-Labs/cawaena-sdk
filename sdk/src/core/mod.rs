@@ -30,6 +30,7 @@ pub mod share;
 #[cfg(test)]
 pub(crate) mod core_testing_utils;
 
+use crate::backend::dlt::get_networks;
 use crate::build;
 use crate::error::Result;
 use crate::types::networks::Network;
@@ -55,7 +56,7 @@ pub struct Sdk {
     /// The currently active network
     network: Option<Network>,
     /// Available networks
-    networks: Option<Vec<Network>>,
+    networks: Vec<Network>,
 }
 
 impl Drop for Sdk {
@@ -74,7 +75,7 @@ impl Default for Sdk {
             access_token: None,
             repo: None,
             network: None,
-            networks: None,
+            networks: vec![],
         }
     }
 }
@@ -91,21 +92,7 @@ impl Sdk {
     /// Set network
     pub async fn set_network(&mut self, network_id: String) -> Result<()> {
         debug!("Selected network_id: {:?}", network_id.clone());
-        let networks = match &self.networks {
-            Some(n) => n,
-            None => {
-                let result = self.get_networks_backend().await;
-                &match result {
-                    Ok(n) => {
-                        self.networks = Some(n.clone());
-                        n
-                    }
-                    Err(e) => Err(e)?,
-                }
-            }
-        };
-
-        let Some(network) = networks.iter().find(|network| network.id == network_id) else {
+        let Some(network) = self.networks.iter().find(|&network| network.id == network_id) else {
             return Err(crate::Error::NetworkUnavailable(network_id));
         };
 
@@ -113,6 +100,44 @@ impl Sdk {
         self.network = Some(network.clone());
 
         Ok(())
+    }
+
+    /// Set networks
+    pub fn set_networks(&mut self, networks: Vec<Network>) {
+        self.networks = networks;
+    }
+
+    /// Get networks
+    pub async fn get_networks(&mut self) -> Result<Vec<Network>> {
+        if self.networks.is_empty() {
+            let result = self.get_networks_backend().await;
+            match result {
+                Ok(n) => {
+                    self.networks = n.clone();
+                }
+                Err(e) => Err(e)?,
+            }
+        }
+
+        Ok(self.networks.clone())
+    }
+
+    /// Get supported networks from backend
+    async fn get_networks_backend(&self) -> Result<Vec<Network>> {
+        let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
+        let username = &self
+            .active_user
+            .as_ref()
+            .ok_or(crate::Error::UserNotInitialized)?
+            .username;
+        let access_token = self
+            .access_token
+            .as_ref()
+            .ok_or(crate::error::Error::MissingAccessToken)?;
+        let backend_networks = get_networks(config, username, access_token).await?;
+        let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
+
+        Ok(networks)
     }
 
     /// Tries to get the wallet of the currently active user. Or returns an error if no user is
@@ -152,6 +177,7 @@ impl Sdk {
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
     use crate::testing_utils::{example_network_id, example_networks};
+    use crate::types::networks::Network;
     use crate::{
         core::Sdk,
         error::Result,
@@ -160,7 +186,13 @@ mod tests {
         wallet_manager::WalletBorrow,
         wallet_user::MockWalletUser,
     };
+    use api_types::api::dlt::ApiGetNetworksResponse;
     use rstest::rstest;
+
+    use crate::{
+        testing_utils::{example_api_networks, AUTH_PROVIDER, HEADER_X_APP_NAME, HEADER_X_APP_USERNAME, TOKEN},
+        wallet_manager::MockWalletManager,
+    };
 
     #[rstest]
     #[case::success(Ok(WalletBorrow::from(MockWalletUser::new())))]
@@ -182,7 +214,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_networks(Some(example_networks()));
+                sdk.set_networks(example_networks());
                 sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
                     .await
                     .unwrap();
@@ -211,5 +243,67 @@ mod tests {
         let build_info = Sdk::get_build_info();
         assert!(!build_info.is_empty());
         println!("{build_info}");
+    }
+
+    #[test]
+    fn test_get_networks() {}
+
+    #[rstest]
+    #[case::success(Ok(example_networks()))]
+    #[case::user_init_error(Err(crate::Error::UserNotInitialized))]
+    #[case::missing_config(Err(crate::Error::MissingConfig))]
+    #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
+    #[tokio::test]
+    async fn test_get_networks_backend(#[case] expected: Result<Vec<Network>>) {
+        // Arrange
+        let (mut srv, config, _cleanup) = set_config().await;
+        let mut sdk = Sdk::new(config).unwrap();
+        let mut mock_server = None;
+
+        match &expected {
+            Ok(_) => {
+                sdk.active_user = Some(crate::types::users::ActiveUser {
+                    username: USERNAME.into(),
+                    wallet_manager: Box::new(MockWalletManager::new()),
+                });
+                sdk.access_token = Some(TOKEN.clone());
+
+                let resp_body = ApiGetNetworksResponse {
+                    networks: example_api_networks(),
+                };
+                let mock_body_response = serde_json::to_string(&resp_body).unwrap();
+
+                mock_server = Some(
+                    srv.mock("GET", "/api/config/networks")
+                        .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
+                        .match_header(HEADER_X_APP_USERNAME, USERNAME)
+                        .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
+                        .with_status(200)
+                        .with_header("content-type", "application/json")
+                        .with_body(&mock_body_response)
+                        .expect(1)
+                        .create(),
+                );
+            }
+            Err(error) => {
+                handle_error_test_cases(error, &mut sdk, 0, 0).await;
+            }
+        }
+
+        // Act
+        let response = Sdk::get_networks_backend(&sdk).await;
+
+        // Assert
+        match expected {
+            Ok(resp) => {
+                assert_eq!(response.unwrap(), resp);
+            }
+            Err(ref expected_err) => {
+                assert_eq!(response.err().unwrap().to_string(), expected_err.to_string());
+            }
+        }
+        if let Some(m) = mock_server {
+            m.assert();
+        }
     }
 }
