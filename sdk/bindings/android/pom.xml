@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cawaena</groupId>
     <artifactId>wallet</artifactId>
-	<version>${env.PUBLISH_VERSION}</version>
+	<version>VERSION_TO_REPLACE</version>
     <packaging>jar</packaging>
     <name>cawaena-sdk-jni</name>
     <description>The SDK java native bindings for use in java based applications and android</description>

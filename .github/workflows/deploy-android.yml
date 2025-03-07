@@ -4,7 +4,7 @@ name: deploy-android
 on:
   push:
     branches:
-     - main
+      - main
 
 env:
   CARGO_TERM_COLOR: always
@@ -60,8 +60,9 @@ jobs:
           # create the version string, only supports SNAPSHOT versions for now (add logic to change if release here)
           PUBLISH_VERSION=$(printf "$PKG_VERSION-SNAPSHOT")
 
-          # store the version in PUBLISH_VERSION env used by pom.xml in the next step
-          echo "PUBLISH_VERSION=$PUBLISH_VERSION" >> "$GITHUB_ENV"
+          # replace the version in the pom.xml file before deploying
+          sed -i -e "s|<version>VERSION_TO_REPLACE</version>|<version>$PUBLISH_VERSION</version>|g" pom.xml
+
           echo "Publishing with version $PUBLISH_VERSION"
 
       - name: Publish package
