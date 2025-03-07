@@ -212,6 +212,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "alloy-json-rpc"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "762414662d793d7aaa36ee3af6928b6be23227df1681ce9c039f6f11daadef64"
+dependencies = [
+ "alloy-primitives",
+ "alloy-sol-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "tracing",
+]
+
+[[package]]
 name = "alloy-network"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -220,7 +234,7 @@ dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
  "alloy-eips",
- "alloy-json-rpc",
+ "alloy-json-rpc 0.8.3",
  "alloy-network-primitives",
  "alloy-primitives",
  "alloy-rpc-types-any",
@@ -285,7 +299,7 @@ dependencies = [
  "alloy-chains",
  "alloy-consensus",
  "alloy-eips",
- "alloy-json-rpc",
+ "alloy-json-rpc 0.8.3",
  "alloy-network",
  "alloy-network-primitives",
  "alloy-primitives",
@@ -341,7 +355,7 @@ version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "531137b283547d5b9a5cafc96b006c64ef76810c681d606f28be9781955293b6"
 dependencies = [
- "alloy-json-rpc",
+ "alloy-json-rpc 0.8.3",
  "alloy-primitives",
  "alloy-transport",
  "alloy-transport-http",
@@ -490,7 +504,7 @@ version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "538a04a37221469cac0ce231b737fd174de2fdfcdd843bdd068cb39ed3e066ad"
 dependencies = [
- "alloy-json-rpc",
+ "alloy-json-rpc 0.8.3",
  "base64 0.22.1",
  "futures-util",
  "futures-utils-wasm",
@@ -510,7 +524,7 @@ version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2ed40eb1e1265b2911512f6aa1dcece9702d078f5a646730c45e39e2be00ac1c"
 dependencies = [
- "alloy-json-rpc",
+ "alloy-json-rpc 0.8.3",
  "alloy-transport",
  "reqwest 0.12.12",
  "serde_json",
@@ -4504,7 +4518,7 @@ dependencies = [
  "aes-gcm",
  "alloy",
  "alloy-consensus",
- "alloy-json-rpc",
+ "alloy-json-rpc 0.11.1",
  "alloy-primitives",
  "alloy-provider",
  "alloy-transport",
