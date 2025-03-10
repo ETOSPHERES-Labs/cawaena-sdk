@@ -34,7 +34,8 @@ export async function initSdk(username: string) {
     }
     `);
 
-    await sdk.setCurrency(wasm.Currency.Iota);
+    await sdk.getNetworks();
+    sdk.setNetwork("67a1f08edf55756bae21e7eb");
 
     // Generate access token
     let access_token = await generateAccessToken(username);
