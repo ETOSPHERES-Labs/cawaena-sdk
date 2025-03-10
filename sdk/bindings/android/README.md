@@ -57,7 +57,7 @@ The convention followed by JNI is crucial here. The convention followed for decl
 - ***function_Name*** = Name of the function
 
 Example:
-In Java, for the function `setCurrencyJni`, the following code is needed
+In Java, for the function `getNetworksJni`, the following code is needed
 
 ```Java
 // filename: CryptpaySdk.java
@@ -67,11 +67,11 @@ public class CryptpaySdk { // Class_name
     static {
         System.loadLibrary("walletsdk");
     }
-    private static native void setCurrencyJni(String currency); // function_Name
+    private static native String getNetworksJni(); // function_Name
     // other native functions here
 
-    public void setCurrency(String currency) throws Exception {
-        setCurrencyJni(currency);
+    public String getNetworks() throws Exception {
+        return getNetworksJni();
     }
 }
 ```
@@ -83,7 +83,7 @@ One point to note is not to use `snake_case` names of functions, because the JNI
 ```Rust
 // lib.rs
 #[no_mangle]
-pub extern "system" fn Java_com_etogruppe_CryptpaySdk_setCurrencyJni(mut env: JNIEnv<'local>,
+pub extern "system" fn Java_com_etogruppe_CryptpaySdk_getNetworksJni(mut env: JNIEnv<'local>,
     _class: JClass<'local>) {
       // implementation
     }
@@ -188,11 +188,11 @@ public class CryptpaySdk {
     static {
         System.loadLibrary("walletsdk");
     }
-    private static native void setCurrencyJni(String currency); 
-    
-    // exposed class method now gives a future wrapped void and not just void!
-    public Future<void> setCurrency(String currency) throws Exception {
-        setCurrencyJni(currency);
+
+    private static native String getNetworksJni();
+
+    public String getNetworks() throws Exception {
+        return getNetworksJni();
     }
 }
 ```
