@@ -1025,7 +1025,7 @@ mod tests {
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.set_networks(Some(example_networks()));
+                sdk.set_networks(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
 
                 let mock_request = SetUserAddressRequest {
@@ -1100,7 +1100,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_networks(Some(example_networks()));
+                sdk.set_networks(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
@@ -1151,7 +1151,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_networks(Some(example_networks()));
+                sdk.set_networks(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
@@ -1203,7 +1203,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_networks(Some(example_networks()));
+                sdk.set_networks(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {
@@ -1251,7 +1251,7 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_networks(Some(example_networks()));
+                sdk.set_networks(example_networks());
                 sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
             }
             Err(error) => {

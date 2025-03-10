@@ -75,10 +75,12 @@ impl CawaenaSdk {
     /// * Ok - Serialized string of a Vec<Network>>
     /// * Err - if there is an error fetching the networks.
     pub async fn get_networks(&self) -> Result<String, String> {
-        let sdk = self.inner.write().await;
-        sdk.get_networks()
-            .ok_or_else(|| "No networks found".to_string())
-            .and_then(|v| serde_json::to_string(&v).map_err(|e| format!("{e:#?}")))
+        let mut sdk = self.inner.write().await;
+        let result = sdk.get_networks().await;
+        match result {
+            Ok(value) => serde_json::to_string(&value).map_err(|e| format!("{e:#?}")),
+            Err(e) => Err(format!("{e:#?}")),
+        }
     }
 
     /// Selects the network for the Cawaena SDK.

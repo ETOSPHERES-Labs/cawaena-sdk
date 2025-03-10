@@ -40,7 +40,7 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
 
     // next - move setting network outside of init_sdk
-    sdk.set_networks(Some(vec![
+    sdk.set_networks(vec![
         Network {
             id: String::from("67a1f08edf55756bae21e7eb"),
             name: String::from("IOTA"),
@@ -64,7 +64,7 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
                 chain_id: 31337,
             },
         },
-    ]));
+    ]);
 
     sdk.set_network(String::from("67a1f08edf55756bae21e7eb"))
         .await
