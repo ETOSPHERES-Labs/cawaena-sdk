@@ -20,7 +20,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.14.0"
+version = "0.14.1-rc0"
 edition = "2021"
 authors = ["Team Lobster 🦞"]
 license = "AGPL-3.0-only"

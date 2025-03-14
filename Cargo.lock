@@ -613,7 +613,7 @@ checksum = "170433209e817da6aae2c51aa0dd443009a613425dd041ebfb2492d1c4c11a25"
 
 [[package]]
 name = "api_types"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "base64 0.22.1",
  "rust_decimal",
@@ -1062,7 +1062,7 @@ dependencies = [
 
 [[package]]
 name = "cawaena-sdk-jni"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "jni",
  "jnigen-build",
@@ -1076,7 +1076,7 @@ dependencies = [
 
 [[package]]
 name = "cawaena-sdk-swift"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "sdk",
  "serde_json",
@@ -1087,7 +1087,7 @@ dependencies = [
 
 [[package]]
 name = "cawaena-sdk-wasm"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "console_error_panic_hook",
  "console_log",
@@ -2879,7 +2879,7 @@ checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 
 [[package]]
 name = "jnigen-build"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "jnigen-common",
  "proc-macro2",
@@ -2889,7 +2889,7 @@ dependencies = [
 
 [[package]]
 name = "jnigen-common"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2898,7 +2898,7 @@ dependencies = [
 
 [[package]]
 name = "jnigen-integration-test"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "jni",
  "jnigen-build",
@@ -2907,7 +2907,7 @@ dependencies = [
 
 [[package]]
 name = "jnigen-macro"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "jnigen-common",
  "proc-macro2",
@@ -4570,7 +4570,7 @@ dependencies = [
 
 [[package]]
 name = "sdk"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "aes-gcm",
  "alloy",
@@ -5144,7 +5144,7 @@ checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
 
 [[package]]
 name = "testing"
-version = "0.14.0"
+version = "0.14.1-rc0"
 dependencies = [
  "chrono",
  "fake",
