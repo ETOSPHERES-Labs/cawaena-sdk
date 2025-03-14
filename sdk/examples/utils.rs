@@ -2,10 +2,7 @@
 
 use sdk::{
     core::{Config, Sdk},
-    types::{
-        networks::{Network, NetworkType},
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
 use std::path::Path;
 use testing::{CleanUp, USER_SATOSHI};
@@ -38,37 +35,6 @@ pub async fn init_sdk() -> (Sdk, CleanUp) {
         .access_token;
     let access_token = AccessToken::try_from(access_token).unwrap();
     sdk.refresh_access_token(Some(access_token)).await.unwrap();
-
-    // next - move setting network outside of init_sdk
-    sdk.set_networks(vec![
-        Network {
-            id: String::from("67a1f08edf55756bae21e7eb"),
-            name: String::from("IOTA"),
-            currency: String::from("IOTA"),
-            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
-            enabled: true,
-            network_identifier: Some(String::from("iota_mainnet")),
-            network_type: NetworkType::Stardust {
-                node_urls: vec![String::from("https://api.testnet.iotaledger.net")],
-            },
-        },
-        Network {
-            id: String::from("67a2080ddf55756bae21e7f5"),
-            name: String::from("Eth Sepolia"),
-            currency: String::from("ETH"),
-            block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
-            enabled: true,
-            network_identifier: Some(String::from("ethereum_mainnet")),
-            network_type: NetworkType::Evm {
-                node_urls: vec![String::from("https://sepolia.mode.network")],
-                chain_id: 31337,
-            },
-        },
-    ]);
-
-    sdk.set_network(String::from("67a1f08edf55756bae21e7eb"))
-        .await
-        .expect("should not fail to set network");
 
     (sdk, cleanup)
 }

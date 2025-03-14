@@ -14,6 +14,12 @@ async function main() {
     await sdk.initializeUser(username);
     await sdk.setWalletPassword(pin, password);
     await sdk.createWalletFromMnemonic(pin, mnemonic);
+
+    // fetch networks from backend
+    let networks = await sdk.getNetworks();
+    // set the network configuration for the wallet
+    sdk.setNetwork(networks[0].id);
+
     let address = await sdk.generateNewAddress(pin);
     debug(`Generated new IOTA receiver address: ${address}`);
     let balance = await sdk.getWalletBalance(pin);

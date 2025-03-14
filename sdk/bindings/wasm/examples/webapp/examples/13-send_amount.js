@@ -11,6 +11,12 @@ async function main() {
     await sdk.createNewUser(username);
     await sdk.setWalletPassword(pin, password);
     await sdk.createWalletFromMnemonic(pin, mnemonic);
+
+    // fetch networks from backend
+    let networks = await sdk.getNetworks();
+    // set the network configuration for the wallet
+    sdk.setNetwork(networks[0].id);
+
     let recipient_address = await sdk.generateNewAddress(pin);
 
     console.log("address", recipient_address);

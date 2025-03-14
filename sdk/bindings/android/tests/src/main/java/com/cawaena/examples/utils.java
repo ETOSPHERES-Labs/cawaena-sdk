@@ -23,7 +23,7 @@ public class utils {
     public static String NEW_PIN = "4321";
     public static String USERNAME_ARCHIVEME = "archiveme";
     public static String USERNAME_HANS48 = "hans48";
-
+    
     public static Wallet initSdk(String username) {
         Wallet sdk = new Wallet();
 
@@ -58,8 +58,6 @@ public class utils {
             String access_token = generateAccessToken(username);
             sdk.refreshAccessToken(access_token);
             System.out.println("retrieved access token");
-
-            sdk.setNetwork("67a1f08edf55756bae21e7eb");
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize SDK", e);
         }

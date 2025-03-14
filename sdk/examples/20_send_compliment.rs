@@ -32,6 +32,11 @@ async fn main() {
         .await
         .unwrap();
 
+    // Fetch networks from backend
+    let networks = sdk.get_networks().await.unwrap();
+    let iota_network_id = &networks.first().unwrap().id;
+    sdk.set_network(iota_network_id.to_string()).await.unwrap();
+
     // Generate address and get balance
     let address = sdk.generate_new_address(&user.pin).await.unwrap(); // this is needed, otherwise the balance will be 0 and tx will fail
     let balance = sdk.get_balance(&user.pin).await.unwrap();

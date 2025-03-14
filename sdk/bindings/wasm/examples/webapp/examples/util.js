@@ -18,7 +18,7 @@ export async function initSdk() {
         "auth_provider": "standalone"
     }
     `);
-    await sdk.setCurrency(wasm.Currency.Iota);
+
     await sdk.refreshAccessToken(process.env.ACCESS_TOKEN);
     return sdk; // Return the initialized SDK instance
 }

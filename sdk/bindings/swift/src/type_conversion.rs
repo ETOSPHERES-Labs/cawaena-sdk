@@ -237,6 +237,15 @@ impl From<sdk::types::transactions::WalletTxInfo> for ffi::WalletTxInfo {
     }
 }
 
+impl From<sdk::types::networks::Network> for ffi::Network {
+    fn from(value: sdk::types::networks::Network) -> Self {
+        ffi::Network {
+            id: value.id,
+            name: value.name,
+        }
+    }
+}
+
 convert_enum!(ffi::Currency, sdk::types::currencies::Currency, Iota, Eth,);
 
 convert_enum!(

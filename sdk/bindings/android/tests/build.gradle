@@ -178,15 +178,6 @@ task runGetExchangeRate14(type: JavaExec) {
     systemProperty "java.library.path", file("../../../../target/release/")
 }
 
-task runClaimOutput15(type: JavaExec) {
-    group = 'application'
-    main = 'com.cawaena.examples.ClaimOutput15'
-    classpath = sourceSets.main.runtimeClasspath
-    dependsOn compileNativeReleaseLibrary
-
-    systemProperty "java.library.path", file("../../../../target/release/")
-}
-
 task runGetTxList16(type: JavaExec) {
     group = 'application'
     main = 'com.cawaena.examples.GetTxList16'
@@ -258,7 +249,6 @@ task runAllExamples(dependsOn: [
     'runChangePassword12',
     'runSendAmount13',
     'runGetExchangeRate14',
-    'runClaimOutput15',
     'runGetTxList16',
     'runDeleteUser18',
     'runGetWalletTxList19',

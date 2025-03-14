@@ -22,6 +22,11 @@ async fn main() {
     let new_password = PlainPassword::try_from_string("StrongP@ssw0rd").unwrap();
     sdk.set_wallet_password(&user.pin, &new_password).await.unwrap();
 
+    // Fetch networks from backend
+    let networks = sdk.get_networks().await.unwrap();
+    let iota_network_id = &networks.first().unwrap().id;
+    sdk.set_network(iota_network_id.to_string()).await.unwrap();
+
     // use wallet
     let _address = sdk.generate_new_address(&user.pin).await.unwrap();
 }

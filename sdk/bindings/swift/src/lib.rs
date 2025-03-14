@@ -206,6 +206,12 @@ pub mod ffi {
         pub explorer_url: String,
     }
 
+    #[swift_bridge(swift_repr = "struct")]
+    pub struct Network {
+        pub id: String,
+        pub name: String,
+    }
+
     pub enum Currency {
         Iota,
         Eth,
@@ -247,7 +253,7 @@ pub mod ffi {
         #[swift_bridge(swift_name = "setConfig")]
         async fn set_config(&self, config: String) -> Result<(), String>;
         #[swift_bridge(swift_name = "getNetworks")]
-        async fn get_networks(&self) -> Result<String, String>;
+        async fn get_networks(&self) -> Result<Vec<Network>, String>;
         #[swift_bridge(swift_name = "setNetwork")]
         async fn set_network(&self, network_id: String) -> Result<(), String>;
         async fn destroy(&self) -> Result<(), String>;

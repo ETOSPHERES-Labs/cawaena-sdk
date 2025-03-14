@@ -265,6 +265,60 @@ extension WalletTxInfo: Vectorizable {
     }
 }
 
+// Ensure that Network conform to the Vectorizable protocol so we can brige Vec<Network>
+extension Network: Vectorizable {
+    public typealias SelfRef = Network
+    public typealias SelfRefMut = Network
+
+    public static func vecOfSelfNew() -> UnsafeMutableRawPointer {
+        return UnsafeMutableRawPointer.allocate(
+            byteCount: MemoryLayout<Network>.stride,
+            alignment: MemoryLayout<Network>.alignment)
+    }
+
+    public static func vecOfSelfFree(vecPtr: UnsafeMutableRawPointer) {
+        vecPtr.deallocate()
+    }
+
+    public static func vecOfSelfPush(vecPtr: UnsafeMutableRawPointer, value: Network) {
+        let valuePtr = vecPtr.bindMemory(to: Network.self, capacity: 1)
+        valuePtr.initialize(to: value)
+    }
+
+    public static func vecOfSelfPop(vecPtr: UnsafeMutableRawPointer) -> Network? {
+        let valuePtr = vecPtr.bindMemory(to: Network.self, capacity: 1)
+        defer { valuePtr.deinitialize(count: 1) }
+        return valuePtr.pointee
+    }
+
+    public static func vecOfSelfGet(vecPtr: UnsafeMutableRawPointer, index: UInt) -> Network
+        .SelfRef?
+    {
+        guard index == 0 else { return nil }
+        let valuePtr = vecPtr.bindMemory(to: Network.self, capacity: 1)
+        return valuePtr.pointee
+    }
+
+    public static func vecOfSelfGetMut(vecPtr: UnsafeMutableRawPointer, index: UInt) -> Network
+        .SelfRefMut?
+    {
+        guard index == 0 else { return nil }
+        let valuePtr = vecPtr.bindMemory(to: Network.self, capacity: 1)
+        return valuePtr.pointee
+    }
+
+    public static func vecOfSelfAsPtr(vecPtr: UnsafeMutableRawPointer) -> UnsafePointer<
+        Network.SelfRef
+    > {
+        let valuePtr = vecPtr.bindMemory(to: Network.self, capacity: 1)
+        return UnsafePointer(valuePtr)
+    }
+
+    public static func vecOfSelfLen(vecPtr: UnsafeMutableRawPointer) -> UInt {
+        return 1
+    }
+}
+
 // We use a DispatchGroup to make the program wait until async functions finish before exiting.
 // Not needed in long-running applications.
 let group = DispatchGroup()

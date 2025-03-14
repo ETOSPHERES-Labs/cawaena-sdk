@@ -20,6 +20,11 @@ async fn main() {
         .await
         .unwrap();
 
+    // Fetch networks from backend
+    let networks = sdk.get_networks().await.unwrap();
+    let iota_network_id = &networks.first().unwrap().id;
+    sdk.set_network(iota_network_id.to_string()).await.unwrap();
+
     // Generate new address
     let recipient_address = sdk.generate_new_address(&user.pin).await.unwrap();
     let balance = sdk.get_balance(&user.pin).await.unwrap();

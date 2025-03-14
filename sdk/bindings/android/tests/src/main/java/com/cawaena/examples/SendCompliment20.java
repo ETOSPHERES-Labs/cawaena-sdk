@@ -1,14 +1,17 @@
 package com.cawaena.examples;
 
+import com.cawaena.Wallet;
+import com.cawaena.model.Network;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import com.cawaena.Wallet;import com.cawaena.model.TxDetailsResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.cawaena.model.TxDetailsResponse;
 
 public class SendCompliment20 {
 
@@ -31,6 +34,21 @@ public class SendCompliment20 {
             sdk.createWalletFromMnemonic(utils.PIN, mnemonic_hans48);
 
             System.out.println("Created and initialized new wallet from mnemonic.");
+            
+            // fetch networks from backend
+            String networks = sdk.getNetworks();
+
+            List<Network> networksList;
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                networksList = objectMapper.readValue(networks, new TypeReference<List<Network>>() {});
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Error processing JSON response", e);
+            }
+
+            Network iotaNetwork = networksList.get(0);
+            // set the network configuration for the wallet
+            sdk.setNetwork(iotaNetwork.id);
 
             // generate receiver address
             String address = sdk.generateNewAddress(utils.PIN);

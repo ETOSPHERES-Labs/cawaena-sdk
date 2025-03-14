@@ -75,12 +75,12 @@ impl From<sdk::types::ApiTxStatus> for TxStatus {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(getter_with_clone, inspectable)]
 #[derive(Serialize, Deserialize)]
 pub struct Network {
-    id: String,
-    name: String,
-    currency: String,
+    pub id: String,
+    pub name: String,
+    pub currency: String,
 }
 
 impl From<sdk::types::networks::Network> for Network {

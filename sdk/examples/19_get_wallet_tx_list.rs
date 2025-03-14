@@ -17,6 +17,11 @@ async fn main() {
     sdk.set_wallet_password(&user.pin, &user.password).await.unwrap();
     sdk.create_wallet_from_new_mnemonic(&user.pin).await.unwrap();
 
+    // Fetch networks from backend
+    let networks = sdk.get_networks().await.unwrap();
+    let iota_network_id = &networks.first().unwrap().id;
+    sdk.set_network(iota_network_id.to_string()).await.unwrap();
+
     // Get wallet tx list
     let wallet_tx_list = sdk.get_wallet_tx_list(&user.pin, 0, 10).await.unwrap();
     wallet_tx_list

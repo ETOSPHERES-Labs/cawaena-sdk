@@ -79,6 +79,7 @@ impl CryptpaySdk {
     /// Fetch available networks.
     ///
     /// @returns {Option<Vec<Network>>} Sdk networks
+    #[wasm_bindgen(skip_jsdoc, js_name = "getNetworks")]
     pub async fn get_networks(&self) -> Result<Vec<Network>, String> {
         let mut sdk = self.inner.write().await;
         let networks = sdk
