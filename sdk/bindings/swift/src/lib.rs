@@ -90,24 +90,6 @@ pub mod ffi {
     }
 
     #[swift_bridge(swift_repr = "struct")]
-    pub struct KycAmlaQuestion {
-        pub id: String,
-        pub question: String,
-        pub possible_answers: Vec<String>,
-        pub is_free_text: bool,
-        pub min_answers: i32,
-        pub max_answers: i32,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
-    pub struct KycOpenDocument {
-        pub id: String,
-        pub is_back_image_required: bool,
-        pub document_type: String,
-        pub description: String,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
     pub struct ViviswapAddressDetail {
         pub id: String,
         pub address: String,
@@ -152,60 +134,6 @@ pub mod ffi {
         pub is_verified: Option<bool>,
     }
 
-    #[swift_bridge(swift_repr = "struct")]
-    pub struct Order {
-        pub id: String,
-        pub is_payed_out: bool,
-        pub is_approved: bool,
-        pub is_canceled: bool,
-        pub fees_amount_eur: f32,
-        pub crypto_fees: f32,
-        pub contract_id: String,
-        pub incoming_payment_method_id: String,
-        pub incoming_payment_method_currency: String,
-        pub incoming_amount: f32,
-        pub incoming_course: f32,
-        pub outgoing_payment_method_id: String,
-        pub outgoing_payment_method_currency: String,
-        pub outgoing_amount: f32,
-        pub outgoing_course: f32,
-        pub refund_amount: Option<f32>,
-        pub refund_course: Option<f32>,
-        pub refund_payment_method_id: String,
-        pub status: i32,
-        pub creation_date: String,
-        pub incoming_payment_detail: String,
-        pub outgoing_payment_detail: String,
-        pub refund_payment_detail: String,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
-    pub struct TxInfo {
-        pub date: String,
-        pub sender: String,
-        pub receiver: String,
-        pub reference_id: String,
-        pub application_metadata: String,
-        pub amount: f64,
-        pub currency: String,
-        pub status: TxStatus,
-        pub transaction_hash: String,
-        pub course: f64,
-        pub invalid_reasons: Vec<String>,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
-    pub struct WalletTxInfo {
-        pub date: String,
-        pub block_id: String,
-        pub transaction_id: String,
-        pub incoming: bool,
-        pub amount: f64,
-        pub network: String,
-        pub status: String,
-        pub explorer_url: String,
-    }
-
     pub enum Currency {
         Iota,
         Eth,
@@ -235,6 +163,83 @@ pub mod ffi {
     #[swift_bridge(swift_repr = "struct")]
     pub struct IdentityPersonalDocumentData {
         pub video: File,
+    }
+
+    extern "Rust" {
+        type KycOpenDocument;
+
+        fn id(&self) -> String;
+        fn is_back_image_required(&self) -> bool;
+        fn document_type(&self) -> String;
+        fn description(&self) -> String;
+    }
+
+    extern "Rust" {
+        type KycAmlaQuestion;
+
+        fn id(&self) -> String;
+        fn is_free_text(&self) -> bool;
+        fn question(&self) -> String;
+        fn min_answers(&self) -> i32;
+        fn max_answers(&self) -> i32;
+        fn possible_answers(&self) -> Vec<String>;
+    }
+
+    extern "Rust" {
+        type Order;
+
+        fn id(&self) -> String;
+        fn is_payed_out(&self) -> bool;
+        fn is_approved(&self) -> bool;
+        fn is_canceled(&self) -> bool;
+        fn fees_amount_eur(&self) -> f32;
+        fn crypto_fees(&self) -> f32;
+        fn contract_id(&self) -> String;
+        fn incoming_payment_method_id(&self) -> String;
+        fn incoming_payment_method_currency(&self) -> String;
+        fn incoming_amount(&self) -> f32;
+        fn incoming_course(&self) -> f32;
+        fn outgoing_payment_method_id(&self) -> String;
+        fn outgoing_payment_method_currency(&self) -> String;
+        fn outgoing_amount(&self) -> f32;
+        fn outgoing_course(&self) -> f32;
+        fn refund_amount(&self) -> Option<f32>;
+        fn refund_course(&self) -> Option<f32>;
+        fn refund_payment_method_id(&self) -> String;
+        fn status(&self) -> i32;
+        fn creation_date(&self) -> String;
+        fn incoming_payment_detail(&self) -> String;
+        fn outgoing_payment_detail(&self) -> String;
+        fn refund_payment_detail(&self) -> String;
+    }
+
+    extern "Rust" {
+        type TxInfo;
+
+        fn date(&self) -> String;
+        fn sender(&self) -> String;
+        fn receiver(&self) -> String;
+        fn reference_id(&self) -> String;
+        fn application_metadata(&self) -> String;
+        fn amount(&self) -> f64;
+        fn currency(&self) -> String;
+        fn status(&self) -> TxStatus;
+        fn transaction_hash(&self) -> String;
+        fn course(&self) -> f64;
+        fn invalid_reasons(&self) -> Vec<String>;
+    }
+
+    extern "Rust" {
+        type WalletTxInfo;
+
+        fn date(&self) -> String;
+        fn block_id(&self) -> String;
+        fn transaction_id(&self) -> String;
+        fn incoming(&self) -> bool;
+        fn amount(&self) -> f64;
+        fn network(&self) -> String;
+        fn status(&self) -> String;
+        fn explorer_url(&self) -> String;
     }
 
     // Export Rust functions with the above shared types for Swift.

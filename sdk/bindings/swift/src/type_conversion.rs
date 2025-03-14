@@ -99,7 +99,7 @@ impl From<sdk::types::viviswap::ViviswapPartiallyKycDetails> for ffi::ViviswapPa
 
 convert_simple_struct!(
     sdk::types::KycAmlaQuestion,
-    ffi::KycAmlaQuestion,
+    crate::ffi_functions::KycAmlaQuestion,
     id,
     question,
     possible_answers,
@@ -108,9 +108,9 @@ convert_simple_struct!(
     max_answers,
 );
 
-impl From<sdk::types::KycOpenDocument> for ffi::KycOpenDocument {
+impl From<sdk::types::KycOpenDocument> for crate::ffi_functions::KycOpenDocument {
     fn from(value: sdk::types::KycOpenDocument) -> Self {
-        ffi::KycOpenDocument {
+        crate::ffi_functions::KycOpenDocument {
             id: value.id,
             is_back_image_required: value.is_back_image_required,
             document_type: value.r#type,
@@ -168,9 +168,9 @@ impl From<sdk::types::viviswap::ViviswapWithdrawal> for ffi::ViviswapWithdrawal 
 
 convert_simple_struct!(sdk::types::PaymentDetail, ffi::PaymentDetail, id, address, is_verified,);
 
-impl From<sdk::types::Order> for ffi::Order {
+impl From<sdk::types::Order> for crate::ffi_functions::Order {
     fn from(value: sdk::types::Order) -> Self {
-        ffi::Order {
+        crate::ffi_functions::Order {
             id: value.id,
             is_payed_out: value.is_payed_out,
             is_approved: value.is_approved,
@@ -198,7 +198,7 @@ impl From<sdk::types::Order> for ffi::Order {
     }
 }
 
-impl From<sdk::types::transactions::TxInfo> for ffi::TxInfo {
+impl From<sdk::types::transactions::TxInfo> for crate::ffi_functions::TxInfo {
     fn from(value: sdk::types::transactions::TxInfo) -> Self {
         let invalid_reasons = match value.clone().status {
             sdk::types::ApiTxStatus::WaitingForVerification(r) => r,
@@ -206,7 +206,7 @@ impl From<sdk::types::transactions::TxInfo> for ffi::TxInfo {
             _ => Vec::new(),
         };
 
-        ffi::TxInfo {
+        crate::ffi_functions::TxInfo {
             date: value.date.unwrap_or("".to_string()),
             sender: value.sender,
             receiver: value.receiver,
@@ -222,9 +222,9 @@ impl From<sdk::types::transactions::TxInfo> for ffi::TxInfo {
     }
 }
 
-impl From<sdk::types::transactions::WalletTxInfo> for ffi::WalletTxInfo {
+impl From<sdk::types::transactions::WalletTxInfo> for crate::ffi_functions::WalletTxInfo {
     fn from(value: sdk::types::transactions::WalletTxInfo) -> Self {
-        ffi::WalletTxInfo {
+        crate::ffi_functions::WalletTxInfo {
             date: value.date,
             block_id: value.block_id.unwrap_or("".to_string()),
             transaction_id: value.transaction_id,
