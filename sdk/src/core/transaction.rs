@@ -4,7 +4,6 @@ use crate::backend::transactions::{
 };
 use crate::error::Result;
 use crate::types::currencies::CryptoAmount;
-use crate::types::networks::{Network, NetworkType};
 use crate::types::transactions::{GasCostEstimation, PurchaseDetails};
 use crate::types::{
     newtypes::EncryptionPin,
@@ -12,7 +11,7 @@ use crate::types::{
 };
 use crate::wallet::error::WalletError;
 use crate::wallet_user::TransactionIntent;
-use api_types::api::networks::ApiNetworkType;
+use api_types::api::networks::ApiNetwork;
 use api_types::api::transactions::{ApiApplicationMetadata, ApiTxStatus, PurchaseModel, Reason};
 use log::{debug, info};
 
@@ -67,7 +66,7 @@ impl Sdk {
             purchase_model: purchase_model.to_string(),
             app_data: app_data.into(),
         };
-        let response = create_new_transaction(config, access_token, receiver, network.id, amount, metadata).await?;
+        let response = create_new_transaction(config, access_token, receiver, network.key, amount, metadata).await?;
         let purchase_id = response.index;
         debug!("Created purchase request with id: {purchase_id}");
         Ok(purchase_id)
@@ -155,11 +154,11 @@ impl Sdk {
 
         // for now we check that the correct network_id is configured, in the future we might just
         // instantiate the correct wallet instead of throwing an error
-        let network: Network = tx_details.network.clone().into();
-        if network.id != current_network.id {
+        let network: ApiNetwork = tx_details.network.clone();
+        if network.key != current_network.key {
             return Err(WalletError::InvalidTransaction(format!(
-                "Transaction to commit is in network_id {:?}, but {:?} is the currently active current_network_id.",
-                network.id, current_network.id
+                "Transaction to commit is in network_key {:?}, but {:?} is the currently active current_network_key.",
+                network.key, current_network.key
             )))?;
         }
 
@@ -254,6 +253,7 @@ impl Sdk {
             NetworkType::Evm {
                 node_urls: _,
                 chain_id: _,
+                contract_address: _,
             } => {
                 let tx_id = wallet.send_amount(&intent).await?;
 
@@ -363,7 +363,7 @@ impl Sdk {
                         receiver: val.outgoing.username,
                         reference_id: val.index,
                         amount: val.incoming.amount.try_into()?,
-                        currency: val.incoming.network.currency,
+                        currency: val.incoming.network.display_symbol,
                         application_metadata: val.application_metadata,
                         status: val.status,
                         transaction_hash: val.incoming.transaction_id,
@@ -380,11 +380,9 @@ mod tests {
     use super::*;
     use crate::core::core_testing_utils::handle_error_test_cases;
     use crate::testing_utils::{
-        example_api_network, example_get_user, example_network_id, example_networks, example_tx_details,
-        example_tx_metadata, example_wallet_borrow, set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, PURCHASE_ID, TOKEN,
-        TX_INDEX, USERNAME,
+        example_api_network, example_api_networks, example_get_user, example_tx_details, example_tx_metadata,
+        example_wallet_borrow, set_config, AUTH_PROVIDER, HEADER_X_APP_NAME, PURCHASE_ID, TOKEN, TX_INDEX, USERNAME,
     };
-    use crate::types::currencies::Currency;
     use crate::types::transactions::WalletTxInfo;
     use crate::types::users::KycType;
     use crate::{
@@ -423,7 +421,7 @@ mod tests {
                     address: main_address.clone(),
                     amount: dec!(920.89),
                     exchange_rate: dec!(0.06015),
-                    network: example_api_network(Currency::Iota),
+                    network: example_api_network(String::from("IOTA")),
                 },
                 outgoing: ApiTransferDetails {
                     transaction_id: Some(
@@ -434,7 +432,7 @@ mod tests {
                     address: aux_address.clone(),
                     amount: dec!(920.89),
                     exchange_rate: dec!(0.06015),
-                    network: example_api_network(Currency::Iota),
+                    network: example_api_network(String::from("IOTA")),
                 },
                 application_metadata: Some(example_tx_metadata()),
             }],
@@ -451,8 +449,8 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_networks(example_networks());
-        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
+        sdk.set_networks(example_api_networks());
+        sdk.set_network(String::from("IOTA")).await.unwrap();
         let mut mock_server = None;
 
         match &expected {
@@ -517,8 +515,8 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_networks(example_networks());
-        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
+        sdk.set_networks(example_api_networks());
+        sdk.set_network(String::from("IOTA")).await.unwrap();
         let mut mock_server_details = None;
         let mut mock_server_commit = None;
 
@@ -548,7 +546,7 @@ mod tests {
                     system_address: "".to_string(),
                     amount: dec!(5.0),
                     status: ApiTxStatus::Valid,
-                    network: example_api_network(Currency::Iota),
+                    network: example_api_network(String::from("IOTA")),
                 };
                 let body = serde_json::to_string(&mock_tx_response).unwrap();
 
@@ -588,7 +586,7 @@ mod tests {
                     system_address: "".to_string(),
                     amount: dec!(5.0),
                     status: ApiTxStatus::Invalid(vec!["ReceiverNotVerified".to_string()]),
-                    network: example_api_network(Currency::Iota),
+                    network: example_api_network(String::from("IOTA")),
                 };
                 let body = serde_json::to_string(&mock_tx_response).unwrap();
 
@@ -675,7 +673,7 @@ mod tests {
                         system_address: response.as_ref().unwrap().system_address.clone(),
                         amount: response.as_ref().unwrap().amount,
                         status: response.unwrap().status,
-                        network: example_api_network(Currency::Iota),
+                        network: example_api_network(String::from("IOTA")),
                     },
                     resp
                 );
@@ -699,8 +697,8 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_networks(example_networks());
-        sdk.set_network(example_network_id(Currency::Iota)).await.unwrap();
+        sdk.set_networks(example_api_networks());
+        sdk.set_network(String::from("IOTA")).await.unwrap();
 
         match &expected {
             Ok(_) => {
@@ -754,8 +752,8 @@ mod tests {
         // Arrange
         let (_srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();
-        sdk.set_networks(example_networks());
-        sdk.set_network(example_network_id(Currency::Eth)).await.unwrap();
+        sdk.set_networks(example_api_networks());
+        sdk.set_network(String::from("ETH")).await.unwrap();
 
         let wallet_transaction = WalletTxInfo {
             date: String::new(),

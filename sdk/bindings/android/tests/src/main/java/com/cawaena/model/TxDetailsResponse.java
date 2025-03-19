@@ -15,8 +15,8 @@ public class TxDetailsResponse {
     @JsonProperty("status")
     public String status;
 
-    @JsonProperty("network_id")
-    public String network_id;
+    @JsonProperty("network_key")
+    public String network_key;
 
     @JsonProperty("invalid_reasons")
     public String[] invalid_reasons;

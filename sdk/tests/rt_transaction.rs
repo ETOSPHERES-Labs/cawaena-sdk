@@ -111,7 +111,7 @@ async fn it_should_create_purchase_request_and_confirm_it() {
     // calling `set_network` method will automatically query the backend for the list of available networks
     // (because the network list is empty). You can manually add networks by calling `set_networks()`
     // to avoid fetching the list from the backend
-    sdk.set_network(String::from("67a1f08edf55756bae21e7eb")).await.unwrap();
+    sdk.set_network(String::from("IOTA")).await.unwrap();
 
     /*
     rest of the test

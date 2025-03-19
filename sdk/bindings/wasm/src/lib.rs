@@ -68,12 +68,12 @@ impl ETOPaySdk {
 
     /// Selects the network for the ETOPay SDK.
     ///
-    /// @param {String} network_id.
+    /// @param {String} network_key.
     /// @returns {Promise<void>}
     #[wasm_bindgen(skip_jsdoc, js_name = "setNetwork")]
-    pub async fn set_network(&self, network_id: String) -> Result<(), String> {
+    pub async fn set_network(&self, network_key: String) -> Result<(), String> {
         let mut sdk = self.inner.write().await;
-        sdk.set_network(network_id).await.map_err(|e| format!("{e:#?}"))
+        sdk.set_network(network_key).await.map_err(|e| format!("{e:#?}"))
     }
 
     /// Fetch available networks.

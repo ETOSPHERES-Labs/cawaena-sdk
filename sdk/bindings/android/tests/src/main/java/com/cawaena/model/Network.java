@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Network {
-    @JsonProperty("id")
-    public String id;
+    @JsonProperty("key")
+    public String key;
 
-    @JsonProperty("name")
+    @JsonProperty("display_name")
     public String name;
 }

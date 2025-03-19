@@ -78,17 +78,15 @@ impl From<sdk::types::ApiTxStatus> for TxStatus {
 #[wasm_bindgen(getter_with_clone, inspectable)]
 #[derive(Serialize, Deserialize)]
 pub struct Network {
-    pub id: String,
-    pub name: String,
-    pub currency: String,
+    pub key: String,
+    pub display_name: String,
 }
 
-impl From<sdk::types::networks::Network> for Network {
-    fn from(value: sdk::types::networks::Network) -> Self {
+impl From<sdk::types::networks::ApiNetwork> for Network {
+    fn from(value: sdk::types::networks::ApiNetwork) -> Self {
         Network {
-            id: value.id,
-            name: value.name,
-            currency: value.currency,
+            key: value.key,
+            display_name: value.display_name,
         }
     }
 }

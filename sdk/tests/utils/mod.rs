@@ -1,12 +1,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 #![allow(dead_code)]
 
+use api_types::api::networks::{ApiNetwork, ApiProtocol};
 use etopay_sdk::{
     core::{Config, Sdk},
-    types::{
-        networks::{Network, NetworkType},
-        newtypes::{AccessToken, EncryptionPin, PlainPassword},
-    },
+    types::newtypes::{AccessToken, EncryptionPin, PlainPassword},
 };
 use std::path::Path;
 use testing::CleanUp;
@@ -32,31 +30,30 @@ pub async fn init_sdk_with_cleanup(username: &str, existing_cleanup: CleanUp) ->
 
     // set networks
     sdk.set_networks(vec![
-        Network {
-            id: String::from("67a1f08edf55756bae21e7eb"),
-            name: String::from("IOTA"),
-            currency: String::from("IOTA"),
-            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
-            enabled: true,
-            network_identifier: Some(String::from("iota_mainnet")),
-            network_type: NetworkType::Stardust {
-                node_urls: vec![String::from("https://api.testnet.iotaledger.net")],
-            },
+        ApiNetwork {
+            key: String::from("IOTA"),
+            display_name: String::from("IOTA"),
+            display_symbol: String::from("IOTA"),
+            coin_type: 4218,
+            node_urls: vec![String::from("https://api.testnet.iotaledger.net")],
+            decimals: 16,
+            can_do_purchases: true,
+            protocol: ApiProtocol::Stardust {},
+            block_explorer_url: String::from("https://explorer.iota.org/iota-testnet/"),
         },
-        Network {
-            id: String::from("67a2080ddf55756bae21e7f5"),
-            name: String::from("Eth Sepolia"),
-            currency: String::from("ETH"),
-            block_explorer_url: String::from("https://sepolia.explorer.mode.network"),
-            enabled: true,
-            network_identifier: Some(String::from("ethereum_mainnet")),
-            network_type: NetworkType::Evm {
-                node_urls: vec![String::from("https://sepolia.mode.network")],
-                chain_id: 31337,
-            },
+        ApiNetwork {
+            key: String::from("IOTA"),
+            display_name: String::from("Eth Sepolia"),
+            display_symbol: String::from("ETH"),
+            coin_type: 60,
+            node_urls: vec![String::from("https://sepolia.mode.network")],
+            decimals: 16,
+            can_do_purchases: true,
+            protocol: ApiProtocol::Evm { chain_id: 31337 },
+            block_explorer_url: String::from("https://explorer.shimmer.network/testnet/"),
         },
     ]);
-    sdk.set_network(String::from("67a1f08edf55756bae21e7eb")).await.unwrap();
+    sdk.set_network(String::from("IOTA")).await.unwrap();
 
     // generate access token
     let access_token = testing::get_access_token(username, &password).await.access_token;

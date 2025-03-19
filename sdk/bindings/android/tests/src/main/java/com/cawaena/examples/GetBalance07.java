@@ -40,7 +40,7 @@ public class GetBalance07 {
 
             Network iotaNetwork = networksList.get(0);
             // set the network configuration for the wallet
-            sdk.setNetwork(iotaNetwork.id);
+            sdk.setNetwork(iotaNetwork.key);
 
             // generate receiver address
             String address = sdk.generateNewAddress(utils.PIN);
