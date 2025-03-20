@@ -11,7 +11,7 @@ use crate::types::{
 };
 use crate::wallet::error::WalletError;
 use crate::wallet_user::TransactionIntent;
-use api_types::api::networks::ApiNetwork;
+use api_types::api::networks::{ApiNetwork, ApiProtocol};
 use api_types::api::transactions::{ApiApplicationMetadata, ApiTxStatus, PurchaseModel, Reason};
 use log::{debug, info};
 
@@ -179,7 +179,16 @@ impl Sdk {
 
         // Store tx details for all networks other than Stardust (which stores transactions internally)
         // TODO: rework this to always store the transactions
-        if let ApiNetworkType::Evm { .. } = tx_details.network.network_type {
+        if let ApiProtocol::Evm { .. } = tx_details.network.protocol {
+            let tx_id = wallet.send_amount(&intent).await?;
+
+            let newly_created_transaction = wallet.get_wallet_tx(&tx_id).await?;
+            let mut user = repo.get(&active_user.username)?;
+            user.wallet_transactions.push(newly_created_transaction);
+            let _ = repo.set_wallet_transactions(&active_user.username, user.wallet_transactions);
+        }
+
+        if let ApiProtocol::EvmERC20 { .. } = tx_details.network.protocol {
             let tx_id = wallet.send_amount(&intent).await?;
 
             let newly_created_transaction = wallet.get_wallet_tx(&tx_id).await?;
@@ -244,17 +253,12 @@ impl Sdk {
             data,
         };
 
-        let tx_id = match network.network_type {
-            NetworkType::EvmErc20 {
-                node_urls: _,
+        let tx_id = match network.protocol {
+            ApiProtocol::EvmERC20 {
                 chain_id: _,
                 contract_address: _,
             } => wallet.send_amount(&intent).await?,
-            NetworkType::Evm {
-                node_urls: _,
-                chain_id: _,
-                contract_address: _,
-            } => {
+            ApiProtocol::Evm { chain_id: _ } => {
                 let tx_id = wallet.send_amount(&intent).await?;
 
                 // store the created transaction in the repo
@@ -265,7 +269,7 @@ impl Sdk {
                 let _ = repo.set_wallet_transactions(&active_user.username, wallet_transactions);
                 tx_id
             }
-            NetworkType::Stardust { node_urls: _ } => wallet.send_amount(&intent).await?,
+            ApiProtocol::Stardust {} => wallet.send_amount(&intent).await?,
         };
 
         Ok(tx_id)

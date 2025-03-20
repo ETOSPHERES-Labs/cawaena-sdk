@@ -497,17 +497,12 @@ impl Sdk {
         let user = self.get_user().await?;
         let wallet = self.try_get_active_user_wallet(pin).await?;
 
-        let tx_list = match network.network_type {
-            crate::types::networks::NetworkType::EvmErc20 {
-                node_urls: _,
+        let tx_list = match network.protocol {
+            crate::types::networks::ApiProtocol::EvmERC20 {
                 chain_id: _,
                 contract_address: _,
             } => wallet.get_wallet_tx_list(start, limit).await?,
-            crate::types::networks::NetworkType::Evm {
-                node_urls: _,
-                chain_id: _,
-                contract_address: _,
-            } => {
+            crate::types::networks::ApiProtocol::Evm { chain_id: _ } => {
                 // We retrieve the transaction list from the wallet,
                 // then synchronize selected transactions (by fetching their current status from the network),
                 // and finally, save the refreshed list back to the wallet
