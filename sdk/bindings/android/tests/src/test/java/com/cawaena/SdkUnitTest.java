@@ -115,7 +115,7 @@ public class SdkUnitTest {
 
     @Test
     public void BBshouldGetNetworks() throws Exception {
-        String body = "{\"networks\":[{\"key\":\"IOTA\",\"display_name\":\"IOTA\",\"display_symbol\":\"IOTA\",\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://api.testnet.iotaledger.net\"],\"protocol\":{\"Stardust\":{}}},{\"key\":\"ETH\",\"display_name\":\"Eth Sepolia\",\"display_symbol\":\"ETH\",\"block_explorer_url\":\"https://sepolia.explorer.mode.network\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://sepolia.mode.network\"],\"protocol\":{\"Evm\":{\"chain_id\":31337}}}]}";
+        String body = "{\"networks\":[{\"key\":\"IOTA\",\"display_name\":\"IOTA\",\"display_symbol\":\"IOTA\",\"coin_type\":4218,\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://api.testnet.iotaledger.net\"],\"protocol\":{\"Stardust\":{}}},{\"key\":\"ETH\",\"display_name\":\"Eth Sepolia\",\"display_symbol\":\"ETH\",\"coin_type\":60,\"block_explorer_url\":\"https://sepolia.explorer.mode.network\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://sepolia.mode.network\"],\"protocol\":{\"Evm\":{\"chain_id\":31337}}}]}";
 
         wireMockRule.stubFor(get(urlPathEqualTo("/api/config/networks"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
@@ -385,7 +385,8 @@ public class SdkUnitTest {
         String mainAddress = "rms1qz8jdgvrerzv35s43pkdkawdr9x4t6xfnhcrt5tlgsyltgpwyx9ks4c5kct";
         double amount = 5.5;
         String status = "Pending";
-        String network = "{\"id\":\"IOTA\",\"name\":\"IOTA\",\"currency\":\"IOTA\",\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"enabled\":true,\"network_keyentifier\":\"iota_mainnet\",\"network_type\":{\"Stardust\":{\"node_urls\":[\"https://api.testnet.iotaledger.net\"]}}}";
+        String network = "{\"key\":\"IOTA\",\"display_name\":\"IOTA\",\"display_symbol\":\"IOTA\",\"coin_type\":4218,\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://api.testnet.iotaledger.net\"],\"protocol\":{\"Stardust\":{}}}";
+
 
         final String body = "{" + System.lineSeparator()
                 + String.format("\"system_address\":\"%s\",", mainAddress) +
