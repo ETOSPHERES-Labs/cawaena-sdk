@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "sdk/bindings/swift/include"
+                "bindings/swift/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang-16",

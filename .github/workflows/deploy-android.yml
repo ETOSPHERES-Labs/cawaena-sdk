@@ -43,7 +43,7 @@ jobs:
           tool: cargo-ndk
 
       - name: Build android native libraries
-        run: cd sdk/bindings/android && make build_sdk
+        run: cd bindings/android && make build_sdk
 
       - name: Set up Java and Maven
         uses: actions/setup-java@v4
@@ -53,7 +53,7 @@ jobs:
 
       - name: Set version
         run: |
-          cd sdk/bindings/android
+          cd bindings/android
 
           # get the version from cargo
           PKG_VERSION=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[] | select(.name == "etopay-sdk-jni") | .version')
@@ -68,7 +68,7 @@ jobs:
 
       - name: Publish package
         run: |
-          cd sdk/bindings/android
+          cd bindings/android
           mvn -s settings.xml deploy
         env:
           TOKEN_USERNAME: ${{ secrets.TOKEN_USERNAME }}

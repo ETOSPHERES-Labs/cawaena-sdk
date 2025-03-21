@@ -71,7 +71,7 @@ The `ETOPaySdkBin.xcframework` creation and its internal structure is explained 
 
 We have a `compile_swift_main` on the `Makefile` can be run as a `test` to verify that the code compiles with success. It calls the `swift.main` file which calls our Rust bindings from Swift code. On `wsl` this command will only check check for compilations errors. On `mac` it will actually call our Rust functions and output the response.
 
-**Note**: Examples need environmental variables in order to run successfully. Make sure to add a `.env` in the root directory: `sdk/bindings/swift/examples` with the corresponding values.
+**Note**: Examples need environmental variables in order to run successfully. Make sure to add a `.env` in the root directory: `bindings/swift/examples` with the corresponding values.
 
 ```
 ALICE= 

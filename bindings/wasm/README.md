@@ -24,7 +24,7 @@ wasm-pack publish
 ```
 
 ### Executing the example scripts
-1. Navigate to examples directory: `cd sdk/bindings/wasm/examples`.
+1. Navigate to examples directory: `cd bindings/wasm/examples`.
 2. Add a `.env` file as shown below, with the corresponding values:
 ```
 MNEMONIC=
@@ -42,7 +42,7 @@ EXAMPLE_BACKEND_URL=
 
 In case you want to run all the examples after installing the dependencies and building the package:
 1. Navigate back to sdk directory: `cd sdk`.
-2. Run: `make run_wasm_node_examples`. This will execute the `run_all_examples.sh` script on `sdk/bindings/wasm/examples`, which runs all the examples.
+2. Run: `make run_wasm_node_examples`. This will execute the `run_all_examples.sh` script on `bindings/wasm/examples`, which runs all the examples.
 
 ### Executing the webapp example
 

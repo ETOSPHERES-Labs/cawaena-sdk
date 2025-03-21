@@ -35,7 +35,7 @@ These android/java JNI bindings have unit tests in the `../android/tests` folder
 To execute them on you local machine use:
 
 ```bash
-cd sdk/bindings/android/tests
+cd bindings/android/tests
 gradle test
 ```
 
@@ -48,14 +48,14 @@ These android/java JNI bindings have examples in the `/tests/src/main/java/com/e
 
 To execute them on you local machine use:
 
-1. Navigate to the android tests directory: `cd sdk/bindings/android/tests`.
+1. Navigate to the android tests directory: `cd bindings/android/tests`.
 2. `gradle runAllExamples` - will run all of them.
 3. `gradle {example task name}` - will run only one. Example: `gradle runCreateNewUser01`.
 
 This will compile the bindings for the native platform of your computer (i.e. *not* for android)
 and run the examples.
 
-**Note**: These examples need environmental variables in order to run successfully. Make sure to add a `.env` in the root directory: `sdk/bindings/android/tests` with the corresponding values.
+**Note**: These examples need environmental variables in order to run successfully. Make sure to add a `.env` in the root directory: `bindings/android/tests` with the corresponding values.
 
 ```
 MNEMONIC=

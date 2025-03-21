@@ -2,9 +2,9 @@
 members = [
     "api_types",
     "sdk",
-    "sdk/bindings/android",
-    "sdk/bindings/swift",
-    "sdk/bindings/wasm",
+    "bindings/android",
+    "bindings/swift",
+    "bindings/wasm",
     "tools/jnigen-common",
     "tools/jnigen-macro",
     "tools/jnigen-build",

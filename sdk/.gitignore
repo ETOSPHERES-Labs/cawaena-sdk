@@ -3,6 +3,5 @@ site/
 docs/javadoc
 node_modules/
 .venv/
-pnpm-lock.yaml
 docs/rust-docs
 docs/jstsdocs

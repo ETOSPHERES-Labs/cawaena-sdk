@@ -141,7 +141,7 @@ jobs:
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
 
       - name: Run unit tests with coverage
-        run: cargo llvm-cov nextest --profile ci --locked --lib --workspace --no-fail-fast --all-features --cobertura --output-path cobertura.xml --exclude etopay-sdk-jni --exclude etopay-sdk-swift --exclude etopay-sdk-wasm --ignore-filename-regex "sdk/bindings/|api_types/|.*/error\.rs"
+        run: cargo llvm-cov nextest --profile ci --locked --lib --workspace --no-fail-fast --all-features --cobertura --output-path cobertura.xml --exclude etopay-sdk-jni --exclude etopay-sdk-swift --exclude etopay-sdk-wasm --ignore-filename-regex "bindings/|api_types/|.*/error\.rs"
 
       - name: Publish Coverage
         uses: 5monkeys/cobertura-action@master
@@ -178,7 +178,7 @@ jobs:
 
       - name: Build wasm sdk for nodejs
         run: |
-          cd sdk/bindings/wasm
+          cd bindings/wasm
           wasm-pack build --release --scope etopay --target nodejs --out-dir out/web/pkg
           wasm-pack pack out/web
           cd examples/webapp
@@ -191,7 +191,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: etopay-sdk-wasm
-          path: sdk/bindings/wasm/out/**/*.tgz
+          path: bindings/wasm/out/**/*.tgz
           if-no-files-found: error
           retention-days: 7
           overwrite: true
@@ -223,7 +223,7 @@ jobs:
 
       - name: Build wasm sdk for nodejs
         run: |
-          cd sdk/bindings/wasm
+          cd bindings/wasm
           wasm-pack build --scope eto --target nodejs --no-opt
           pnpm install
           # run tsc with a list of all ts files as an argument
@@ -250,17 +250,17 @@ jobs:
 
       - name: Build swift sdk
         run: |
-          cd sdk/bindings/swift
+          cd bindings/swift
           make compile_swift_main
 
       - name: Build XCFramework for Mac
         run: |
-          cd sdk/bindings/swift
+          cd bindings/swift
           make xcframework_mac
 
       - name: Compile Swift Examples
         run: |
-          cd sdk/bindings/swift/examples
+          cd bindings/swift/examples
           xcrun swift build
 
   android-bindings-tests:
@@ -282,7 +282,7 @@ jobs:
           distribution: "zulu"
 
       - name: Run android bindings tests
-        run: cd sdk/bindings/android/tests && gradle test
+        run: cd bindings/android/tests && gradle test
 
   jnigen-integration-tests:
     runs-on: ubuntu-latest
