@@ -65,7 +65,7 @@ jobs:
         run: |
           cargo build
           make build_javadoc
-          mv javadoc ../../docs/
+          mv javadoc ../../sdk/docs/
         working-directory: bindings/android
 
       - name: Mark repository as safe for Git
