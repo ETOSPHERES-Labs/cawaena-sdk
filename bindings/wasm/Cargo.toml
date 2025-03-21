@@ -47,7 +47,7 @@ ring = { version = "0.17", default-features = false, features = [
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
 # depend on the sdk but without default features
-sdk = { package = "etopay-sdk", path = "../../", default-features = false }
+sdk = { package = "etopay-sdk", path = "../../sdk", default-features = false }
 tokio = { workspace = true, features = ["sync"] }
 uuid = { workspace = true, features = ["js"] }
 wasm-bindgen = { version = "0.2", default-features = false }

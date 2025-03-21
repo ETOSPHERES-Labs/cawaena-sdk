@@ -26,7 +26,7 @@ viviswap-kyc = ["sdk/viviswap-kyc"]
 viviswap-swap = ["sdk/viviswap-swap"]
 
 [dependencies]
-sdk = { package = "etopay-sdk", path = "../../" }
+sdk = { package = "etopay-sdk", path = "../../sdk" }
 serde_json = { workspace = true }
 swift-bridge = { version = "0.1", features = ["async"] }
 tokio = { workspace = true, features = ["sync"] }
