@@ -39,7 +39,7 @@ public class GetWalletTxList19 {
 
             Network iotaNetwork = networksList.get(0);
             // set the network configuration for the wallet
-            sdk.setNetwork(iotaNetwork.id);
+            sdk.setNetwork(iotaNetwork.key);
 
             // get wallet_tx_list
             String wallet_tx_list = sdk.getWalletTransactionList(utils.PIN, 0, 10);

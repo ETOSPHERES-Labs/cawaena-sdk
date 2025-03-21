@@ -1,5 +1,5 @@
 use super::Sdk;
-use crate::testing_utils::{example_network_id, example_networks, SALT, TOKEN};
+use crate::testing_utils::{example_api_networks, SALT, TOKEN};
 use crate::types::users::UserEntity;
 use crate::wallet_manager::MockWalletManager;
 use crate::{
@@ -25,10 +25,8 @@ pub async fn handle_error_test_cases(
             sdk.active_user = None;
         }
         crate::Error::MissingConfig => {
-            sdk.set_networks(example_networks());
-            sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
-                .await
-                .unwrap();
+            sdk.set_networks(example_api_networks());
+            sdk.set_network(String::from("IOTA")).await.unwrap();
             let mock_user_repo = example_get_user(
                 SwapPaymentDetailKey::Iota,
                 false,
@@ -55,7 +53,7 @@ pub async fn handle_error_test_cases(
                 username: USERNAME.into(),
                 wallet_manager: Box::new(MockWalletManager::new()),
             });
-            sdk.set_networks(example_networks());
+            sdk.set_networks(example_api_networks());
             sdk.network = None;
             sdk.access_token = Some(TOKEN.clone());
             sdk.config = None;

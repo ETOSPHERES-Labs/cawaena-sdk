@@ -25,13 +25,13 @@ use reqwest::StatusCode;
 pub async fn put_user_address(
     config: &Config,
     access_token: &AccessToken,
-    network_id: String,
+    network_key: String,
     address: &str,
 ) -> Result<()> {
     let base_url = &config.backend_url;
     let url = format!("{base_url}/user/address");
     let query = AddressQueryParameters {
-        network_id: network_id.clone(),
+        network_key: network_key.clone(),
     };
 
     info!("Used url: {url:#?}");
@@ -127,12 +127,7 @@ pub async fn get_networks(config: &Config, access_token: &AccessToken) -> Result
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        testing_utils::{
-            example_api_network, example_network_id, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, TOKEN,
-        },
-        types::currencies::Currency,
-    };
+    use crate::testing_utils::{example_api_network, set_config, ADDRESS, AUTH_PROVIDER, HEADER_X_APP_NAME, TOKEN};
     use mockito::Matcher;
 
     #[rstest::rstest]
@@ -151,7 +146,7 @@ mod tests {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
 
-        let iota_network_id = example_network_id(Currency::Iota);
+        let iota_network_key = "IOTA";
 
         let mock_request = SetUserAddressRequest {
             address: ADDRESS.into(),
@@ -163,7 +158,7 @@ mod tests {
             .match_header(HEADER_X_APP_NAME, AUTH_PROVIDER)
             .match_header("authorization", format!("Bearer {}", TOKEN.as_str()).as_str())
             .match_header("content-type", "application/json")
-            .match_query(Matcher::Exact(format!("network_id={}", iota_network_id)))
+            .match_query(Matcher::Exact(format!("network_key={}", iota_network_key)))
             .match_body(Matcher::Exact(body))
             .with_status(status_code)
             .expect(1)
@@ -171,7 +166,7 @@ mod tests {
             .create();
 
         // Act
-        let response = put_user_address(&config, &TOKEN, String::from("67a1f08edf55756bae21e7eb"), ADDRESS).await;
+        let response = put_user_address(&config, &TOKEN, String::from("IOTA"), ADDRESS).await;
 
         // Assert
         match expected {
@@ -184,7 +179,7 @@ mod tests {
     }
 
     #[rstest::rstest]
-    #[case(200, Ok(ApiGetNetworksResponse {networks: vec![example_api_network(Currency::Iota), example_api_network(Currency::Eth)]}))]
+    #[case(200, Ok(ApiGetNetworksResponse {networks: vec![example_api_network(String::from("IOTA")), example_api_network(String::from("ETH"))]}))]
     #[case(401, Err(ApiError::MissingAccessToken))]
     #[case(500, Err(ApiError::UnexpectedResponse {
         code: StatusCode::INTERNAL_SERVER_ERROR,
@@ -200,7 +195,10 @@ mod tests {
         let (mut srv, config, _cleanup) = set_config().await;
 
         let resp_body = ApiGetNetworksResponse {
-            networks: vec![example_api_network(Currency::Iota), example_api_network(Currency::Eth)],
+            networks: vec![
+                example_api_network(String::from("IOTA")),
+                example_api_network(String::from("ETH")),
+            ],
         };
         let mock_body_response = serde_json::to_string(&resp_body).unwrap();
 

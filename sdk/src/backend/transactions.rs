@@ -70,7 +70,7 @@ pub async fn create_new_transaction(
 
     let body = CreateTransactionRequest {
         amount: amount.inner(),
-        network_id,
+        network_key: network_id,
         receiver: receiver.into(),
         application_metadata: metadata,
     };
@@ -307,7 +307,7 @@ mod tests {
 
         let mock_request = CreateTransactionRequest {
             amount: AMOUNT.inner(),
-            network_id: String::from("67a1f08edf55756bae21e7eb"),
+            network_key: String::from("IOTA"),
             receiver: RECEIVER.into(),
             application_metadata: example_tx_metadata(),
         };
@@ -334,7 +334,7 @@ mod tests {
             &config,
             &TOKEN,
             RECEIVER,
-            String::from("67a1f08edf55756bae21e7eb"),
+            String::from("IOTA"),
             AMOUNT,
             example_tx_metadata(),
         )

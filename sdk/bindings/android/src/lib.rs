@@ -118,11 +118,11 @@ mod ffi {
 
     /// Selects the network for the Cryptpay SDK.
     ///
-    /// @param network_id The input string representing the network id.
-    pub fn setNetwork(network_id: String) -> Result<(), String> {
+    /// @param network_key The input string representing the network id.
+    pub fn setNetwork(network_key: String) -> Result<(), String> {
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
-            sdk.set_network(network_id).await
+            sdk.set_network(network_key).await
         });
         result.map_err(|e| format!("{e:#?}"))
     }
@@ -1086,11 +1086,11 @@ mod ffi {
 
     /// Set the user's preferred network.
     ///
-    /// @param network_id The preferred network, or `null` if it should be unset.
-    pub fn setPreferredNetwork(network_id: Option<String>) -> Result<(), String> {
+    /// @param network_key The preferred network, or `null` if it should be unset.
+    pub fn setPreferredNetwork(network_key: Option<String>) -> Result<(), String> {
         let result = runtime().block_on(async move {
             let mut sdk = get_or_init_sdk().write().await;
-            sdk.set_preferred_network(network_id).await
+            sdk.set_preferred_network(network_key).await
         });
 
         result.map_err(|e| format!("{e:#?}"))

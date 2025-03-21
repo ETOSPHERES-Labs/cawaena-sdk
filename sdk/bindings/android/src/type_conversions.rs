@@ -11,7 +11,7 @@ pub struct PurchaseDetailsEntity {
     /// Any reasons attached to the status
     pub invalid_reasons: Vec<String>,
     /// The id of the network that the transaction is sent in
-    pub network_id: String,
+    pub network_key: String,
 }
 
 impl TryFrom<PurchaseDetails> for PurchaseDetailsEntity {
@@ -32,7 +32,7 @@ impl TryFrom<PurchaseDetails> for PurchaseDetailsEntity {
             system_address: val.system_address,
             amount: f64::try_from(val.amount)?,
             status: status.to_string(),
-            network_id: val.network.id,
+            network_key: val.network.key,
             invalid_reasons: status_reasons,
         })
     }

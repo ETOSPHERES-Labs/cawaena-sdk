@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct CreateTransactionRequest {
     pub amount: Decimal,
-    pub network_id: String,
+    pub network_key: String,
     pub receiver: String,
     pub application_metadata: ApiApplicationMetadata,
 }

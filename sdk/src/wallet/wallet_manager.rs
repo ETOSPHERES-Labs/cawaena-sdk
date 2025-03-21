@@ -8,9 +8,9 @@ use super::wallet_user::{WalletImplStardust, WalletUser};
 use super::wallet_user_eth::{WalletImplEth, WalletImplEthErc20};
 use crate::core::{Config, UserRepoT};
 use crate::types::currencies::Currency;
-use crate::types::networks::{Network, NetworkType};
 use crate::types::newtypes::{AccessToken, EncryptionPin, EncryptionSalt, PlainPassword};
 use crate::wallet::error::{ErrorKind, Result, WalletError};
+use api_types::api::networks::{ApiNetwork, ApiProtocol};
 use async_trait::async_trait;
 use iota_sdk::crypto::keys::bip39::Mnemonic;
 use log::{info, warn};
@@ -137,7 +137,7 @@ pub trait WalletManager: std::fmt::Debug {
         config: &mut Config,
         access_token: &Option<AccessToken>,
         repo: &mut UserRepoT,
-        network: Network,
+        network: ApiNetwork,
         pin: &EncryptionPin,
     ) -> Result<WalletBorrow<'a>>;
 }
@@ -530,7 +530,7 @@ impl WalletManager for WalletManagerImpl {
         config: &mut Config,
         access_token: &Option<AccessToken>,
         repo: &mut UserRepoT,
-        network: Network,
+        network: ApiNetwork,
         pin: &EncryptionPin,
     ) -> Result<WalletBorrow<'a>> {
         let (mnemonic, _status) = self.try_resemble_shares(config, access_token, repo, pin).await?;
@@ -541,24 +541,23 @@ impl WalletManager for WalletManagerImpl {
             .path_prefix
             .join("wallets")
             .join(&self.username)
-            .join(network.clone().id);
+            .join(network.clone().key);
 
-        let bo = match network.network_type {
-            NetworkType::Evm { node_urls, chain_id } => {
-                let wallet = WalletImplEth::new(mnemonic, node_urls, chain_id)?;
+        let bo = match network.protocol {
+            ApiProtocol::Evm { chain_id } => {
+                let wallet = WalletImplEth::new(mnemonic, network.node_urls, chain_id)?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
-            NetworkType::EvmErc20 {
-                node_urls,
+            ApiProtocol::EvmERC20 {
                 chain_id,
                 contract_address,
             } => {
-                let wallet = WalletImplEthErc20::new(mnemonic, node_urls, chain_id, contract_address)?;
+                let wallet = WalletImplEthErc20::new(mnemonic, network.node_urls, chain_id, contract_address)?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
-            NetworkType::Stardust { node_urls } => {
-                let currency = Currency::try_from(network.currency)?;
-                let wallet = WalletImplStardust::new(mnemonic, &path, currency, node_urls).await?;
+            ApiProtocol::Stardust {} => {
+                let currency = Currency::try_from(network.display_symbol)?;
+                let wallet = WalletImplStardust::new(mnemonic, &path, currency, network.node_urls).await?;
                 Box::new(wallet) as Box<dyn WalletUser + Sync + Send>
             }
         };
@@ -576,7 +575,7 @@ mod tests {
     use crate::{
         core::{Config, UserRepoT},
         kdbx::KdbxStorageError,
-        testing_utils::{example_network, BACKUP_PASSWORD},
+        testing_utils::{example_api_network, BACKUP_PASSWORD},
         types::{
             newtypes::{AccessToken, EncryptionPin, EncryptionSalt, PlainPassword},
             users::KycType,
@@ -702,7 +701,13 @@ mod tests {
             .expect("should succeed to change wallet password");
 
         let wallet = manager
-            .try_get(&mut config, &None, &mut repo, example_network(Currency::Iota), &pin)
+            .try_get(
+                &mut config,
+                &None,
+                &mut repo,
+                example_api_network(String::from("IOTA")),
+                &pin,
+            )
             .await
             .expect("should succeed to get wallet after password change");
 
@@ -724,7 +729,13 @@ mod tests {
 
         // get the wallet instance to make sure any files are created
         let _wallet = manager
-            .try_get(&mut config, &None, &mut repo, example_network(Currency::Iota), &pin)
+            .try_get(
+                &mut config,
+                &None,
+                &mut repo,
+                example_api_network(String::from("IOTA")),
+                &pin,
+            )
             .await
             .expect("should succeed to get wallet");
 
@@ -947,7 +958,7 @@ mod tests {
                     &mut config,
                     &access_token,
                     &mut repo,
-                    example_network(Currency::Iota),
+                    example_api_network(String::from("IOTA")),
                     &pin,
                 )
                 .await

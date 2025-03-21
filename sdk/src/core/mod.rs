@@ -30,11 +30,11 @@ pub(crate) mod core_testing_utils;
 use crate::backend::dlt::get_networks;
 use crate::build;
 use crate::error::Result;
-use crate::types::networks::Network;
 use crate::types::newtypes::{AccessToken, EncryptionPin};
 use crate::types::users::ActiveUser;
 use crate::user::UserRepo;
 use crate::wallet_manager::WalletBorrow;
+use api_types::api::networks::ApiNetwork;
 pub use config::Config;
 use log::debug;
 
@@ -51,9 +51,9 @@ pub struct Sdk {
     /// Contains the user repository for storing and loading different users.
     repo: Option<UserRepoT>,
     /// The currently active network
-    network: Option<Network>,
+    network: Option<ApiNetwork>,
     /// Available networks
-    networks: Vec<Network>,
+    networks: Vec<ApiNetwork>,
 }
 
 impl Drop for Sdk {
@@ -87,11 +87,11 @@ impl Sdk {
     }
 
     /// Set network
-    pub async fn set_network(&mut self, network_id: String) -> Result<()> {
-        debug!("Selected network_id: {:?}", network_id.clone());
+    pub async fn set_network(&mut self, network_key: String) -> Result<()> {
+        debug!("Selected network_key: {:?}", network_key.clone());
 
-        let Some(network) = self.networks.iter().find(|network| network.id == network_id) else {
-            return Err(crate::Error::NetworkUnavailable(network_id));
+        let Some(network) = self.networks.iter().find(|network| network.key == network_key) else {
+            return Err(crate::Error::NetworkUnavailable(network_key));
         };
 
         debug!("Selected Network: {:?}", network);
@@ -101,12 +101,12 @@ impl Sdk {
     }
 
     /// Set networks
-    pub fn set_networks(&mut self, networks: Vec<Network>) {
+    pub fn set_networks(&mut self, networks: Vec<ApiNetwork>) {
         self.networks = networks;
     }
 
     /// Get networks
-    pub async fn get_networks(&mut self) -> Result<Vec<Network>> {
+    pub async fn get_networks(&mut self) -> Result<Vec<ApiNetwork>> {
         if self.networks.is_empty() {
             if self.access_token.is_none() {
                 return Err(crate::Error::MissingNetwork);
@@ -125,16 +125,15 @@ impl Sdk {
     }
 
     /// Get supported networks from backend
-    async fn get_networks_backend(&self) -> Result<Vec<Network>> {
+    async fn get_networks_backend(&self) -> Result<Vec<ApiNetwork>> {
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
         let access_token = self
             .access_token
             .as_ref()
             .ok_or(crate::error::Error::MissingAccessToken)?;
         let backend_networks = get_networks(config, access_token).await?;
-        let networks: Vec<Network> = backend_networks.iter().map(|n| Network::from(n.clone())).collect();
 
-        Ok(networks)
+        Ok(backend_networks)
     }
 
     /// Tries to get the wallet of the currently active user. Or returns an error if no user is
@@ -173,8 +172,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
-    use crate::testing_utils::{example_network_id, example_networks};
-    use crate::types::networks::Network;
+    //use crate::types::networks::Network;
     use crate::{
         core::Sdk,
         error::Result,
@@ -184,6 +182,7 @@ mod tests {
         wallet_user::MockWalletUser,
     };
     use api_types::api::dlt::ApiGetNetworksResponse;
+    use api_types::api::networks::ApiNetwork;
     use rstest::rstest;
 
     use crate::{
@@ -211,10 +210,8 @@ mod tests {
                     username: USERNAME.into(),
                     wallet_manager: Box::new(mock_wallet_manager),
                 });
-                sdk.set_networks(example_networks());
-                sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
-                    .await
-                    .unwrap();
+                sdk.set_networks(example_api_networks());
+                sdk.set_network(String::from("IOTA")).await.unwrap();
             }
             Err(error) => {
                 handle_error_test_cases(error, &mut sdk, 0, 0).await;
@@ -243,11 +240,11 @@ mod tests {
     }
 
     #[rstest]
-    #[case::success(Ok(example_networks()))]
+    #[case::success(Ok(example_api_networks()))]
     #[case::missing_config(Err(crate::Error::MissingConfig))]
     #[case::unauthorized(Err(crate::Error::MissingAccessToken))]
     #[tokio::test]
-    async fn test_get_networks_backend(#[case] expected: Result<Vec<Network>>) {
+    async fn test_get_networks_backend(#[case] expected: Result<Vec<ApiNetwork>>) {
         // Arrange
         let (mut srv, config, _cleanup) = set_config().await;
         let mut sdk = Sdk::new(config).unwrap();

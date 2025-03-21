@@ -238,11 +238,11 @@ impl From<sdk::types::transactions::WalletTxInfo> for crate::ffi_functions::Wall
     }
 }
 
-impl From<sdk::types::networks::Network> for crate::ffi_functions::Network {
-    fn from(value: sdk::types::networks::Network) -> Self {
+impl From<sdk::types::networks::ApiNetwork> for crate::ffi_functions::Network {
+    fn from(value: sdk::types::networks::ApiNetwork) -> Self {
         crate::ffi_functions::Network {
-            id: value.id,
-            name: value.name,
+            key: value.key,
+            display_name: value.display_name,
         }
     }
 }

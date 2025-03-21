@@ -246,8 +246,8 @@ pub mod ffi {
     extern "Rust" {
         type Network;
 
-        fn id(&self) -> String;
-        fn name(&self) -> String;
+        fn key(&self) -> String;
+        fn display_name(&self) -> String;
     }
 
     // Export Rust functions with the above shared types for Swift.
@@ -262,7 +262,7 @@ pub mod ffi {
         #[swift_bridge(swift_name = "getNetworks")]
         async fn get_networks(&self) -> Result<Vec<Network>, String>;
         #[swift_bridge(swift_name = "setNetwork")]
-        async fn set_network(&self, network_id: String) -> Result<(), String>;
+        async fn set_network(&self, network_key: String) -> Result<(), String>;
         async fn destroy(&self) -> Result<(), String>;
         #[swift_bridge(swift_name = "createNewUser")]
         async fn create_new_user(&self, username: String) -> Result<(), String>;
@@ -435,7 +435,7 @@ pub mod ffi {
         #[swift_bridge(swift_name = "getPreferredNetwork")]
         async fn get_preferred_network(&self) -> Result<String, String>;
         #[swift_bridge(swift_name = "setPreferredNetwork")]
-        async fn set_preferred_network(&self, network_id: Option<String>) -> Result<(), String>;
+        async fn set_preferred_network(&self, network_key: Option<String>) -> Result<(), String>;
         #[swift_bridge(swift_name = "getBuildInfo")]
         fn get_build_info(&self) -> String;
     }

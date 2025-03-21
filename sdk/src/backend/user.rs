@@ -76,14 +76,14 @@ pub async fn delete_user_account(config: &Config, access_token: &AccessToken) ->
 pub async fn set_preferred_network(
     config: &Config,
     access_token: &AccessToken,
-    network_id: Option<String>,
+    network_key: Option<String>,
 ) -> Result<()> {
     let base_url = &config.backend_url;
     let url = format!("{base_url}/user/network");
     info!("Used url: {url:#?}");
     info!("Setting preferred network");
 
-    let body = SetPreferredNetworkRequest { network_id };
+    let body = SetPreferredNetworkRequest { network_key };
 
     let client = reqwest::Client::new();
     let response = client
@@ -144,7 +144,7 @@ pub async fn get_preferred_network(config: &Config, access_token: &AccessToken) 
     debug!("Response: {response:#?}");
 
     match response.status() {
-        StatusCode::OK => Ok(response.json::<GetPreferredNetworkResponse>().await?.network_id),
+        StatusCode::OK => Ok(response.json::<GetPreferredNetworkResponse>().await?.network_key),
         StatusCode::UNAUTHORIZED => Err(ApiError::MissingAccessToken),
         _ => {
             let status = response.status();
@@ -203,7 +203,7 @@ mod tests {
     }
 
     #[rstest::rstest]
-    #[case(200, Ok(Some(String::from("67a1f08edf55756bae21e7eb"))))]
+    #[case(200, Ok(Some(String::from("IOTA"))))]
     #[case(401, Err(ApiError::MissingAccessToken))]
     #[case(500, Err(ApiError::UnexpectedResponse {
         code: StatusCode::INTERNAL_SERVER_ERROR,
@@ -226,7 +226,7 @@ mod tests {
             .with_header("content-type", "application/json");
         // Conditionally add the response body only for the 200 status code
         if status_code == 200 {
-            mock_server = mock_server.with_body("{\"network_id\":\"67a1f08edf55756bae21e7eb\"}");
+            mock_server = mock_server.with_body("{\"network_key\":\"IOTA\"}");
         }
         let mock_server = mock_server.expect(1).create();
 
@@ -270,7 +270,7 @@ mod tests {
             .create();
 
         // Act
-        let response = set_preferred_network(&config, &TOKEN, Some(String::from("67a1f08edf55756bae21e7eb"))).await;
+        let response = set_preferred_network(&config, &TOKEN, Some(String::from("IOTA"))).await;
 
         // Assert
         match expected {

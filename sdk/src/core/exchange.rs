@@ -22,7 +22,7 @@ impl Sdk {
             .ok_or(crate::error::Error::MissingAccessToken)?;
         let config = self.config.as_ref().ok_or(crate::Error::MissingConfig)?;
         let network = self.network.clone().ok_or(crate::Error::MissingNetwork)?;
-        let currency = Currency::try_from(network.currency)?;
+        let currency = Currency::try_from(network.display_symbol)?;
         let exchange_rate = get_viviswap_exchange_rate(config, access_token, currency).await?;
         Ok(exchange_rate)
     }
@@ -31,7 +31,7 @@ impl Sdk {
 #[cfg(test)]
 mod tests {
     use crate::core::core_testing_utils::handle_error_test_cases;
-    use crate::testing_utils::{example_network_id, example_networks};
+    use crate::testing_utils::example_api_networks;
     use crate::{
         core::Sdk,
         error::Result,
@@ -68,10 +68,8 @@ mod tests {
                     wallet_manager: Box::new(MockWalletManager::new()),
                 });
                 sdk.access_token = Some(TOKEN.clone());
-                sdk.set_networks(example_networks());
-                sdk.set_network(example_network_id(crate::types::currencies::Currency::Iota))
-                    .await
-                    .unwrap();
+                sdk.set_networks(example_api_networks());
+                sdk.set_network(String::from("IOTA")).await.unwrap();
 
                 let body = serde_json::to_string(&example_exchange_rate_response()).unwrap();
                 mock_server = Some(

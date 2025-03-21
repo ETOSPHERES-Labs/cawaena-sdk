@@ -44,7 +44,7 @@ public class SdkUnitTest {
     private static final String TOKEN_HEADER_VALUE = String.format("Bearer %s", token);
     private static final String CASE_ID = "123456789ABC";
     private static final String PURCHASE_ID = "3be5b0c8-e292-4957-bc70-923e13d01423";
-    private static final String IOTA_NETWORK_ID = "67a1f08edf55756bae21e7eb";
+    private static final String IOTA_network_key = "IOTA";
 
     private double initBalance;
     private static byte[] backupBytes;
@@ -115,7 +115,7 @@ public class SdkUnitTest {
 
     @Test
     public void BBshouldGetNetworks() throws Exception {
-        String body = "{\"networks\":[{\"id\":\"67a1f08edf55756bae21e7eb\",\"name\":\"IOTA\",\"currency\":\"IOTA\",\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"enabled\":true,\"network_identifier\":\"iota_mainnet\",\"network_type\":{\"Stardust\":{\"node_urls\":[\"https://api.testnet.iotaledger.net\"]}}},{\"id\":\"67a2080ddf55756bae21e7f5\",\"name\":\"Eth Sepolia\",\"currency\":\"ETH\",\"block_explorer_url\":\"https://sepolia.explorer.mode.network\",\"enabled\":true,\"network_identifier\":\"ethereum_mainnet\",\"network_type\":{\"Evm\":{\"node_urls\":[\"https://sepolia.mode.network\"],\"chain_id\":31337}}}]}";
+        String body = "{\"networks\":[{\"key\":\"IOTA\",\"display_name\":\"IOTA\",\"display_symbol\":\"IOTA\",\"coin_type\":4218,\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://api.testnet.iotaledger.net\"],\"protocol\":{\"Stardust\":{}}},{\"key\":\"ETH\",\"display_name\":\"Eth Sepolia\",\"display_symbol\":\"ETH\",\"coin_type\":60,\"block_explorer_url\":\"https://sepolia.explorer.mode.network\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://sepolia.mode.network\"],\"protocol\":{\"Evm\":{\"chain_id\":31337}}}]}";
 
         wireMockRule.stubFor(get(urlPathEqualTo("/api/config/networks"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
@@ -130,8 +130,8 @@ public class SdkUnitTest {
 
     @Test
     public void BCshouldSetNetwork() throws Exception {
-        sdk.setNetwork(IOTA_NETWORK_ID);
-        logger.debug(String.format("Set network %s", IOTA_NETWORK_ID));
+        sdk.setNetwork(IOTA_network_key);
+        logger.debug(String.format("Set network %s", IOTA_network_key));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class SdkUnitTest {
         wireMockRule.stubFor(put(urlPathEqualTo("/api/user/address"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
                 .withHeader("X-APP-NAME", equalTo(AUTH_PROVIDER))
-                .withQueryParam("network_id", equalTo(IOTA_NETWORK_ID))
+                .withQueryParam("network_key", equalTo(IOTA_network_key))
                 .withRequestBody(equalToJson(body))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -358,7 +358,7 @@ public class SdkUnitTest {
         double amount = 50000.5;
         final String reqBody = "{" + System.lineSeparator()
                 + String.format("\"amount\":\"%d\",", amount) + System.lineSeparator()
-                + String.format("\"network_id\":\"%s\",", IOTA_NETWORK_ID) + System.lineSeparator()
+                + String.format("\"network_key\":\"%s\",", IOTA_network_key) + System.lineSeparator()
                 + String.format("\"receiver\":\"%s\"", receiverAddr) + System.lineSeparator()
                 + "}";
         final String resBody = "{" + String.format("\"index\":\"%s\"",
@@ -385,7 +385,8 @@ public class SdkUnitTest {
         String mainAddress = "rms1qz8jdgvrerzv35s43pkdkawdr9x4t6xfnhcrt5tlgsyltgpwyx9ks4c5kct";
         double amount = 5.5;
         String status = "Pending";
-        String network = "{\"id\":\"67a1f08edf55756bae21e7eb\",\"name\":\"IOTA\",\"currency\":\"IOTA\",\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"enabled\":true,\"network_identifier\":\"iota_mainnet\",\"network_type\":{\"Stardust\":{\"node_urls\":[\"https://api.testnet.iotaledger.net\"]}}}";
+        String network = "{\"key\":\"IOTA\",\"display_name\":\"IOTA\",\"display_symbol\":\"IOTA\",\"coin_type\":4218,\"block_explorer_url\":\"https://explorer.shimmer.network/testnet/\",\"can_do_purchases\":true,\"decimals\":16,\"node_urls\":[\"https://api.testnet.iotaledger.net\"],\"protocol\":{\"Stardust\":{}}}";
+
 
         final String body = "{" + System.lineSeparator()
                 + String.format("\"system_address\":\"%s\",", mainAddress) +
@@ -411,7 +412,7 @@ public class SdkUnitTest {
         TxDetailsResponse details = mapper.readValue(json, TxDetailsResponse.class);
 
         assertEquals(details.systemAddress, mainAddress);
-        assertEquals(details.network_id, IOTA_NETWORK_ID);
+        assertEquals(details.network_key, IOTA_network_key);
         assertEquals(details.amount, amount, 0.0001);
         assertEquals(details.status, status);
     }
@@ -663,7 +664,7 @@ public class SdkUnitTest {
     public void ZHshouldGetPreferredNetwork() throws Exception {
 
         String body = """
-                    {"network_id": ""}
+                    {"network_key": ""}
                 """;
         wireMockRule.stubFor(get(urlPathEqualTo("/api/user/network"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
@@ -683,7 +684,7 @@ public class SdkUnitTest {
                 .withHeader("X-APP-NAME", equalTo(AUTH_PROVIDER))
                 .willReturn(aResponse()
                         .withStatus(202)));
-        sdk.setPreferredNetwork(IOTA_NETWORK_ID);
+        sdk.setPreferredNetwork(IOTA_network_key);
 
     }
 
@@ -691,7 +692,7 @@ public class SdkUnitTest {
     public void ZJshouldGetPreferredNetwork() throws Exception {
 
         String body = """
-                    {"network_id": "67a1f08edf55756bae21e7eb"}
+                    {"network_key": "IOTA"}
                 """;
         wireMockRule.stubFor(get(urlPathEqualTo("/api/user/network"))
                 .withHeader("Authorization", equalTo(TOKEN_HEADER_VALUE))
@@ -701,7 +702,7 @@ public class SdkUnitTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
         String network = sdk.getPreferredNetwork();
-        assertEquals(network, IOTA_NETWORK_ID);
+        assertEquals(network, IOTA_network_key);
     }
 
 }
