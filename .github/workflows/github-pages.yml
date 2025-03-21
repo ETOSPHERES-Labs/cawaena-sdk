@@ -28,12 +28,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: ${{ env.GIT_DEPTH }}
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Setup Python environment
         shell: bash
+        working-directory: docs
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
@@ -44,29 +47,29 @@ jobs:
 
       - name: Install project dependencies with pnpm
         shell: bash
+        working-directory: docs
         run: pnpm install
-        working-directory: sdk
 
       - name: Build wasm-bindings
         shell: bash
-        run: wasm-pack build --dev --scope eto
         working-directory: sdk/bindings/wasm
+        run: wasm-pack build --dev --scope eto
 
       - name: Build Rust docs
         shell: bash
+        working-directory: docs
         run: |
           cargo doc --no-deps --all-features --lib
           mkdir -p ./docs/rust-docs/doc/
           mv ../target/doc/* ./docs/rust-docs/doc/
-        working-directory: sdk
 
       - name: Build Java docs
         shell: bash
+        working-directory: sdk/bindings/android
         run: |
           cargo build
           make build_javadoc
-          mv javadoc ../../docs/
-        working-directory: sdk/bindings/android
+          mv javadoc ../../../docs/docs/
 
       - name: Mark repository as safe for Git
         shell: bash
@@ -74,8 +77,8 @@ jobs:
 
       - name: Build the documentation
         shell: bash
+        working-directory: docs
         run: mkdocs build
-        working-directory: sdk
 
       - name: Deploy to GitHub Pages
         if: env.DEPLOY_ONLY == 'true'

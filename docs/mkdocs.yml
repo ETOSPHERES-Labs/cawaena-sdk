@@ -11,10 +11,10 @@ plugins:
       enable_creation_date: true
   - search
   - typedoc:
-      source: "./bindings/wasm/pkg/etopay_sdk_wasm.d.ts"
+      source: "../sdk/bindings/wasm/pkg/etopay_sdk_wasm.d.ts"
       output_dir: "jstsdocs"
-      tsconfig: "./bindings/wasm/tsconfig.json"
-      options: "./bindings/wasm/typedoc.json"
+      tsconfig: "../sdk/bindings/wasm/tsconfig.json"
+      options: "../sdk/bindings/wasm/typedoc.json"
       name: "ETOPay Docs"
       title_link: "/SDK%20Reference/SDK%20API%20Reference/"
 
