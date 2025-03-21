@@ -11,7 +11,7 @@ on:
     paths:
       - "sdk/docs/**/*"
       - "sdk/examples/**/*"
-      - "sdk/bindings/**/*"
+      - "bindings/**/*"
 
 jobs:
   public-wiki:
@@ -50,7 +50,7 @@ jobs:
       - name: Build wasm-bindings
         shell: bash
         run: wasm-pack build --dev --scope eto
-        working-directory: sdk/bindings/wasm
+        working-directory: bindings/wasm
 
       - name: Build Rust docs
         shell: bash
@@ -66,7 +66,7 @@ jobs:
           cargo build
           make build_javadoc
           mv javadoc ../../docs/
-        working-directory: sdk/bindings/android
+        working-directory: bindings/android
 
       - name: Mark repository as safe for Git
         shell: bash

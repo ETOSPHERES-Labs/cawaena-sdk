@@ -51,13 +51,13 @@ jobs:
 
       - name: Build swift sdk
         run: |
-          cd sdk/bindings/swift
+          cd bindings/swift
           make xcframework
 
       - name: Compress xcframework
         id: compress
         run: |
-          cd sdk/bindings/swift/ETOPaySdk
+          cd bindings/swift/ETOPaySdk
 
           # incorporate the short commit hash into the filename (to help with potential caching issues)
           SHORT_SHA=$(git rev-parse --short ${{ github.sha }})
@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: etopay-sdk-swift
-          path: sdk/bindings/swift/ETOPaySdk/
+          path: bindings/swift/ETOPaySdk/
           if-no-files-found: error
           retention-days: 7
           overwrite: true

@@ -38,24 +38,24 @@ jobs:
 
       - name: Build wasm sdk
         run: |
-          cd sdk/bindings/wasm
+          cd bindings/wasm
           wasm-pack build --release --scope etopay --target nodejs --out-dir out/web/pkg
 
       - name: Publish to npm
         run: |
-          cd sdk/bindings/wasm
+          cd bindings/wasm
           wasm-pack publish out/web --access public
 
       - name: Pack artifact
         run: |
-          cd sdk/bindings/wasm
+          cd bindings/wasm
           wasm-pack pack out/web
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: etopay-sdk-wasm
-          path: sdk/bindings/wasm/out/**/*.tgz
+          path: bindings/wasm/out/**/*.tgz
           if-no-files-found: error
           retention-days: 7
           overwrite: true
